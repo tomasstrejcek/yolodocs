@@ -129,7 +129,8 @@ export async function build(config: YolodocsConfig): Promise<void> {
   execSync("npm install", { cwd: buildDir, stdio: "pipe" });
 
   console.log("        Running SolidStart build...");
-  execSync("npx vinxi build", { cwd: buildDir, stdio: "pipe" });
+  const vinxiBin = path.join(buildDir, "node_modules", ".bin", "vinxi");
+  execSync(`"${vinxiBin}" build`, { cwd: buildDir, stdio: "pipe" });
 
   // Copy built output - check multiple possible output locations
   const possibleOutputs = [
@@ -172,8 +173,13 @@ export async function build(config: YolodocsConfig): Promise<void> {
   // Step 6: Post-build - Pagefind indexing
   console.log("  [5/5] Indexing for search...");
   try {
+    // Try local pagefind first, fall back to npx
+    const localPagefind = path.join(buildDir, "node_modules", ".bin", "pagefind");
+    const pagefindCmd = fs.existsSync(localPagefind)
+      ? `"${localPagefind}"`
+      : "npx pagefind";
     execSync(
-      `npx pagefind --site "${outputDir}" --output-subdir _pagefind`,
+      `${pagefindCmd} --site "${outputDir}" --output-subdir _pagefind`,
       { cwd: process.cwd(), stdio: "pipe" }
     );
     console.log("        Search index generated");
@@ -386,7 +392,8 @@ async function runDevServer(buildDir: string): Promise<void> {
   execSync("npm install", { cwd: buildDir, stdio: "pipe" });
 
   console.log("\n  Starting dev server...\n");
-  const child = spawn("npx", ["vinxi", "dev"], {
+  const vinxiBin = path.join(buildDir, "node_modules", ".bin", "vinxi");
+  const child = spawn(vinxiBin, ["dev"], {
     cwd: buildDir,
     stdio: "inherit",
     shell: true,
