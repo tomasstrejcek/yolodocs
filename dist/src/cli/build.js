@@ -81,17 +81,13 @@ export async function build(config) {
     console.log("        Installing dependencies...");
     execSync("npm install", { cwd: buildDir, stdio: "pipe" });
     console.log("        Running SolidStart build...");
+    let buildOutput;
     try {
-        execSync("npm run build", { cwd: buildDir, stdio: "pipe" });
+        buildOutput = execSync("npm run build 2>&1", { cwd: buildDir, encoding: "utf-8" });
     }
     catch (err) {
-        const stderr = err.stderr?.toString() || "";
-        const stdout = err.stdout?.toString() || "";
         console.error("\n        SolidStart build failed:");
-        if (stderr)
-            console.error(stderr);
-        if (stdout)
-            console.error(stdout);
+        console.error(err.stdout || err.stderr || err.message);
         throw new Error("SolidStart build failed");
     }
     // Copy built output
@@ -101,15 +97,9 @@ export async function build(config) {
         console.log("        Copied output from: .output/public");
     }
     else {
-        // Diagnostics
-        const outputBase = path.join(buildDir, ".output");
-        if (fs.existsSync(outputBase)) {
-            const contents = fs.readdirSync(outputBase);
-            console.error(`        .output/ contains: ${contents.join(", ")}`);
-        }
-        else {
-            console.error("        .output/ directory does not exist");
-        }
+        console.error("\n        Build produced no .output/public directory.");
+        console.error("        Build output:\n");
+        console.error(buildOutput);
         throw new Error("Build failed: .output/public not found. Run with YOLODOCS_DEBUG=1 to inspect the build directory.");
     }
     // Step 6: Post-build - Pagefind indexing
