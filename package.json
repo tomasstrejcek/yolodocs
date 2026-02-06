@@ -1,0 +1,41 @@
+{
+  "name": "yolodocs",
+  "version": "0.1.0",
+  "description": "Generate beautiful, searchable, static documentation sites from GraphQL schemas",
+  "type": "module",
+  "bin": {
+    "yolodocs": "./dist/bin/yolodocs.js"
+  },
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "graphql",
+    "documentation",
+    "static-site",
+    "api-docs"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^12.1.0",
+    "graphql": "^16.9.0",
+    "js-yaml": "^4.1.0",
+    "marked": "^14.0.0",
+    "gray-matter": "^4.0.3",
+    "shiki": "^1.22.0",
+    "zod": "^3.23.0",
+    "glob": "^11.0.0",
+    "fs-extra": "^11.2.0"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.0.0",
+    "@types/fs-extra": "^11.0.4",
+    "typescript": "^5.6.0"
+  }
+}

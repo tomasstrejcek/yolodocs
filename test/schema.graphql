@@ -1,0 +1,2366 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+directive @cacheControl(maxAge: [Int!], scope: [String!]) on FIELD_DEFINITION | OBJECT
+
+directive @throws(errors: [String!]) on FIELD_DEFINITION | OBJECT
+
+type Account {
+  channelId: String!
+  expireSoon: DateTime
+  goal: Goal!
+  handle: String!
+  id: UUID!
+  imageUrl: String!
+  name: String!
+  role: AccountRole @deprecated(reason: "dont use, this is poorly constructed")
+  socialNetwork: SocialNetwork!
+  status: AccountStatus!
+}
+
+type AccountDetail {
+  availableFilters(locale: Locale = en): [PostFilters!]!
+  channelId: String!
+  estimatedPayment(locale: Locale = en): EstimatedPayment
+  expireSoon: DateTime
+  goal: Goal!
+  handle: String!
+  id: UUID!
+  imageUrl: String!
+  insight(locale: Locale = en): AccountInsight
+  metrics2(locale: Locale = en): [AccountMetric!]
+  name: String!
+  role: AccountRole @deprecated(reason: "dont use, this is poorly constructed")
+  socialNetwork: SocialNetwork!
+  status: AccountStatus!
+}
+
+type AccountDetailResponse {
+  data: AccountDetail!
+}
+
+type AccountInsight {
+  dislikedAt: DateTime
+  id: UUID!
+  insightText: String!
+  lang: Locale!
+  likedAt: DateTime
+}
+
+type AccountLink {
+  accountId: UUID!
+  handle: String!
+  name: String!
+}
+
+type AccountList {
+  channelId: String!
+  expireSoon: DateTime
+  goal: Goal!
+  handle: String!
+  id: UUID!
+  imageUrl: String!
+  metrics2(locale: Locale = en): [AccountMetric!]
+  name: String!
+  role: AccountRole @deprecated(reason: "dont use, this is poorly constructed")
+  socialNetwork: SocialNetwork!
+  status: AccountStatus!
+}
+
+type AccountMetric {
+  id: UUID!
+  name: String!
+  socialNetworkId: SocialNetwork!
+  title(locale: Locale): String!
+  trend: MetricTrendType!
+  value: String!
+  valueType: String!
+}
+
+enum AccountRole {
+  manager
+  owner
+  viewer
+}
+
+type AccountSelectorResponse {
+  accounts: [NetworkAccount!]!
+  tokenInfo: TokenInfo!
+}
+
+enum AccountStatus {
+  """
+  didnt post anything for more than xx days - we will stop processing this account
+  """
+  dead
+  """deactivated manually - various reasons"""
+  disabled
+  """needs to be investigated"""
+  error
+  """just added"""
+  new
+  """everything is ok"""
+  ok
+  """first extraction processed and sent to bq"""
+  processing
+}
+
+type AccountWithPostsListData {
+  account: AccountList!
+  posts: [Post!]!
+}
+
+type AccountsWithPostsListResponse {
+  banner: Banner
+  data: [AccountWithPostsListData!]!
+}
+
+input AddAccountInput {
+  externalId: String!
+  goal: Goal @deprecated(reason: "we are setting default goal which user can later change")
+  network: SocialNetwork!
+  token: String!
+  tokenExpiresAt: DateTime @deprecated(reason: "backend gets its own expiration")
+}
+
+type AuthField {
+  """Authorization required"""
+  id: String!
+}
+
+type AuthInfo {
+  expiresAt: DateTime!
+  token: String!
+}
+
+type AuthResponse {
+  businessId: String
+  identity: Identity!
+  """session token, for now you can keep using jwt from firebase"""
+  token: String!
+}
+
+type Banner {
+  description: String
+  title: String
+}
+
+type Brand {
+  checklist(locale: Locale = en): [BrandCollaborationRequestCheck!]!
+  country: [CountryCodeType!]!
+  creatorCount: BrandCreatorCount!
+  creatorCountLocalized(locale: Locale = en): String!
+  creatorType: BrandCreatorType!
+  financing: [Financing!]!
+  financingLocalized(locale: Locale = en): [String!]!
+  freeToApply: Boolean!
+  id: UUID!
+  """
+  industry name is backend name, kept in sync with discovery, product wise called as segment
+  """
+  industry: [BrandIndustry!]!
+  industryLocalized(locale: Locale = en): [String!]!
+  language: [Locale!]!
+  limits: BrandLimits
+  logoUrl: String!
+  name: String!
+  network: [SocialNetworkContent!]!
+  note: String! @deprecated(reason: "use noteLocalized")
+  noteLocalized(locale: Locale = en): String!
+  openUntil: DateTime
+  partnership: Partnership!
+  partnershipLocalized(locale: Locale = en): String!
+  requested: Boolean! @deprecated(reason: "use status field to get explicit collaboration request status")
+  status: BrandCollab!
+}
+
+type BrandCollab {
+  """nullable for open status, also requestedAt"""
+  createdAt: DateTime
+  description(locale: Locale = en): String!
+  id: UUID!
+  retryAt: DateTime
+  status: BrandCollabStatus!
+  updatedAt: DateTime!
+}
+
+type BrandCollabConversation implements Conversation {
+  conversationInfo: ConversationInfo!
+  createdAt: DateTime!
+  id: UUID!
+  lastMessage: Message
+  members: [ConversationMember!]!
+  updatedAt: DateTime!
+}
+
+type BrandCollabLink {
+  brandId: UUID!
+  type: String!
+}
+
+enum BrandCollabStatus {
+  """= open = lets request again"""
+  again
+  """= awaiting admin approval"""
+  awaiting
+  """= canceled, can request again in xx days"""
+  canceled
+  """= applications closed"""
+  closed
+  """= so close"""
+  fail
+  """= maybe later"""
+  later
+  """= lets request"""
+  open
+  """= carl validates"""
+  prescreening
+  """= rejected by admin"""
+  rejected
+  """= brand review"""
+  review
+  """= coming soon"""
+  soon
+  """= you are in"""
+  success
+  """= carl validates"""
+  validating
+}
+
+type BrandCollaborationRequestCheck {
+  checkPassed: Boolean!
+  description: String
+  key: CollabRequestCheckKey!
+  missing: Boolean!
+  name: String!
+}
+
+enum BrandCreatorCount {
+  ElevenToTwenty
+  OneToFive
+  SixToTen
+  TwentyOnePlus
+}
+
+enum BrandCreatorType {
+  both
+  influencer
+  ugc
+}
+
+type BrandFilter {
+  country: [CountryOption!]!
+  creatorCount: [CreatorCountOption!]!
+  financing: [FinancingOption!]!
+  industry: [IndustryOption!]!
+  partnership: [PartnershipOption!]!
+  status: [StatusOption!]!
+}
+
+enum BrandIndustry {
+  AlcoholicBeverages
+  ArtAndDesign
+  Astrology
+  Beauty
+  Betting
+  Business
+  Comedy
+  Culture
+  DigitalMedia
+  ECommerce
+  Economics
+  Education
+  Fashion
+  Finance
+  Fitness
+  Gaming
+  Garden
+  Gastronomy
+  HealthyLifestyle
+  History
+  Hobby
+  Home
+  Influencership
+  Literature
+  LuxuryGoods
+  MentalHealth
+  Motorism
+  MoviesAndTVShows
+  Music
+  NGO
+  News
+  NonAlcoholicBeverages
+  PersonalDevelopment
+  Pets
+  Photography
+  Politics
+  RealEstate
+  Relationships
+  ShowBusiness
+  SocialMedia
+  Society
+  Sport
+  Sustainability
+  Technology
+  ToysChildrenParenting
+  Traveling
+  Wedding
+}
+
+type BrandLimits {
+  subscribers: BrandSubscribersLimits
+}
+
+enum BrandList {
+  """all brands"""
+  all
+  """everything without newest"""
+  current
+  """only newest brands or prioritized (order > 0) brands"""
+  newest
+}
+
+input BrandListFilterInput {
+  country: [CountryCodeType!] = []
+  creatorCount: [BrandCreatorCount!] = []
+  financing: [Financing!] = []
+  freeToApply: Boolean
+  industry: [BrandIndustry!] = []
+  onlyRequested: Boolean
+  partnership: [Partnership!] = []
+  search: String
+  """awaiting status is only for admins"""
+  status: [BrandCollabStatus!] = []
+}
+
+type BrandSubscribersLimits {
+  facebook: Int
+  instagram: Int
+  tiktok: Int
+  youtube: Int
+}
+
+type Business {
+  id: UUID!
+  logoUrl: String!
+  name: String!
+}
+
+type BusinessCampaign {
+  campaign: Campaign!
+  id: UUID!
+}
+
+type BusinessCampaignInvite implements Invite {
+  business: Business!
+  businessCampaign: BusinessCampaign!
+  createdAt: DateTime!
+  id: UUID!
+  status: InviteStatus!
+}
+
+type BusinessInvite implements Invite {
+  business: Business!
+  createdAt: DateTime!
+  id: UUID!
+  status: InviteStatus!
+}
+
+type CMSContentCategory {
+  createdAt: DateTime!
+  """Localized description"""
+  description: LocalizedTextObject
+  displayOrder: Int!
+  enabled: Boolean!
+  id: UUID!
+  """Get localized description for a specific locale"""
+  localizedDescription(locale: Locale = en): String
+  """Get localized name for a specific locale"""
+  localizedName(locale: Locale = en): String
+  """Localized name with locale keys: {en: "...", cs: "..."}"""
+  name: LocalizedTextObject!
+  slug: String!
+  updatedAt: DateTime!
+}
+
+type Campaign {
+  id: UUID!
+  name: String!
+}
+
+type CarlSubscription {
+  createdAt: DateTime!
+  id: UUID!
+  lastRenewedAt: DateTime
+  """returns usage limits for users subscription plan"""
+  limits: UserSubscriptionPlanLimits!
+  """returns plan for subscription, even plan that is not public"""
+  plan2: UserSubscriptionPlan!
+  renewEnabled: Boolean!
+  validFrom: DateTime!
+  validTo: DateTime
+}
+
+enum ClientEventType {
+  """user clicks on a hp card button"""
+  content_click
+  """user clicks the kantar tab"""
+  discovery_kantar
+  """user registers for webinar (submits email)"""
+  discovery_registration
+  """user clicks the webinar tab"""
+  discovery_webinar
+  """user swipes away a card on hp"""
+  post_swipe
+  """user changes their subscription"""
+  subscription_change
+  """user clicks on a trend"""
+  trend_click
+}
+
+enum CollabRequestCheckKey {
+  accounts
+  markets
+  subscribers
+}
+
+type CollaborationReport implements Report {
+  id: UUID!
+  type: String!
+  url: String!
+}
+
+type CollaborationTag {
+  color: String! @deprecated(reason: "use color2")
+  color2: Color
+  description: String
+  id: UUID!
+  name: String!
+  type: CollaborationTagType!
+}
+
+type CollaborationTagList {
+  color: String! @deprecated(reason: "use color2")
+  color2: Color
+  description: String
+  id: UUID!
+  name: String!
+  postCount: Int!
+  postsPreview: [PostPreview!]!
+  type: CollaborationTagType!
+}
+
+enum CollaborationTagType {
+  campaign
+  user
+}
+
+enum Color {
+  CharcoalNoir
+  CottonCandyPink
+  GoldenGlow
+  LavenderMist
+  MintyFresh
+  PeachCream
+  SalmonBlush
+  SkyBlue
+  SnowWhite
+}
+
+"""will be deprecated in favor of ContentType"""
+enum ContentCategory {
+  about_the_app
+  carl_cares
+  carl_says_hi
+  carls_crazy_ideas
+  channel_news
+  cms
+  discovery
+  golden_rules
+  hot_news_from_socials
+  international_days
+  most_liked_comment
+  motivational_nook
+  notification
+  premium
+  tip_for_you
+}
+
+type ContentCategoryLocalized {
+  name: String!
+}
+
+type ContentEvent {
+  refType: String!
+}
+
+type ContentInteraction {
+  createdAt: DateTime!
+  id: UUID!
+  type: ContentInteractionType!
+}
+
+enum ContentInteractionType {
+  click
+  dislike
+  hide
+  like
+  view
+}
+
+type ContentTag {
+  """Hex color code, e.g. #FF5733"""
+  color: String
+  createdAt: DateTime!
+  id: UUID!
+  """Get localized name for a specific locale"""
+  localizedName(locale: Locale = en): String
+  """Localized tag name"""
+  name: LocalizedTextObject!
+  slug: String!
+  updatedAt: DateTime!
+}
+
+"""deprecated in favor of localizedContent"""
+type ContentText {
+  cs: ContentTextObject!
+  de: ContentTextObject!
+  en: ContentTextObject!
+  es: ContentTextObject!
+  fr: ContentTextObject!
+  it: ContentTextObject!
+  pl: ContentTextObject!
+  ptBr: ContentTextObject!
+}
+
+type ContentTextObject {
+  author: String @deprecated(reason: "moving to .description")
+  description: String
+  emoji: String @deprecated(reason: "moving to .text")
+  markdown: String @deprecated(reason: "use .text, will always be markdown in the future")
+  """not yet defined, tells which mascot to render"""
+  mascot: Mascot
+  numbers: String @deprecated(reason: "use .text, will always be markdown in the future")
+  """always treat as markdown"""
+  text: String!
+}
+
+enum ContentType {
+  about_the_app
+  carl_cares
+  carl_says_hi
+  carls_crazy_ideas
+  channel_news
+  cms
+  discovery
+  golden_rules
+  hot_news_from_socials
+  international_days
+  most_liked_comment
+  motivational_nook
+  notification
+  premium
+  tip_for_you
+}
+
+interface Conversation {
+  conversationInfo: ConversationInfo!
+  createdAt: DateTime!
+  id: UUID!
+  lastMessage: Message
+  members: [ConversationMember!]!
+  updatedAt: DateTime!
+}
+
+type ConversationInfo {
+  avatarURL: String
+  name: String!
+}
+
+type ConversationMember {
+  createdAt: DateTime!
+  id: UUID!
+  updatedAt: DateTime!
+  user: MessageSender!
+}
+
+type Counter implements ICounter {
+  """null means unlimited"""
+  max: Int
+}
+
+"""we really should rename this to CountryCode, two char country code"""
+enum CountryCodeType {
+  """Andorra"""
+  AD
+  """United Arab Emirates"""
+  AE
+  """Afghanistan"""
+  AF
+  """Antigua and Barbuda"""
+  AG
+  """Anguilla"""
+  AI
+  """Albania"""
+  AL
+  """Armenia"""
+  AM
+  """Angola"""
+  AO
+  """Antarctica"""
+  AQ
+  """Argentina"""
+  AR
+  """American Samoa"""
+  AS
+  """Austria"""
+  AT
+  """Australia"""
+  AU
+  """Aruba"""
+  AW
+  """Åland Islands"""
+  AX
+  """Azerbaijan"""
+  AZ
+  """Bosnia and Herzegovina"""
+  BA
+  """Barbados"""
+  BB
+  """Bangladesh"""
+  BD
+  """Belgium"""
+  BE
+  """Burkina Faso"""
+  BF
+  """Bulgaria"""
+  BG
+  """Bahrain"""
+  BH
+  """Burundi"""
+  BI
+  """Benin"""
+  BJ
+  """Saint Barthélemy"""
+  BL
+  """Bermuda"""
+  BM
+  """Brunei Darussalam"""
+  BN
+  """Bolivia"""
+  BO
+  """Bonaire, Sint Eustatius and Saba"""
+  BQ
+  """Brazil"""
+  BR
+  """Bahamas"""
+  BS
+  """Bhutan"""
+  BT
+  """Bouvet Island"""
+  BV
+  """Botswana"""
+  BW
+  """Belarus"""
+  BY
+  """Belize"""
+  BZ
+  """Canada"""
+  CA
+  """Cocos (Keeling) Islands"""
+  CC
+  """Congo"""
+  CD
+  """Central African Republic"""
+  CF
+  """Congo"""
+  CG
+  """Switzerland"""
+  CH
+  """Côte d'Ivoire"""
+  CI
+  """Cook Islands"""
+  CK
+  """Chile"""
+  CL
+  """Cameroon"""
+  CM
+  """China"""
+  CN
+  """Colombia"""
+  CO
+  """Costa Rica"""
+  CR
+  """Cuba"""
+  CU
+  """Cabo Verde"""
+  CV
+  """Curaçao"""
+  CW
+  """Christmas Island"""
+  CX
+  """Cyprus"""
+  CY
+  """Czechia"""
+  CZ
+  """Germany"""
+  DE
+  """Djibouti"""
+  DJ
+  """Denmark"""
+  DK
+  """Dominica"""
+  DM
+  """Dominican Republic"""
+  DO
+  """Algeria"""
+  DZ
+  """Ecuador"""
+  EC
+  """Estonia"""
+  EE
+  """Egypt"""
+  EG
+  """Western Sahara"""
+  EH
+  """Eritrea"""
+  ER
+  """Spain"""
+  ES
+  """Ethiopia"""
+  ET
+  """Finland"""
+  FI
+  """Fiji"""
+  FJ
+  """Falkland Islands"""
+  FK
+  """Micronesia"""
+  FM
+  """Faroe Islands"""
+  FO
+  """France"""
+  FR
+  """Gabon"""
+  GA
+  """Great Britain"""
+  GB
+  """Grenada"""
+  GD
+  """Georgia"""
+  GE
+  """French Guiana"""
+  GF
+  """Guernsey"""
+  GG
+  """Ghana"""
+  GH
+  """Gibraltar"""
+  GI
+  """Greenland"""
+  GL
+  """Gambia"""
+  GM
+  """Guinea"""
+  GN
+  """Guadeloupe"""
+  GP
+  """Equatorial Guinea"""
+  GQ
+  """Greece"""
+  GR
+  """South Georgia and the South Sandwich Islands"""
+  GS
+  """Guatemala"""
+  GT
+  """Guam"""
+  GU
+  """Guinea-Bissau"""
+  GW
+  """Global"""
+  GX
+  """Guyana"""
+  GY
+  """Hong Kong"""
+  HK
+  """Heard Island and McDonald Islands"""
+  HM
+  """Honduras"""
+  HN
+  """Croatia"""
+  HR
+  """Haiti"""
+  HT
+  """Hungary"""
+  HU
+  """Indonesia"""
+  ID
+  """Ireland"""
+  IE
+  """Israel"""
+  IL
+  """Isle of Man"""
+  IM
+  """India"""
+  IN
+  """British Indian Ocean Territory"""
+  IO
+  """Iraq"""
+  IQ
+  """Iran"""
+  IR
+  """Iceland"""
+  IS
+  """Italy"""
+  IT
+  """Jersey"""
+  JE
+  """Jamaica"""
+  JM
+  """Jordan"""
+  JO
+  """Japan"""
+  JP
+  """Kenya"""
+  KE
+  """Kyrgyzstan"""
+  KG
+  """Cambodia"""
+  KH
+  """Kiribati"""
+  KI
+  """Comoros"""
+  KM
+  """Saint Kitts and Nevis"""
+  KN
+  """North Korea"""
+  KP
+  """Korea"""
+  KR
+  """Kuwait"""
+  KW
+  """Cayman Islands"""
+  KY
+  """Kazakhstan"""
+  KZ
+  """Laos"""
+  LA
+  """Lebanon"""
+  LB
+  """Saint Lucia"""
+  LC
+  """Liechtenstein"""
+  LI
+  """Sri Lanka"""
+  LK
+  """Liberia"""
+  LR
+  """Lesotho"""
+  LS
+  """Lithuania"""
+  LT
+  """Luxembourg"""
+  LU
+  """Latvia"""
+  LV
+  """Libya"""
+  LY
+  """Morocco"""
+  MA
+  """Monaco"""
+  MC
+  """Moldova"""
+  MD
+  """Montenegro"""
+  ME
+  """Saint Martin (French part)"""
+  MF
+  """Madagascar"""
+  MG
+  """Marshall Islands"""
+  MH
+  """North Macedonia"""
+  MK
+  """Mali"""
+  ML
+  """Myanmar"""
+  MM
+  """Mongolia"""
+  MN
+  """Macao"""
+  MO
+  """Northern Mariana Islands"""
+  MP
+  """Martinique"""
+  MQ
+  """Mauritania"""
+  MR
+  """Montserrat"""
+  MS
+  """Malta"""
+  MT
+  """Mauritius"""
+  MU
+  """Maldives"""
+  MV
+  """Malawi"""
+  MW
+  """Mexico"""
+  MX
+  """Malaysia"""
+  MY
+  """Mozambique"""
+  MZ
+  """Namibia"""
+  NA
+  """New Caledonia"""
+  NC
+  """Niger"""
+  NE
+  """Norfolk Island"""
+  NF
+  """Nigeria"""
+  NG
+  """Nicaragua"""
+  NI
+  """Netherlands"""
+  NL
+  """Norway"""
+  NO
+  """Nepal"""
+  NP
+  """Nauru"""
+  NR
+  """Niue"""
+  NU
+  """New Zealand"""
+  NZ
+  """Oman"""
+  OM
+  """Panama"""
+  PA
+  """Peru"""
+  PE
+  """French Polynesia"""
+  PF
+  """Papua New Guinea"""
+  PG
+  """Philippines"""
+  PH
+  """Pakistan"""
+  PK
+  """Poland"""
+  PL
+  """Saint Pierre and Miquelon"""
+  PM
+  """Pitcairn"""
+  PN
+  """Puerto Rico"""
+  PR
+  """Palestine, State of"""
+  PS
+  """Portugal"""
+  PT
+  """Palau"""
+  PW
+  """Paraguay"""
+  PY
+  """Qatar"""
+  QA
+  """Réunion"""
+  RE
+  """Romania"""
+  RO
+  """Serbia"""
+  RS
+  """Russian Federation"""
+  RU
+  """Rwanda"""
+  RW
+  """Saudi Arabia"""
+  SA
+  """Solomon Islands"""
+  SB
+  """Seychelles"""
+  SC
+  """Sudan"""
+  SD
+  """Sweden"""
+  SE
+  """Singapore"""
+  SG
+  """Saint Helena, Ascension and Tristan da Cunha"""
+  SH
+  """Slovenia"""
+  SI
+  """Svalbard and Jan Mayen"""
+  SJ
+  """Slovakia"""
+  SK
+  """Sierra Leone"""
+  SL
+  """San Marino"""
+  SM
+  """Senegal"""
+  SN
+  """Somalia"""
+  SO
+  """Suriname"""
+  SR
+  """South Sudan"""
+  SS
+  """Sao Tome and Principe"""
+  ST
+  """El Salvador"""
+  SV
+  """Sint Maarten (Dutch part)"""
+  SX
+  """Syrian Arab Republic"""
+  SY
+  """Eswatini"""
+  SZ
+  """Turks and Caicos Islands"""
+  TC
+  """Chad"""
+  TD
+  """French Southern Territories"""
+  TF
+  """Togo"""
+  TG
+  """Thailand"""
+  TH
+  """Tajikistan"""
+  TJ
+  """Tokelau"""
+  TK
+  """Timor-Leste"""
+  TL
+  """Turkmenistan"""
+  TM
+  """Tunisia"""
+  TN
+  """Tonga"""
+  TO
+  """Turkey"""
+  TR
+  """Trinidad and Tobago"""
+  TT
+  """Tuvalu"""
+  TV
+  """Taiwan"""
+  TW
+  """Tanzania"""
+  TZ
+  """Ukraine"""
+  UA
+  """Uganda"""
+  UG
+  """United States Minor Outlying Islands"""
+  UM
+  """USA"""
+  US
+  """Uruguay"""
+  UY
+  """Uzbekistan"""
+  UZ
+  """Holy See"""
+  VA
+  """Saint Vincent and the Grenadines"""
+  VC
+  """Venezuela"""
+  VE
+  """Virgin Islands (British)"""
+  VG
+  """Virgin Islands (U.S.)"""
+  VI
+  """Viet Nam"""
+  VN
+  """Vanuatu"""
+  VU
+  """Wallis and Futuna"""
+  WF
+  """Samoa"""
+  WS
+  """Kosovo"""
+  XK
+  """Yemen"""
+  YE
+  """Mayotte"""
+  YT
+  """South Africa"""
+  ZA
+  """Zambia"""
+  ZM
+  """Zimbabwe"""
+  ZW
+}
+
+type CountryOption {
+  """The raw enum key (e.g. US, DE)"""
+  key: CountryCodeType!
+  """The localized label"""
+  value: String!
+}
+
+input CreateCredentialInput {
+  """google auth token, password, ..."""
+  hash: String!
+  """email, google id, apple email, ..."""
+  identifier: String!
+  type: CredentialType!
+}
+
+input CreateUserInput {
+  credential: CreateCredentialInput
+  """will be removed when firebase is dropped"""
+  id: String!
+  lang: Locale!
+  name: String
+  segmentation: UserSegmentationInput @deprecated(reason: "use separate segmentUser mutation")
+}
+
+type CreatorCountOption {
+  """The raw enum key (e.g. UNDER_10K, OVER_1M)"""
+  key: BrandCreatorCount!
+  """The localized label"""
+  value: String!
+}
+
+enum CredentialType {
+  apple
+  facebook
+  google
+  password
+}
+
+"""
+A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+"""
+scalar DateTime
+
+enum DeleteReasonEnum {
+  bad_price
+  data_loss
+  no_need
+  not_met_expectations
+  technical_issues
+}
+
+type DemographyReport implements Report {
+  id: UUID!
+  type: String!
+  url: String!
+}
+
+type DeviceTokenInfo {
+  hasToken: Boolean!
+  id: ID!
+}
+
+enum DiscoveryIndustry {
+  ASMR
+  AlcoholicBeverages
+  Anime
+  Art
+  ArtAndDesign
+  Astrology
+  Beauty
+  Betting
+  Business
+  ChildrenAndParenting
+  Comedy
+  Computers
+  Crypto
+  Culture
+  DIY
+  DigitalMedia
+  ECommerce
+  Economics
+  Education
+  Fashion
+  Finance
+  Fitness
+  Gaming
+  Garden
+  Gastronomy
+  HealthyLifestyle
+  History
+  Hobby
+  Home
+  Influencership
+  Lifestyle
+  Lipsync
+  Literature
+  LuxuryGoods
+  MentalHealth
+  Motorism
+  MoviesAndTVShows
+  Music
+  NGO
+  News
+  NonAlcoholicBeverages
+  PersonalDevelopment
+  Pets
+  PetsAndAnimals
+  Photography
+  PhysicalHealth
+  Politics
+  Pregnancy
+  ReactionContent
+  RealEstate
+  Relationships
+  RelationshipsAndDating
+  ShowBusiness
+  Skincare
+  SocialMedia
+  Society
+  Sport
+  Sustainability
+  Technology
+  ToysChildrenParenting
+  Traveling
+  TrueCrime
+  Wedding
+}
+
+type DiscoveryIndustryOption {
+  """The raw enum key (e.g. Art, Beauty)"""
+  key: String!
+  """The localized label"""
+  value: String!
+}
+
+"""
+A field whose value conforms to the standard internet email address format as specified in HTML Spec: https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address.
+"""
+scalar EmailAddress @specifiedBy(url: "https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address")
+
+type EstimatedPayment {
+  description: String
+  estimation: String
+  subtitle: String
+  title: String
+}
+
+enum Financing {
+  affiliate
+  barter
+  barterpaid
+  paid
+  probono
+}
+
+type FinancingOption {
+  """The raw enum key (e.g. BOOTSTRAP, VC)"""
+  key: Financing!
+  """The localized label"""
+  value: String!
+}
+
+enum Gender {
+  man
+  other
+  woman
+}
+
+enum Goal {
+  facebook_reach
+  instagram_interactions
+  instagram_reach
+  instagram_views
+  linkedin_default
+  no_goal
+  threads_default
+  tiktok_interactions
+  tiktok_reach
+  tiktok_views
+  youtube_interactions
+  youtube_monetization
+  youtube_popularity
+  youtube_revenue
+}
+
+interface ICounter {
+  """null means unlimited"""
+  max: Int
+}
+
+interface ISubscriptionPlan {
+  appStore: Boolean!
+  """null means not present in app store"""
+  appStoreId: String
+  id: ID!
+  isFree: Boolean!
+  """Returns the localized name of the subscription plan"""
+  localizedName(locale: Locale = en): String!
+  """null means unlimited"""
+  maxAccounts: Int @deprecated(reason: "use limits")
+  """null means unlimited"""
+  maxAnalyzedPostsPerMonth: Int @deprecated(reason: "use limits")
+  """null means unlimited"""
+  maxCollaborationAccounts: Int @deprecated(reason: "use limits")
+  """null means unlimited"""
+  maxTrendCategories: Int @deprecated(reason: "use limits")
+  order: Int!
+  """0 means no trial"""
+  trialDays: Int!
+}
+
+interface ISubscriptionPlanLimits {
+  accounts: ICounter!
+  audienceReports: ICounter!
+  brandRequests: ICounter!
+  collaborationReports: ICounter!
+  collaborationTips: Paywall!
+  payTransparencyLabels: Paywall!
+  postSwipes: ICounter!
+  trendClicks: ICounter!
+  webinars: Paywall!
+}
+
+type Identity {
+  bio: String
+  contactEmail: EmailAddress
+  """country of residence, 2char ISO: CZ, SK ..."""
+  country: String
+  dateOfBirth: LocalDate
+  deviceTokenInfo: [DeviceTokenInfo!]!
+  discoverySince: DateTime
+  email: EmailAddress
+  gender: Gender
+  id: ID!
+  industries: [DiscoveryIndustry!]!
+  industriesLocalized(locale: Locale): [DiscoveryIndustryOption!]
+  intercomToken: String!
+  isInfluencer: Boolean!
+  lang: Locale!
+  """markets the user targets: CZ, SK ..."""
+  markets: [CountryCodeType!]
+  marketsLocalized(locale: Locale): [MarketOption!]
+  name: String
+  personalLinks: [String!]!
+  phoneNumber: String
+  recordSession: Boolean!
+  role: Role!
+  segmentation: UserSegmentation
+  subscription: CarlSubscription
+  """current user timezone, in IANA format: Europe/Prague"""
+  timezone: String
+  unreadMessagesCount: Int
+  unreadNotifications: Boolean!
+}
+
+type IndustryOption {
+  """The raw enum key (e.g. TECH, FOOD_AND_BEVERAGE)"""
+  key: BrandIndustry!
+  """The localized label"""
+  value: String!
+}
+
+enum InsightStatus {
+  """everything is ok and insight is ready"""
+  done
+  """this post will never have an insight"""
+  never
+  """collecting data and working on it"""
+  processing
+}
+
+enum InsightsFeedbackType {
+  dislike
+  like
+}
+
+interface Invite {
+  createdAt: DateTime!
+  id: UUID!
+  status: InviteStatus!
+}
+
+type InviteLink {
+  code1: UUID!
+  code2: UUID!
+}
+
+type InviteReactionResponse {
+  success: Boolean!
+}
+
+enum InviteStatus {
+  """Accepted by creator"""
+  accepted
+  """Deleted by inviter"""
+  deleted
+  """Sent to creator"""
+  pending
+  """Rejected by creator"""
+  rejected
+}
+
+union Link = AccountLink | BrandCollabLink | InviteLink | NavigationLink | PostLink | TrendCategoryLink
+
+enum ListContentType {
+  hidden
+  homepage
+  liked
+  viewedLastMonth
+}
+
+"""
+A local date string (i.e., with no associated timezone) in `YYYY-MM-DD` format, e.g. `2020-01-01`.
+"""
+scalar LocalDate
+
+enum Locale {
+  cs
+  de
+  """returns translation key"""
+  dev
+  en
+  es
+  fr
+  it
+  pl
+  ptBr
+}
+
+"""Localized text with optional values for each supported locale"""
+type LocalizedTextObject {
+  cs: String
+  de: String
+  en: String
+  es: String
+  fr: String
+  it: String
+  pl: String
+  ptBr: String
+}
+
+type MarketOption {
+  """The raw enum key (e.g. US, DE)"""
+  key: CountryCodeType!
+  """The localized label"""
+  value: String!
+}
+
+"""example values only so far"""
+enum Mascot {
+  animated_hole
+  animated_vertical
+  generic
+}
+
+enum MediaType {
+  image
+  video
+}
+
+type Message {
+  content: String!
+  conversationId: UUID!
+  createdAt: DateTime!
+  id: UUID!
+  readAt: DateTime
+  sender: MessageSender!
+}
+
+type MessageSender {
+  avatarURL: String
+  id: String!
+  name: String!
+  type: SenderType!
+}
+
+enum MetricTrendType {
+  down
+  nochange
+  notdetermined
+  up
+}
+
+type Mutation {
+  """
+  Authorization required
+  
+  User can retry if error.extensions.retryable is true
+  
+  throws following errors: INVITE_NOT_FOUND, INVITE_EXPIRED, INVITE_ACCEPTED, INVITE_REJECTED
+  """
+  acceptInvite(code1: UUID!, code2: UUID!): InviteReactionResponse! @throws(errors: ["INVITE_NOT_FOUND", "INVITE_EXPIRED", "INVITE_ACCEPTED", "INVITE_REJECTED"])
+  """Authorization required"""
+  addAccount(accountInput: AddAccountInput!): Account!
+  """Authorization required"""
+  addSampleAccount: Boolean!
+  """
+  Authorization required
+  
+  throws following errors: ENTITY_NOT_FOUND
+  """
+  cancelBrandCollaboration(brandId: UUID!): Brand! @throws(errors: ["ENTITY_NOT_FOUND"]) @deprecated(reason: "cancellation is no longer possible")
+  """Authorization required"""
+  changeUserSubscription(plan: String!, subscriptionId: UUID!, transactionId: String!): CarlSubscription!
+  """Authorization required"""
+  contentUserInteraction(
+    """id of interacted content"""
+    id: UUID!
+    type: ContentInteractionType!
+  ): ContentInteraction!
+  """Authorization required"""
+  contentUserInteractionRemove(
+    """id of interacted content"""
+    id: UUID!
+    type: ContentInteractionType!
+  ): Boolean!
+  """
+  Takes all tagged posts with metrics if no postId passed. returns url of collaboration report
+  
+  throws following errors: SUBSCRIPTION_LIMIT_REACHED
+  """
+  createCollaborationReport(postIds: [UUID!] = [], tagId: UUID!): CollaborationReport! @throws(errors: ["SUBSCRIPTION_LIMIT_REACHED"])
+  """
+  returns url of demography report
+  
+  throws following errors: SUBSCRIPTION_LIMIT_REACHED
+  """
+  createDemographyReport(accountIds: [UUID!] = []): DemographyReport! @throws(errors: ["SUBSCRIPTION_LIMIT_REACHED"])
+  """
+  Authorization required
+  
+  Creates a new tag in the user’s context. If a tag with the same name already exists, the existing tag is returned instead of creating a duplicate.
+  """
+  createTag(color: Color!, description: String = null, name: String!): CollaborationTag!
+  """
+  
+  
+  throws following errors: USER_ALREADY_EXISTS
+  """
+  createUser(input: CreateUserInput!): AuthResponse! @throws(errors: ["USER_ALREADY_EXISTS"])
+  """Authorization required"""
+  deleteTag(tagId: UUID!): Boolean!
+  """Authorization required"""
+  deleteUser(deleteReason: DeleteReasonEnum, optionalText: String): Boolean!
+  """Authorization required"""
+  downloadMediaForPosts(mediaType: MediaType!, postIds: [UUID!]!): Boolean!
+  """Authorization required"""
+  enableUserDiscovery: Boolean!
+  """Authorization required"""
+  finishedAccountAuth(accountType: SocialNetwork!, status: String!): Boolean!
+  """
+  Authorization required
+  
+  throws following errors: NOT_AUTHORIZED_FOR_CHAT
+  """
+  markMessagesAsRead(conversationId: UUID!, newestMessageId: UUID!): Int @throws(errors: ["NOT_AUTHORIZED_FOR_CHAT"])
+  """Authorization required"""
+  notificationClicked(userNotificationId: UUID!): Boolean!
+  """
+  Authorization required
+  
+  throws following errors: ENTITY_NO_ACCESS
+  """
+  notificationDelivered(deviceNotificationId: UUID!): Boolean! @throws(errors: ["ENTITY_NO_ACCESS"])
+  """Authorization required"""
+  notificationDisplayed(userNotificationId: UUID!): Boolean!
+  """Authorization required"""
+  rateApp(ratingInput: RateAppInput!): Boolean!
+  """
+  Authorization required
+  
+  discovery: eventType: discovery_registration, eventRef: email@email.com, eventRefType: "webinarId/webinarName"
+  """
+  recordEvent(
+    """referenced entity identifier (like email) or like db entity id"""
+    eventRef: String
+    """
+    for cases like "user submits email xyz to register for webinar abc" we send abc here
+    """
+    eventRefType: String = "user"
+    eventType: ClientEventType!
+  ): Boolean!
+  """Authorization required"""
+  registerDevice(description: String, deviceId: String!, token: String!): Boolean!
+  """
+  User can reject invite (delete invite)
+  
+  throws following errors: INVITE_NOT_FOUND, INVITE_EXPIRED, INVITE_ACCEPTED, INVITE_REJECTED
+  """
+  rejectInvite(code1: UUID!, code2: UUID!): InviteReactionResponse! @throws(errors: ["INVITE_NOT_FOUND", "INVITE_EXPIRED", "INVITE_ACCEPTED", "INVITE_REJECTED"])
+  """Authorization required"""
+  removeAccount(id: UUID!): Boolean!
+  """
+  Authorization required
+  
+  throws following errors: ENTITY_NOT_FOUND, SUBSCRIPTION_LIMIT_REACHED, CANT_REQUEST_WITHOUT_AUTHORIZED_ACCOUNTS, BRAND_REQUEST_CHECKLIST_FAILED, BRAND_NOT_OPEN
+  """
+  requestBrandCollaboration(brandId: UUID!, paymentId: String): Brand! @throws(errors: ["ENTITY_NOT_FOUND", "SUBSCRIPTION_LIMIT_REACHED", "CANT_REQUEST_WITHOUT_AUTHORIZED_ACCOUNTS", "BRAND_REQUEST_CHECKLIST_FAILED", "BRAND_NOT_OPEN"]) @deprecated(reason: "use requestBrandCollaboration2 instead")
+  """
+  Authorization required
+  
+  throws following errors: ENTITY_NOT_FOUND, SUBSCRIPTION_LIMIT_REACHED
+  """
+  requestBrandCollaboration2(brandId: UUID!, paymentId: String): RequestBrandCollabResponse! @throws(errors: ["ENTITY_NOT_FOUND", "SUBSCRIPTION_LIMIT_REACHED"])
+  """Authorization required"""
+  segmentUser(input: UserSegmentationInput!): Boolean! @deprecated(reason: "use updateUser")
+  """
+  Authorization required
+  
+  throws following errors: NOT_AUTHORIZED_FOR_CHAT, MESSAGE_NOT_FOUND
+  """
+  sendMessage(content: String!, conversationId: UUID!): Message! @throws(errors: ["NOT_AUTHORIZED_FOR_CHAT", "MESSAGE_NOT_FOUND"])
+  """Authorization required"""
+  sendPubSubForPostWithDuration(
+    """Duration ISO 8601"""
+    duration: String!
+    postId: UUID
+    postUrl: String
+  ): Boolean!
+  """
+  Authorization required
+  
+  throws following errors: INVALID_GOAL, ENTITY_NO_ACCESS
+  """
+  setAccountGoal(accountId: UUID!, goal: Goal!): Account! @throws(errors: ["INVALID_GOAL", "ENTITY_NO_ACCESS"])
+  """
+  
+  
+  throws following errors: INVALID_TOKEN, USER_NOT_FOUND
+  """
+  signInWithApple(fullName: String, identityToken: String!): AuthResponse! @throws(errors: ["INVALID_TOKEN", "USER_NOT_FOUND"])
+  """
+  
+  
+  throws following errors: INVALID_TOKEN, USER_NOT_FOUND
+  """
+  signInWithGoogle(idToken: String!): AuthResponse! @throws(errors: ["INVALID_TOKEN", "USER_NOT_FOUND"])
+  """Authorization required"""
+  startAccountAuth(accountType: SocialNetwork!): Boolean!
+  """Authorization required"""
+  subscriptionInterest(email: String!, plan: String!, text: String): Boolean!
+  """
+  Authorization required
+  
+  throws POST_TAG_ALREADY_EXISTS if there is a matching (soft-deleted) post tag
+  
+  throws following errors: ENTITY_NOT_FOUND, POST_TAG_ALREADY_EXISTS
+  """
+  tagPost(postId: UUID!, tagId: UUID!): Boolean! @throws(errors: ["ENTITY_NOT_FOUND", "POST_TAG_ALREADY_EXISTS"])
+  """
+  Authorization required
+  
+  return true when repeatedly tagging same post, throws POST_TAG_ALREADY_EXISTS if there is a matching (soft-deleted) post tag
+  
+  throws following errors: ENTITY_NOT_FOUND, POST_TAG_ALREADY_EXISTS
+  """
+  tagPosts(postIds: [UUID!]!, tagId: UUID!): Boolean! @throws(errors: ["ENTITY_NOT_FOUND", "POST_TAG_ALREADY_EXISTS"])
+  """Authorization required"""
+  unregisterDevice(deviceId: String!): Boolean!
+  """Authorization required"""
+  untagPost(postId: UUID!, tagId: UUID!): Boolean!
+  """Authorization required"""
+  untagPosts(postIds: [UUID!]!, tagId: UUID!): Boolean!
+  """
+  Authorization required
+  
+  likes all locale variants at once, same as post
+  """
+  updateAccountInsightFeedback(accountId: UUID!, feedback: InsightsFeedbackType, insightId: UUID!): AccountDetailResponse!
+  """
+  Authorization required
+  
+  likes all locale variants at once, same as account
+  """
+  updatePostSuggestionFeedback(feedback: InsightsFeedbackType, postId: UUID!): PostDetail!
+  """
+  Authorization required
+  
+  throws following errors: TAG_NAME_ALREADY_EXISTS, TAG_NOT_FOUND
+  """
+  updateTag(color: Color, description: String = null, name: String!, tagId: UUID!): CollaborationTag! @throws(errors: ["TAG_NAME_ALREADY_EXISTS", "TAG_NOT_FOUND"])
+  """
+  Authorization required
+  
+  throws following errors: INVALID_PHONE_NUMBER_FORMAT
+  """
+  updateUser(input: UpdateUserInput!): Identity! @throws(errors: ["INVALID_PHONE_NUMBER_FORMAT"])
+  """Authorization required"""
+  updateUserTrendCategories(locale: Locale = en, trendCategoryIds: [UUID!]!): [TrendCategory!]!
+}
+
+type NavigationLink {
+  """
+  Subscription | Accounts | Trends | Homepage | discovery-tips | discovery-join | Brands
+  """
+  type: String!
+}
+
+type NetworkAccount {
+  id: ID!
+  name: String!
+  pictureUrl: String!
+}
+
+type NotificationContent {
+  handle: String
+  imageUrl: String
+  socialNetworkId: SocialNetworkContent
+}
+
+type NotificationItem {
+  body: String
+  createdAt: DateTime!
+  id: UUID!
+  isRead: Boolean!
+  link: Link
+  notificationContent: NotificationContent!
+  title: String!
+}
+
+input PageInfo {
+  """eg. how many records?"""
+  first: Int = 10
+  """eg. records * page number = offset"""
+  offset: Int = 0
+}
+
+type PaginatedMessages {
+  hasMore: Boolean!
+  items: [Message!]!
+}
+
+enum Partnership {
+  LongTerm
+  OneOff
+  ShortTerm
+}
+
+type PartnershipOption {
+  """The raw enum key (e.g. AFFILIATE, SPONSORSHIP)"""
+  key: Partnership!
+  """The localized label"""
+  value: String!
+}
+
+type Paywall {
+  enabled: Boolean!
+}
+
+type PersonalizedContent {
+  authorId: String
+  availableInteractions: [ContentInteractionType!]!
+  """Localized markdown body content"""
+  body: LocalizedTextObject
+  category: ContentCategory! @deprecated(reason: "use type")
+  categoryLocalized(locale: Locale = en): ContentCategoryLocalized!
+  channel: String
+  contentCategory: CMSContentCategory
+  contentCategoryId: UUID
+  contentLocalized(locale: Locale = en): ContentTextObject
+  event: ContentEvent!
+  """Localized short excerpt/preview"""
+  excerpt: LocalizedTextObject
+  id: UUID!
+  imageUrls: [String!]
+  interactions: [ContentInteraction!]!
+  link: Link
+  locked: Boolean!
+  """When the content was/will be published"""
+  publishedAt: DateTime
+  """URL-friendly slug, unique when set"""
+  slug: String
+  """if array has general, it always returns only general"""
+  socialNetwork: [SocialNetworkContent!]!
+  text: ContentText! @deprecated(reason: "use type")
+  """Localized title for CMS content"""
+  title: LocalizedTextObject
+  type: ContentType!
+  urlLocalized(locale: Locale = en): String
+}
+
+type Post {
+  collaborationTags: [CollaborationTag!]
+  createdAt: DateTime!
+  """
+  under what goal was the post first loaded, changing goal over time will not affect display of this post and its metric
+  """
+  goal: Goal! @deprecated(reason: "will be removed soon")
+  id: UUID!
+  imageUrl: String!
+  insightStatus: InsightStatus!
+  manual: Boolean!
+  postType: PostTypeEnum!
+  published: DateTime!
+  saved: Boolean! @deprecated(reason: "unknown")
+  socialNetwork: SocialNetwork!
+  status: PostStatus
+  title: String
+  type: String! @deprecated(reason: "use postType")
+  url: String!
+}
+
+type PostDetail {
+  collaborationTags: [CollaborationTag!]
+  createdAt: DateTime!
+  estimatedPayment(locale: Locale): EstimatedPayment
+  """
+  under what goal was the post first loaded, changing goal over time will not affect display of this post and its metric
+  """
+  goal: Goal! @deprecated(reason: "will be removed soon")
+  id: UUID!
+  imageUrl: String!
+  insightStatus: InsightStatus!
+  manual: Boolean!
+  metrics2(locale: Locale = en): [PostMetric!]
+  postType: PostTypeEnum!
+  published: DateTime!
+  saved: Boolean! @deprecated(reason: "unknown")
+  socialNetwork: SocialNetwork!
+  status: PostStatus
+  suggestions(locale: Locale = en): [Suggestion!]
+  title: String
+  type: String! @deprecated(reason: "use postType")
+  url: String!
+}
+
+type PostFilters {
+  name: String!
+  types: [PostTypeEnum!]!
+}
+
+type PostLink {
+  accountId: UUID!
+  handle: String!
+  name: String!
+  postId: UUID!
+}
+
+type PostList {
+  collaborationTags: [CollaborationTag!]
+  createdAt: DateTime!
+  estimatedPayment(locale: Locale): String
+  """
+  under what goal was the post first loaded, changing goal over time will not affect display of this post and its metric
+  """
+  goal: Goal! @deprecated(reason: "will be removed soon")
+  id: UUID!
+  imageUrl: String!
+  insightStatus: InsightStatus!
+  manual: Boolean!
+  metrics(locale: Locale = en): [PostListMetrics]!
+  postType: PostTypeEnum!
+  published: DateTime!
+  saved: Boolean! @deprecated(reason: "unknown")
+  socialNetwork: SocialNetwork!
+  status: PostStatus
+  title: String
+  type: String! @deprecated(reason: "use postType")
+  url: String!
+}
+
+type PostListMetrics {
+  name: String! @deprecated(reason: "use type")
+  type: PostListType!
+  value: String!
+}
+
+enum PostListType {
+  impressions
+  likes
+  views
+}
+
+type PostMetric {
+  id: UUID!
+  name: String!
+  socialNetworkId: SocialNetwork!
+  """Localized metric name"""
+  title(locale: Locale): String!
+  trend: MetricTrendType!
+  value: String!
+  valueType: String!
+}
+
+type PostPreview {
+  id: UUID!
+  imageUrl: String!
+}
+
+enum PostStatus {
+  """everything is ok, insights and metrics are present"""
+  completed
+  deleted
+  """video is not published on the network and should not be processed"""
+  hidden
+  live
+  """
+  whenever we detect missing metrics or insight after specified time range (eg 7 days)
+  """
+  missing_data
+  """just added, will be processed shortly"""
+  new
+  """we are not analyzing old content"""
+  old
+  """passed data to bq"""
+  processing
+  restricted
+}
+
+enum PostTypeEnum {
+  album
+  photo
+  reel
+  short
+  story
+  text
+  video
+}
+
+type Query {
+  """Authorization required"""
+  getAccountDetail(id: UUID!): AccountDetailResponse
+  """Authorization required"""
+  getAccountsForSelector(
+    """
+    call only if you have oauth code available, either token or code is required
+    """
+    code: String
+    network: SocialNetwork!
+    """
+    call only if you have real access token available, either token or code is required
+    """
+    token: String
+  ): AccountSelectorResponse!
+  """
+  Authorization required
+  
+  throws following errors: ENTITY_NO_ACCESS
+  """
+  getAvailableGoals(accountId: UUID!): [Goal!]! @throws(errors: ["ENTITY_NO_ACCESS"])
+  """
+  Authorization required
+  
+  throws following errors: BRAND_NOT_FOUND
+  """
+  getBrandDetail(id: UUID!): Brand! @throws(errors: ["BRAND_NOT_FOUND"])
+  """Authorization required"""
+  getBrandFilters(locale: Locale = en): BrandFilter!
+  """Authorization required"""
+  getCollaborationReports: [CollaborationReport!]!
+  """
+  Roles: admin
+  
+  Get a content category by ID
+  """
+  getContentCategory(id: UUID!): CMSContentCategory
+  """
+  Roles: admin
+  
+  Get a content category by slug
+  """
+  getContentCategoryBySlug(slug: String!): CMSContentCategory
+  """
+  Roles: admin
+  
+  Get a content tag by ID
+  """
+  getContentTag(id: UUID!): ContentTag
+  """
+  Roles: admin
+  
+  Get a content tag by slug
+  """
+  getContentTagBySlug(slug: String!): ContentTag
+  """Authorization required"""
+  getDemographyReports: [DemographyReport!]!
+  """
+  
+  
+  throws following errors: INVITE_NOT_FOUND, INVITE_EXPIRED
+  """
+  getInvite(code1: UUID!, code2: UUID!, locale: Locale = en): Invite! @throws(errors: ["INVITE_NOT_FOUND", "INVITE_EXPIRED"])
+  """Authorization required"""
+  getMyAccounts: [Account!]
+  """Authorization required"""
+  getPostDetail(id: UUID!): PostDetail!
+  """Authorization required"""
+  getSelfIdentity: Identity!
+  """Authorization required"""
+  getTrendCategories(locale: Locale = en, onlySelected: Boolean = false, withWildCard: Boolean = false): [TrendCategory!]!
+  """
+  Authorization required
+  
+  list trends, limit set at 20, optional filters country, trend category, short name
+  """
+  getTrends(country: CountryCodeType, trendCategoryId: UUID): [Trend!]!
+  """
+  Authorization required
+  
+  list trends, limit set at 20, optional filters country, trend category
+  """
+  getTrendsNew(country: CountryCodeType, trendCategoryId: UUID): TrendList!
+  """Authorization required"""
+  getUserFieldsOptions(locale: Locale = en): UserFieldsOptions!
+  """Authorization required"""
+  getUserSubscription: CarlSubscription!
+  """returns list of metrics that should be displayed based on account goal"""
+  goalBasedMetricSelection: [String!]!
+  """Authorization required"""
+  listAccountsOverviews2(postCountPerAccount: Int = 5): AccountsWithPostsListResponse!
+  """
+  Authorization required
+  
+  throws following errors: BRAND_INVALID_STATUS
+  """
+  listBrands(filter: BrandListFilterInput = {}, pageInfo: PageInfo = {first: 100, offset: 0}, type: BrandList = all): [Brand!]! @throws(errors: ["BRAND_INVALID_STATUS"])
+  """
+  Authorization required
+  
+  List posts that are tagged for collaboration
+  """
+  listCollaborationPosts(pageInfo: PageInfo = {first: 10, offset: 0}, tagId: UUID!): [PostList!]!
+  """Authorization required"""
+  listCollaborationTags: [CollaborationTagList!]!
+  """
+  Roles: admin
+  
+  List all content categories
+  """
+  listContentCategories(includeDisabled: Boolean = false): [CMSContentCategory!]!
+  """Authorization required"""
+  listContentNew(contentType: ListContentType = homepage, locale: Locale!, pageInfo: PageInfo = {first: 10, offset: 0}): [PersonalizedContent!]!
+  """
+  Roles: admin
+  
+  List all content tags
+  """
+  listContentTags: [ContentTag!]!
+  """Authorization required"""
+  listConversations(pageInfo: PageInfo! = {first: 10, offset: 0}): [Conversation!]!
+  """
+  Authorization required
+  
+  throws following errors: NOT_AUTHORIZED_FOR_CHAT
+  """
+  listMessages(after: UUID, before: UUID, conversationId: UUID!, pageSize: Int! = 20): PaginatedMessages! @throws(errors: ["NOT_AUTHORIZED_FOR_CHAT"])
+  """Authorization required"""
+  listNotifications(pageInfo: PageInfo = {first: 10, offset: 0}): [NotificationItem!]!
+  """List of publicly available subscription plans"""
+  listPlans: [SubscriptionPlan!]!
+  """Authorization required"""
+  listPosts(
+    accountId: UUID @deprecated(reason: "Use accountIds")
+    accountIds: [UUID!]
+    filterByNetworkTypes: [SocialNetwork!]
+    filterByStatus: PostStatus
+    """optional filter"""
+    filterByType: PostTypeEnum @deprecated(reason: "use filterByTypes based on AccountDetail.availableFilters")
+    """based on AccountDetail.availableFilters, optional filter"""
+    filterByTypes: [PostTypeEnum!]
+    """list only posts that are not tagged, default false"""
+    onlyWithoutTags: Boolean = false
+    pageInfo: PageInfo = {first: 10, offset: 0}
+    """optional filter, possibly deprecated"""
+    since: DateTime = null
+    """optional filter, possibly deprecated"""
+    until: DateTime = null
+  ): [PostList!]!
+  """
+  Authorization required
+  
+  List posts that are not yet tagged for collaboration
+  """
+  listPostsForCollaborationTagging(
+    pageInfo: PageInfo = {first: 10, offset: 0}
+    """Specify tagId to filter out."""
+    tagId: UUID
+  ): [PostList!]!
+  """
+  
+  
+  throws following errors: USER_NOT_FOUND, INVALID_PASSWORD
+  """
+  passwordLogin(email: EmailAddress!, password: String!): AuthInfo! @throws(errors: ["USER_NOT_FOUND", "INVALID_PASSWORD"])
+  test: Boolean
+  testDeep: TestObject
+  testError: Boolean
+  testErrorArg(arg: Float!): Boolean
+  testErrorArgTG(arg: TestArg!): Boolean
+  """Authorization required"""
+  testErrorAuth: Boolean
+  """
+  Authorization required
+  
+  a
+  """
+  testWithAuth: Boolean
+  testWithAuthField: AuthField
+}
+
+input RateAppInput {
+  comment: String
+  rating: Int!
+}
+
+interface Report {
+  id: UUID!
+  type: String!
+}
+
+type RequestBrandCollabResponse {
+  brand: Brand!
+  subscriptionUsage: UserSubscriptionPlanLimits!
+}
+
+enum Role {
+  admin
+  business_admin
+  business_user
+  business_viewer
+  creator
+}
+
+enum SenderType {
+  current
+  other
+  system
+}
+
+"""The size of the user’s social media following"""
+enum SocialMediaSize {
+  fiftyKTo100k
+  hundredKTo500k
+  lessThan1k
+  moreThan500k
+  oneKTo10k
+  tenKTo50k
+}
+
+"""use SocialNetworkContent"""
+enum SocialNetwork {
+  facebook
+  facebook_scrape
+  instagram
+  instagram_scrape
+  linkedin
+  threads
+  tiktok
+  tiktok_scrape
+  youtube
+  youtube_scrape
+}
+
+enum SocialNetworkContent {
+  facebook
+  general
+  instagram
+  linkedin
+  tiktok
+  youtube
+}
+
+type StatusOption {
+  """The raw enum key (e.g. PENDING, ACTIVE)"""
+  key: BrandCollabStatus!
+  """The localized label"""
+  value: String!
+}
+
+type SubscriptionPlan implements ISubscriptionPlan {
+  appStore: Boolean!
+  """null means not present in app store"""
+  appStoreId: String
+  id: ID!
+  isFree: Boolean!
+  """Returns the localized name of the subscription plan"""
+  localizedName(locale: Locale = en): String!
+  """null means unlimited"""
+  maxAccounts: Int @deprecated(reason: "use limits")
+  """null means unlimited"""
+  maxAnalyzedPostsPerMonth: Int @deprecated(reason: "use limits")
+  """null means unlimited"""
+  maxCollaborationAccounts: Int @deprecated(reason: "use limits")
+  """null means unlimited"""
+  maxTrendCategories: Int @deprecated(reason: "use limits")
+  order: Int!
+  planLimits: SubscriptionPlanLimits
+  """0 means no trial"""
+  trialDays: Int!
+}
+
+"""
+Counters for subscription plan, names are intentionally very specific and self explanatory
+"""
+type SubscriptionPlanLimits implements ISubscriptionPlanLimits {
+  accounts: Counter!
+  audienceReports: Counter!
+  brandRequests: Counter!
+  collaborationReports: Counter!
+  collaborationTips: Paywall!
+  payTransparencyLabels: Paywall!
+  postSwipes: Counter!
+  trendClicks: Counter!
+  webinars: Paywall!
+}
+
+type Suggestion {
+  createdAt: DateTime!
+  description: String!
+  dislikedAt: DateTime
+  durationHours: Float! @deprecated(reason: "not supported")
+  id: UUID!
+  insightText: String
+  lang: Locale!
+  likedAt: DateTime
+  performance: Float!
+}
+
+input TestArg {
+  num: Int!
+}
+
+type TestObject {
+  deep: TestObject!
+  id: ID!
+}
+
+type TokenInfo {
+  accessToken: String!
+  expiresIn: Float!
+}
+
+type Trend {
+  countryCode: CountryCodeType
+  id: UUID!
+  imageUrl: String!
+  pubDate: DateTime
+  source: String
+  tag: String!
+  traffic: String
+  trendCategoryId: String!
+  url: String
+}
+
+type TrendCategory {
+  displayName(locale: Locale = en): String
+  hicarlCategoryId: String @deprecated(reason: "private data")
+  id: UUID!
+  name: String!
+  selected: Boolean!
+  shortName: String!
+  trendColor: TrendColor!
+}
+
+type TrendCategoryLink {
+  name: String!
+  trendCategoryId: UUID!
+}
+
+type TrendColor {
+  hex: String!
+  id: UUID!
+  name: String!
+}
+
+type TrendList {
+  data: [Trend!]!
+  locked: Boolean!
+}
+
+"""
+A field whose value is a generic Universally Unique Identifier: https://en.wikipedia.org/wiki/Universally_unique_identifier.
+"""
+scalar UUID
+
+input UpdateUserInput {
+  bio: String
+  contactEmail: String
+  """country of residence, 2char ISO: CZ, SK ..."""
+  country: String
+  dateOfBirth: LocalDate
+  email: EmailAddress
+  gender: Gender
+  """user industries such as Beauty, Fitness etc"""
+  industries: [DiscoveryIndustry!]
+  lang: Locale!
+  """markets the user targets: CZ, SK ..."""
+  markets: [CountryCodeType!]
+  name: String!
+  """links to blogs, other social media profiles etc"""
+  personalLinks: [String!]
+  phoneNumber: String
+  """user segmentation"""
+  segmentation: UserSegmentationInput
+  """timezone of user, use IANA format: Europe/Prague"""
+  timezone: String
+}
+
+type UserCounter implements ICounter {
+  """null means unlimited"""
+  max: Int
+  used: Int!
+}
+
+type UserFieldsOptions {
+  industries: [DiscoveryIndustryOption!]!
+  markets: [MarketOption!]!
+}
+
+type UserSegmentation {
+  appExpectations: String
+  socialMediaSize: SocialMediaSize
+  userType: [UserType!]!
+}
+
+input UserSegmentationInput {
+  appExpectations: String
+  socialMediaSize: SocialMediaSize
+  userType: [UserType!]!
+}
+
+type UserSubscriptionPlan implements ISubscriptionPlan {
+  appStore: Boolean!
+  """null means not present in app store"""
+  appStoreId: String
+  id: ID!
+  isFree: Boolean!
+  """Returns the localized name of the subscription plan"""
+  localizedName(locale: Locale = en): String!
+  """null means unlimited"""
+  maxAccounts: Int @deprecated(reason: "use limits")
+  """null means unlimited"""
+  maxAnalyzedPostsPerMonth: Int @deprecated(reason: "use limits")
+  """null means unlimited"""
+  maxCollaborationAccounts: Int @deprecated(reason: "use limits")
+  """null means unlimited"""
+  maxTrendCategories: Int @deprecated(reason: "use limits")
+  order: Int!
+  """0 means no trial"""
+  trialDays: Int!
+}
+
+"""
+Counters for subscription plan, names are intentionally very specific and self explanatory
+"""
+type UserSubscriptionPlanLimits implements ISubscriptionPlanLimits {
+  accounts: UserCounter!
+  audienceReports: UserCounter!
+  brandFreeRequests: UserCounter
+  brandPaidRequests: UserCounter
+  brandRequests: UserCounter!
+  collaborationReports: UserCounter!
+  collaborationTips: Paywall!
+  payTransparencyLabels: Paywall!
+  postSwipes: UserCounter!
+  trendClicks: UserCounter!
+  webinars: Paywall!
+}
+
+"""Different types of users based on their role in social media"""
+enum UserType {
+  casualUser
+  influencer
+  marketer
+  smallBusinessOwner
+  ugcCreator
+}

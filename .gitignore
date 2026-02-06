@@ -1,0 +1,12 @@
+spectaql
+node_modules
+dist
+.output
+.vinxi
+docs-site
+test-output
+graphql-docs
+*.build-tmp
+src/site/node_modules
+src/site/.output
+src/site/.vinxi
