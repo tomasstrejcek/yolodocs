@@ -1,6 +1,6 @@
 spectaql
 node_modules
-dist
+# dist - committed for npx-from-git support
 .output
 .vinxi
 docs-site
