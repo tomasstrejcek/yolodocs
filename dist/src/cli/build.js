@@ -81,8 +81,7 @@ export async function build(config) {
     console.log("        Installing dependencies...");
     execSync("npm install", { cwd: buildDir, stdio: "pipe" });
     console.log("        Running SolidStart build...");
-    const vinxiBin = path.join(buildDir, "node_modules", ".bin", "vinxi");
-    execSync(`"${vinxiBin}" build`, { cwd: buildDir, stdio: "pipe" });
+    execSync("npm run build", { cwd: buildDir, stdio: "pipe" });
     // Copy built output - check multiple possible output locations
     const possibleOutputs = [
         path.join(buildDir, ".output", "public"),
@@ -315,8 +314,7 @@ async function runDevServer(buildDir) {
     console.log("        Installing dependencies...");
     execSync("npm install", { cwd: buildDir, stdio: "pipe" });
     console.log("\n  Starting dev server...\n");
-    const vinxiBin = path.join(buildDir, "node_modules", ".bin", "vinxi");
-    const child = spawn(vinxiBin, ["dev"], {
+    const child = spawn("npm", ["run", "dev"], {
         cwd: buildDir,
         stdio: "inherit",
         shell: true,
