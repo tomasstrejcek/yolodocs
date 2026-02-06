@@ -129,7 +129,16 @@ export async function build(config: YolodocsConfig): Promise<void> {
   execSync("npm install", { cwd: buildDir, stdio: "pipe" });
 
   console.log("        Running SolidStart build...");
-  execSync("npm run build", { cwd: buildDir, stdio: "pipe" });
+  try {
+    execSync("npm run build", { cwd: buildDir, stdio: "pipe" });
+  } catch (err: any) {
+    const stderr = err.stderr?.toString() || "";
+    const stdout = err.stdout?.toString() || "";
+    console.error("\n        SolidStart build failed:");
+    if (stderr) console.error(stderr);
+    if (stdout) console.error(stdout);
+    throw new Error("SolidStart build failed");
+  }
 
   // Copy built output
   const builtOutput = path.join(buildDir, ".output", "public");
@@ -137,6 +146,14 @@ export async function build(config: YolodocsConfig): Promise<void> {
     fse.copySync(builtOutput, outputDir, { overwrite: true });
     console.log("        Copied output from: .output/public");
   } else {
+    // Diagnostics
+    const outputBase = path.join(buildDir, ".output");
+    if (fs.existsSync(outputBase)) {
+      const contents = fs.readdirSync(outputBase);
+      console.error(`        .output/ contains: ${contents.join(", ")}`);
+    } else {
+      console.error("        .output/ directory does not exist");
+    }
     throw new Error(
       "Build failed: .output/public not found. Run with YOLODOCS_DEBUG=1 to inspect the build directory."
     );
