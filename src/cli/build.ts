@@ -65,7 +65,10 @@ export async function build(config: YolodocsConfig): Promise<void> {
   // Copy site template to build dir
   fse.ensureDirSync(buildDir);
   fse.copySync(siteTemplateDir, buildDir, {
-    filter: (src) => !src.includes("node_modules") && !src.includes(".vinxi"),
+    filter: (src) => {
+      const rel = path.relative(siteTemplateDir, src);
+      return !rel.includes("node_modules") && !rel.includes(".vinxi");
+    },
   });
 
   // Inject data files
