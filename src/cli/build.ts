@@ -131,55 +131,23 @@ export async function build(config: YolodocsConfig): Promise<void> {
   console.log("        Running SolidStart build...");
   execSync("npm run build", { cwd: buildDir, stdio: "pipe" });
 
-  // Copy built output - check multiple possible output locations
-  const possibleOutputs = [
-    path.join(buildDir, ".output", "public"),
-    path.join(buildDir, ".output", "static"),
-    path.join(buildDir, "dist", "public"),
-    path.join(buildDir, "dist"),
-  ];
-
-  let builtOutput: string | null = null;
-  for (const p of possibleOutputs) {
-    if (fs.existsSync(p) && fs.readdirSync(p).some(f => f.endsWith(".html") || f === "index.html" || f === "_build")) {
-      builtOutput = p;
-      break;
-    }
-  }
-
-  // Also try to find index.html recursively in .output
-  if (!builtOutput) {
-    const outputBase = path.join(buildDir, ".output");
-    if (fs.existsSync(outputBase)) {
-      builtOutput = findDirWithIndex(outputBase);
-    }
-  }
-
-  if (builtOutput) {
+  // Copy built output
+  const builtOutput = path.join(buildDir, ".output", "public");
+  if (fs.existsSync(builtOutput)) {
     fse.copySync(builtOutput, outputDir, { overwrite: true });
-    console.log(`        Copied output from: ${path.relative(buildDir, builtOutput)}`);
+    console.log("        Copied output from: .output/public");
   } else {
-    console.log("        Warning: Could not find built output. Checking .output directory...");
-    const outputBase = path.join(buildDir, ".output");
-    if (fs.existsSync(outputBase)) {
-      // Copy entire .output as fallback
-      fse.copySync(outputBase, outputDir, {
-        filter: (src) => !src.includes("node_modules"),
-      });
-    }
+    throw new Error(
+      "Build failed: .output/public not found. Run with YOLODOCS_DEBUG=1 to inspect the build directory."
+    );
   }
 
   // Step 6: Post-build - Pagefind indexing
   console.log("  [5/5] Indexing for search...");
   try {
-    // Try local pagefind first, fall back to npx
-    const localPagefind = path.join(buildDir, "node_modules", ".bin", "pagefind");
-    const pagefindCmd = fs.existsSync(localPagefind)
-      ? `"${localPagefind}"`
-      : "npx pagefind";
     execSync(
-      `${pagefindCmd} --site "${outputDir}" --output-subdir _pagefind`,
-      { cwd: process.cwd(), stdio: "pipe" }
+      `npm exec -- pagefind --site "${outputDir}" --output-subdir _pagefind`,
+      { cwd: buildDir, stdio: "pipe" }
     );
     console.log("        Search index generated");
   } catch {
@@ -199,19 +167,6 @@ export async function build(config: YolodocsConfig): Promise<void> {
   );
 }
 
-function findDirWithIndex(dir: string): string | null {
-  try {
-    const entries = fs.readdirSync(dir, { withFileTypes: true });
-    if (entries.some((e) => e.name === "index.html")) return dir;
-    for (const entry of entries) {
-      if (entry.isDirectory() && entry.name !== "node_modules") {
-        const found = findDirWithIndex(path.join(dir, entry.name));
-        if (found) return found;
-      }
-    }
-  } catch {}
-  return null;
-}
 
 async function loadSchema(config: YolodocsConfig): Promise<ParsedSchema> {
   let sdl: string;

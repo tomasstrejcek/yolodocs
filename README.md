@@ -3,7 +3,7 @@
 Generate beautiful, searchable, static documentation sites from GraphQL schemas. No config required.
 
 ```
-npx github:tomasstrejcek/yolodocs --schema schema.graphql --output docs-site
+npx -y github:tomasstrejcek/yolodocs --schema schema.graphql --output docs-site
 ```
 
 ## Features
@@ -20,10 +20,10 @@ npx github:tomasstrejcek/yolodocs --schema schema.graphql --output docs-site
 
 ```bash
 # From a schema file
-npx github:tomasstrejcek/yolodocs --schema schema.graphql --output docs-site
+npx -y github:tomasstrejcek/yolodocs --schema schema.graphql --output docs-site
 
 # From a live endpoint
-npx github:tomasstrejcek/yolodocs --introspection-url https://api.example.com/graphql --output docs-site
+npx -y github:tomasstrejcek/yolodocs --introspection-url https://api.example.com/graphql --output docs-site
 
 # Preview
 npx serve docs-site
@@ -57,7 +57,7 @@ docsDir: "./docs"
 Then just run:
 
 ```bash
-npx github:tomasstrejcek/yolodocs
+npx -y github:tomasstrejcek/yolodocs
 ```
 
 ## Custom Docs
@@ -93,7 +93,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npx github:tomasstrejcek/yolodocs --schema schema.graphql --output docs-site --title "My API"
+      - run: npx -y github:tomasstrejcek/yolodocs --schema schema.graphql --output docs-site --title "My API"
       - uses: actions/upload-pages-artifact@v3
         with:
           path: docs-site

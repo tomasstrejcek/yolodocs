@@ -13,7 +13,7 @@ Generate a beautiful documentation site from your GraphQL schema in under a minu
 Run directly from GitHub using `npx`:
 
 ```
-npx github:tomasstrejcek/yolodocs --schema schema.graphql --output docs-site
+npx -y github:tomasstrejcek/yolodocs --schema schema.graphql --output docs-site
 ```
 
 Then preview it:
@@ -33,7 +33,7 @@ yolodocs supports three ways to provide your schema:
 Point to a `.graphql` or `.gql` file:
 
 ```
-npx github:tomasstrejcek/yolodocs --schema ./schema.graphql --output docs-site
+npx -y github:tomasstrejcek/yolodocs --schema ./schema.graphql --output docs-site
 ```
 
 ### 2. Introspection URL
@@ -41,7 +41,7 @@ npx github:tomasstrejcek/yolodocs --schema ./schema.graphql --output docs-site
 Fetch the schema from a live GraphQL endpoint:
 
 ```
-npx github:tomasstrejcek/yolodocs --introspection-url https://api.example.com/graphql --output docs-site
+npx -y github:tomasstrejcek/yolodocs --introspection-url https://api.example.com/graphql --output docs-site
 ```
 
 ### 3. Introspection JSON
@@ -49,7 +49,7 @@ npx github:tomasstrejcek/yolodocs --introspection-url https://api.example.com/gr
 Use a saved introspection result:
 
 ```
-npx github:tomasstrejcek/yolodocs --introspection-file ./introspection.json --output docs-site
+npx -y github:tomasstrejcek/yolodocs --introspection-file ./introspection.json --output docs-site
 ```
 
 ## CLI Options
@@ -84,7 +84,7 @@ yolodocs auto-detects `yolodocs.config.yml`, `yolodocs.config.yaml`, or `yolodoc
 Then just run:
 
 ```
-npx github:tomasstrejcek/yolodocs
+npx -y github:tomasstrejcek/yolodocs
 ```
 
 ## Adding Custom Docs
@@ -128,7 +128,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npx github:tomasstrejcek/yolodocs --schema schema.graphql --output docs-site --title "My API"
+      - run: npx -y github:tomasstrejcek/yolodocs --schema schema.graphql --output docs-site --title "My API"
       - uses: actions/upload-pages-artifact@v3
         with:
           path: docs-site
@@ -141,7 +141,7 @@ Add a script for convenience:
 ```json
 {
   "scripts": {
-    "docs": "npx github:tomasstrejcek/yolodocs --schema schema.graphql --output docs-site --title \"My API\"",
+    "docs": "npx -y github:tomasstrejcek/yolodocs --schema schema.graphql --output docs-site --title \"My API\"",
     "docs:preview": "npx serve docs-site"
   }
 }
