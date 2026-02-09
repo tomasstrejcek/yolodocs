@@ -35,6 +35,8 @@ const ConfigSchema = z.object({
     )
     .optional(),
 
+  base: z.string().default(""),
+
   dev: z.boolean().default(false),
   serve: z.boolean().default(false),
 });
@@ -71,6 +73,7 @@ export async function loadConfig(
   if (cliOptions.title) merged.title = cliOptions.title;
   if (cliOptions.endpoint) merged.endpoint = cliOptions.endpoint;
   if (cliOptions.docsDir) merged.docsDir = cliOptions.docsDir;
+  if (cliOptions.base) merged.base = cliOptions.base;
   if (cliOptions.dev) merged.dev = true;
   if (cliOptions.serve) merged.serve = true;
 
@@ -84,6 +87,14 @@ export async function loadConfig(
   }
 
   const config = result.data;
+
+  // Normalize base: ensure leading /, strip trailing /
+  if (config.base) {
+    config.base = config.base.replace(/\/+$/, "");
+    if (!config.base.startsWith("/")) {
+      config.base = "/" + config.base;
+    }
+  }
 
   // Must have at least one schema source
   if (!config.schema && !config.introspectionUrl && !config.introspectionFile) {

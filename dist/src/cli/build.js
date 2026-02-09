@@ -32,7 +32,7 @@ export async function build(config) {
     const docsManifest = scanDocsFolder(docsDir);
     console.log(`        ${docsManifest.pages.length} custom pages`);
     // Step 4: Build navigation manifest
-    const manifest = buildNavigationManifest(schema, docsManifest);
+    const manifest = buildNavigationManifest(schema, docsManifest, config.base);
     // Step 5: Build static site
     console.log("  [4/5] Building static site...");
     const siteTemplateDir = getSiteTemplatePath();
@@ -62,6 +62,7 @@ export async function build(config) {
         playgroundHeaders: config.playgroundHeaders,
         hideDeprecated: config.hideDeprecated,
         showDescriptions: config.showDescriptions,
+        base: config.base,
     };
     fs.writeFileSync(path.join(dataDir, "site-config.json"), JSON.stringify(siteConfig, null, 2));
     // Copy user assets
@@ -144,7 +145,7 @@ async function loadSchema(config) {
     }
     throw new Error("No schema source configured");
 }
-function buildNavigationManifest(schema, docsManifest) {
+function buildNavigationManifest(schema, docsManifest, base) {
     const sections = [];
     // Add custom docs first (guides at the top of sidebar)
     if (docsManifest.pages.length > 0) {
@@ -161,7 +162,7 @@ function buildNavigationManifest(schema, docsManifest) {
                 items: pages.map((p) => ({
                     id: `doc-${p.slug}`,
                     name: p.title,
-                    anchor: `/docs/${p.slug}`,
+                    anchor: `${base}/docs/${p.slug}`,
                     description: "",
                 })),
             });

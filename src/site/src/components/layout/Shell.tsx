@@ -4,6 +4,7 @@ import { MobileNav } from "./MobileNav";
 import { SearchDialog } from "../search/SearchDialog";
 import { SettingsPanel } from "./SettingsPanel";
 import siteConfig from "../../data/site-config.json";
+import { withBase } from "../../lib/base-path";
 
 export function Shell(props: { children: JSX.Element }) {
   const [mobileMenuOpen, setMobileMenuOpen] = createSignal(false);
@@ -38,7 +39,7 @@ export function Shell(props: { children: JSX.Element }) {
           </svg>
         </button>
 
-        <a href="/" class="flex items-center gap-2 text-text-primary font-semibold text-lg no-underline">
+        <a href={withBase("/")} class="flex items-center gap-2 text-text-primary font-semibold text-lg no-underline">
           <span class="text-accent-blue">⚡</span>
           <span>{siteConfig.title}</span>
         </a>
@@ -46,8 +47,8 @@ export function Shell(props: { children: JSX.Element }) {
         <div class="flex-1" />
 
         <nav class="hidden md:flex items-center gap-4 mr-4">
-          <a href="/" class="text-sm text-text-secondary hover:text-text-primary no-underline transition-colors">Home</a>
-          <a href="/reference" class="text-sm text-text-secondary hover:text-text-primary no-underline transition-colors">Reference</a>
+          <a href={withBase("/")} class="text-sm text-text-secondary hover:text-text-primary no-underline transition-colors">Home</a>
+          <a href={withBase("/reference")} class="text-sm text-text-secondary hover:text-text-primary no-underline transition-colors">Reference</a>
         </nav>
 
         <SettingsPanel />

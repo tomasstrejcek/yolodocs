@@ -27,6 +27,7 @@ declare const ConfigSchema: z.ZodObject<{
         name: string;
         operations: string[];
     }>, "many">>;
+    base: z.ZodDefault<z.ZodString>;
     dev: z.ZodDefault<z.ZodBoolean>;
     serve: z.ZodDefault<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
@@ -38,6 +39,7 @@ declare const ConfigSchema: z.ZodObject<{
     hideInternalTypes: boolean;
     showDescriptions: boolean;
     expandExampleDepth: number;
+    base: string;
     dev: boolean;
     serve: boolean;
     schema?: string | undefined;
@@ -75,6 +77,7 @@ declare const ConfigSchema: z.ZodObject<{
         name: string;
         operations: string[];
     }[] | undefined;
+    base?: string | undefined;
     dev?: boolean | undefined;
     serve?: boolean | undefined;
 }>;

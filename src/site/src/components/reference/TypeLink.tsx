@@ -1,4 +1,5 @@
 import schema from "../../data/schema.json";
+import { withBase } from "../../lib/base-path";
 
 interface TypeRef {
   name: string;
@@ -24,7 +25,7 @@ function renderTypeRef(ref: TypeRef): any {
     const anchor = getTypeAnchor(ref.name);
     return (
       <a
-        href={`/reference#${anchor}`}
+        href={withBase(`/reference#${anchor}`)}
         class="text-accent-blue hover:underline no-underline"
       >
         {ref.name}

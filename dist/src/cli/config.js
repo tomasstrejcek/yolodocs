@@ -26,6 +26,7 @@ const ConfigSchema = z.object({
         operations: z.array(z.string()),
     }))
         .optional(),
+    base: z.string().default(""),
     dev: z.boolean().default(false),
     serve: z.boolean().default(false),
 });
@@ -59,6 +60,8 @@ export async function loadConfig(cliOptions) {
         merged.endpoint = cliOptions.endpoint;
     if (cliOptions.docsDir)
         merged.docsDir = cliOptions.docsDir;
+    if (cliOptions.base)
+        merged.base = cliOptions.base;
     if (cliOptions.dev)
         merged.dev = true;
     if (cliOptions.serve)
@@ -72,6 +75,13 @@ export async function loadConfig(cliOptions) {
         throw new Error(`Invalid configuration:\n${issues}`);
     }
     const config = result.data;
+    // Normalize base: ensure leading /, strip trailing /
+    if (config.base) {
+        config.base = config.base.replace(/\/+$/, "");
+        if (!config.base.startsWith("/")) {
+            config.base = "/" + config.base;
+        }
+    }
     // Must have at least one schema source
     if (!config.schema && !config.introspectionUrl && !config.introspectionFile) {
         throw new Error("No schema source specified. Use --schema, --introspection-url, or --introspection-file");
