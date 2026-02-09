@@ -40,6 +40,7 @@ npx serve docs-site
 | `--title <title>` | Site title | `API Documentation` |
 | `--endpoint <url>` | GraphQL endpoint for playground | — |
 | `--docs-dir <path>` | Custom markdown docs folder | `./docs` |
+| `--base <path>` | Base path prefix for subpath serving (e.g. `/docs`) | — |
 | `-c, --config <path>` | Config file path | auto-detected |
 
 ## Config File
@@ -52,6 +53,7 @@ schema: "./schema.graphql"
 output: "./docs-site"
 endpoint: "https://api.example.com/graphql"
 docsDir: "./docs"
+base: "/docs"  # optional: serve under a subpath
 ```
 
 Then just run:
