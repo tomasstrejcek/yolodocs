@@ -1,6 +1,7 @@
 import { createSignal, Show, For, onMount, onCleanup } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import manifest from "../../data/manifest.json";
+import { withBase } from "../../lib/base-path";
 
 interface SearchResult {
   id: string;
@@ -58,11 +59,11 @@ export function SearchDialog(props: { open: boolean; onClose: () => void }) {
   };
 
   const navigate = (result: SearchResult) => {
-    const isDoc = result.anchor.startsWith("/docs/");
+    const isDoc = result.anchor.startsWith("/docs/") || result.anchor.includes("/docs/");
     if (isDoc) {
       window.location.href = result.anchor;
     } else {
-      window.location.href = `/reference${result.anchor}`;
+      window.location.href = withBase(`/reference${result.anchor}`);
     }
     props.onClose();
     setQuery("");

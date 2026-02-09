@@ -2,6 +2,7 @@ import { For, Show } from "solid-js";
 import schema from "../../data/schema.json";
 import { FieldTable } from "./FieldTable";
 import { DescriptionBlock } from "./DescriptionBlock";
+import { withBase } from "../../lib/base-path";
 
 export function TypeSection() {
   const types = (schema as any).types || [];
@@ -33,7 +34,7 @@ export function TypeSection() {
                     {(iface: string, i) => (
                       <>
                         <a
-                          href={`/reference#interface-${iface}`}
+                          href={withBase(`/reference#interface-${iface}`)}
                           class="text-accent-blue hover:underline no-underline"
                         >
                           {iface}

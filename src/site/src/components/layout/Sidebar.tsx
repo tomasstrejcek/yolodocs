@@ -1,6 +1,7 @@
 import { For, createSignal, Show, onMount, onCleanup } from "solid-js";
 import { useLocation } from "@solidjs/router";
 import manifest from "../../data/manifest.json";
+import { withBase } from "../../lib/base-path";
 
 interface Props {
   onNavigate?: () => void;
@@ -92,7 +93,7 @@ function SidebarSection(props: {
             {(item) => {
               const href = () => {
                 if (isDocSection()) return item.anchor;
-                return `/reference${item.anchor}`;
+                return withBase(`/reference${item.anchor}`);
               };
               const isActive = () => props.activeId === item.id;
 

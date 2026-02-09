@@ -3,6 +3,7 @@ import { Show, createMemo } from "solid-js";
 import { Shell } from "../../components/layout/Shell";
 import { MarkdownPage } from "../../components/markdown/MarkdownPage";
 import docsManifest from "../../data/docs-manifest.json";
+import { withBase } from "../../lib/base-path";
 
 export default function DocsPage() {
   const params = useParams();
@@ -24,7 +25,7 @@ export default function DocsPage() {
             <p class="text-text-secondary">
               The documentation page you're looking for doesn't exist.
             </p>
-            <a href="/" class="text-accent-blue hover:underline mt-4 inline-block">
+            <a href={withBase("/")} class="text-accent-blue hover:underline mt-4 inline-block">
               Go back home
             </a>
           </div>

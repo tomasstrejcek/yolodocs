@@ -18,6 +18,7 @@ export function createCli() {
         .option("--dev", "Run in development mode with hot reload")
         .option("--serve", "Serve built output for preview")
         .option("--docs-dir <path>", "Path to custom docs folder")
+        .option("--base <path>", "Base path prefix for serving under a subpath (e.g. /docs)")
         .action(async (options) => {
         try {
             const config = await loadConfig(options);

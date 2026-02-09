@@ -3,6 +3,7 @@ import schema from "../../data/schema.json";
 import siteConfig from "../../data/site-config.json";
 import docsManifest from "../../data/docs-manifest.json";
 import { CategoryCard } from "./CategoryCard";
+import { withBase } from "../../lib/base-path";
 
 export function WelcomePage() {
   const s = schema as any;
@@ -38,7 +39,7 @@ export function WelcomePage() {
             count={(s.queries || []).length}
             label="queries"
             color="text-accent-green"
-            href="/reference#queries"
+            href={withBase("/reference#queries")}
             icon="Q"
           />
         </Show>
@@ -49,7 +50,7 @@ export function WelcomePage() {
             count={(s.mutations || []).length}
             label="mutations"
             color="text-accent-orange"
-            href="/reference#mutations"
+            href={withBase("/reference#mutations")}
             icon="M"
           />
         </Show>
@@ -60,7 +61,7 @@ export function WelcomePage() {
             count={(s.types || []).length}
             label="types"
             color="text-accent-blue"
-            href="/reference#types"
+            href={withBase("/reference#types")}
             icon="T"
           />
         </Show>
@@ -71,7 +72,7 @@ export function WelcomePage() {
             count={(s.enums || []).length}
             label="enums"
             color="text-accent-purple"
-            href="/reference#enums"
+            href={withBase("/reference#enums")}
             icon="E"
           />
         </Show>
@@ -82,7 +83,7 @@ export function WelcomePage() {
             count={(s.inputs || []).length}
             label="input types"
             color="text-accent-orange"
-            href="/reference#inputs"
+            href={withBase("/reference#inputs")}
             icon="I"
           />
         </Show>
@@ -93,7 +94,7 @@ export function WelcomePage() {
             count={(s.interfaces || []).length}
             label="interfaces"
             color="text-syntax-type"
-            href="/reference#interfaces"
+            href={withBase("/reference#interfaces")}
             icon="IF"
           />
         </Show>
@@ -104,7 +105,7 @@ export function WelcomePage() {
             count={(s.unions || []).length}
             label="unions"
             color="text-syntax-variable"
-            href="/reference#unions"
+            href={withBase("/reference#unions")}
             icon="U"
           />
         </Show>
@@ -115,7 +116,7 @@ export function WelcomePage() {
             count={(s.scalars || []).length}
             label="custom scalars"
             color="text-text-muted"
-            href="/reference#scalars"
+            href={withBase("/reference#scalars")}
             icon="S"
           />
         </Show>
@@ -126,7 +127,7 @@ export function WelcomePage() {
             count={(docs.pages || []).length}
             label="pages"
             color="text-accent-blue"
-            href={`/docs/${(docs.pages || [])[0]?.slug || ""}`}
+            href={withBase(`/docs/${(docs.pages || [])[0]?.slug || ""}`)}
             icon="G"
           />
         </Show>

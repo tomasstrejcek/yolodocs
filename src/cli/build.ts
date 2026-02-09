@@ -53,7 +53,7 @@ export async function build(config: YolodocsConfig): Promise<void> {
   console.log(`        ${docsManifest.pages.length} custom pages`);
 
   // Step 4: Build navigation manifest
-  const manifest = buildNavigationManifest(schema, docsManifest);
+  const manifest = buildNavigationManifest(schema, docsManifest, config.base);
 
   // Step 5: Build static site
   console.log("  [4/5] Building static site...");
@@ -100,6 +100,7 @@ export async function build(config: YolodocsConfig): Promise<void> {
     playgroundHeaders: config.playgroundHeaders,
     hideDeprecated: config.hideDeprecated,
     showDescriptions: config.showDescriptions,
+    base: config.base,
   };
   fs.writeFileSync(
     path.join(dataDir, "site-config.json"),
@@ -207,7 +208,8 @@ async function loadSchema(config: YolodocsConfig): Promise<ParsedSchema> {
 
 function buildNavigationManifest(
   schema: ParsedSchema,
-  docsManifest: { pages: Array<{ slug: string; title: string; category: string }> }
+  docsManifest: { pages: Array<{ slug: string; title: string; category: string }> },
+  base: string
 ): NavigationManifest {
   const sections: NavigationSection[] = [];
 
@@ -227,7 +229,7 @@ function buildNavigationManifest(
         items: pages.map((p) => ({
           id: `doc-${p.slug}`,
           name: p.title,
-          anchor: `/docs/${p.slug}`,
+          anchor: `${base}/docs/${p.slug}`,
           description: "",
         })),
       });

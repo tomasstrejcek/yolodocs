@@ -1,13 +1,15 @@
 // Pagefind client wrapper
 // Pagefind is loaded from the generated _pagefind/ directory at runtime
 
+import { base } from "./base-path";
+
 let pagefind: any = null;
 
 export async function initSearch(): Promise<boolean> {
   if (typeof window === "undefined") return false;
 
   try {
-    pagefind = await import(/* @vite-ignore */ "/_pagefind/pagefind.js");
+    pagefind = await import(/* @vite-ignore */ `${base}/_pagefind/pagefind.js`);
     await pagefind.init();
     return true;
   } catch {
