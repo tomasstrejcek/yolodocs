@@ -12,7 +12,7 @@ export function QuerySection() {
 
   return (
     <Show when={queries.length > 0}>
-      <section class="mb-12">
+      <section id="queries" class="mb-12 scroll-mt-14">
         <div class="px-6 py-6 xl:px-8">
           <h2 class="text-2xl font-bold text-text-primary mb-1 flex items-center gap-2">
             Queries

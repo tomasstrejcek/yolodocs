@@ -172,7 +172,7 @@ function SidebarSubGroup(props: {
       </button>
 
       <Show when={!collapsed()}>
-        <ul class="ml-3 border-l border-border-primary">
+        <ul class="ml-5 border-l border-border-primary">
           <For each={props.item.children}>
             {(child) => {
               const href = () => {
@@ -185,7 +185,7 @@ function SidebarSubGroup(props: {
                 <li>
                   <a
                     href={href()}
-                    class="block pl-3 py-1 text-sm no-underline truncate -ml-px border-l-2 transition-colors"
+                    class="block pl-3 py-1 text-[13px] no-underline truncate -ml-px border-l-2 transition-colors"
                     classList={{
                       "font-semibold text-text-primary border-accent-blue": isActive(),
                       "text-text-secondary border-transparent hover:text-text-primary hover:border-text-muted": !isActive(),
