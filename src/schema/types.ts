@@ -100,6 +100,7 @@ export interface NavigationItem {
   name: string;
   anchor: string;
   description: string;
+  children?: NavigationItem[];
 }
 
 export interface ExampleData {

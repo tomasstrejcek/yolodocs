@@ -3,6 +3,13 @@ import { useLocation } from "@solidjs/router";
 import manifest from "../../data/manifest.json";
 import { withBase } from "../../lib/base-path";
 
+interface NavItem {
+  id: string;
+  name: string;
+  anchor: string;
+  children?: NavItem[];
+}
+
 interface Props {
   onNavigate?: () => void;
   activeId?: string;
@@ -30,8 +37,9 @@ export function Sidebar(props: Props) {
     if (props.activeId) return props.activeId;
     // For doc pages, match by pathname
     const pathname = location.pathname;
-    if (pathname.startsWith("/docs/")) {
-      const slug = pathname.replace("/docs/", "");
+    const docsPrefix = withBase("/docs/");
+    if (pathname.startsWith(docsPrefix)) {
+      const slug = pathname.slice(docsPrefix.length);
       return `doc-${slug}`;
     }
     // For reference page, match by hash
@@ -47,7 +55,7 @@ export function Sidebar(props: Props) {
           <SidebarSection
             id={section.id}
             title={section.title}
-            items={section.items}
+            items={section.items as NavItem[]}
             activeId={derivedActiveId()}
             onNavigate={props.onNavigate}
           />
@@ -60,14 +68,13 @@ export function Sidebar(props: Props) {
 function SidebarSection(props: {
   id: string;
   title: string;
-  items: Array<{ id: string; name: string; anchor: string }>;
+  items: NavItem[];
   activeId?: string;
   onNavigate?: () => void;
 }) {
   const [collapsed, setCollapsed] = createSignal(false);
-  const location = useLocation();
 
-  const isDocSection = () => props.id.startsWith("docs-");
+  const isDocSection = () => props.id.startsWith("docs");
 
   return (
     <div class="mb-4">
@@ -91,6 +98,17 @@ function SidebarSection(props: {
         <ul class="mt-1 ml-3 border-l border-border-primary">
           <For each={props.items}>
             {(item) => {
+              if (item.children && item.children.length > 0) {
+                return (
+                  <SidebarSubGroup
+                    item={item}
+                    activeId={props.activeId}
+                    isDocSection={isDocSection()}
+                    onNavigate={props.onNavigate}
+                  />
+                );
+              }
+
               const href = () => {
                 if (isDocSection()) return item.anchor;
                 return withBase(`/reference${item.anchor}`);
@@ -117,5 +135,71 @@ function SidebarSection(props: {
         </ul>
       </Show>
     </div>
+  );
+}
+
+function SidebarSubGroup(props: {
+  item: NavItem;
+  activeId?: string;
+  isDocSection: boolean;
+  onNavigate?: () => void;
+}) {
+  const [collapsed, setCollapsed] = createSignal(false);
+
+  const hasActiveChild = () =>
+    props.item.children?.some((child) => child.id === props.activeId) ?? false;
+
+  return (
+    <li class="mt-1">
+      <button
+        class="flex items-center gap-1 w-full pl-3 py-1 text-sm no-underline -ml-px border-l-2 border-transparent transition-colors"
+        classList={{
+          "font-semibold text-text-primary": hasActiveChild(),
+          "text-text-secondary hover:text-text-primary": !hasActiveChild(),
+        }}
+        onClick={() => setCollapsed(!collapsed())}
+      >
+        <svg
+          class="w-3 h-3 shrink-0 transition-transform"
+          classList={{ "rotate-[-90deg]": collapsed() }}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+        <span class="truncate">{props.item.name}</span>
+      </button>
+
+      <Show when={!collapsed()}>
+        <ul class="ml-3 border-l border-border-primary">
+          <For each={props.item.children}>
+            {(child) => {
+              const href = () => {
+                if (props.isDocSection) return child.anchor;
+                return withBase(`/reference${child.anchor}`);
+              };
+              const isActive = () => props.activeId === child.id;
+
+              return (
+                <li>
+                  <a
+                    href={href()}
+                    class="block pl-3 py-1 text-sm no-underline truncate -ml-px border-l-2 transition-colors"
+                    classList={{
+                      "font-semibold text-text-primary border-accent-blue": isActive(),
+                      "text-text-secondary border-transparent hover:text-text-primary hover:border-text-muted": !isActive(),
+                    }}
+                    onClick={() => props.onNavigate?.()}
+                  >
+                    {child.name}
+                  </a>
+                </li>
+              );
+            }}
+          </For>
+        </ul>
+      </Show>
+    </li>
   );
 }
