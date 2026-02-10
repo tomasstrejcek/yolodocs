@@ -208,25 +208,63 @@ async function loadSchema(config: YolodocsConfig): Promise<ParsedSchema> {
 
 function buildNavigationManifest(
   schema: ParsedSchema,
-  docsManifest: { pages: Array<{ slug: string; title: string; category: string }> },
+  docsManifest: { pages: Array<{ slug: string; title: string; category: string; order: number }> },
   base: string
 ): NavigationManifest {
   const sections: NavigationSection[] = [];
 
   // Add custom docs first (guides at the top of sidebar)
   if (docsManifest.pages.length > 0) {
-    const categories = new Map<string, typeof docsManifest.pages>();
+    const rootPages: typeof docsManifest.pages = [];
+    const folderMap = new Map<string, typeof docsManifest.pages>();
+
     for (const page of docsManifest.pages) {
-      const cat = categories.get(page.category) || [];
-      cat.push(page);
-      categories.set(page.category, cat);
+      const slashIdx = page.slug.indexOf("/");
+      if (slashIdx === -1) {
+        rootPages.push(page);
+      } else {
+        const folder = page.slug.slice(0, slashIdx);
+        const group = folderMap.get(folder) || [];
+        group.push(page);
+        folderMap.set(folder, group);
+      }
     }
 
-    for (const [category, pages] of categories) {
-      sections.push({
-        id: `docs-${category.toLowerCase().replace(/\s+/g, "-")}`,
-        title: category,
-        items: pages.map((p) => ({
+    const sortPages = (a: { order: number; title: string }, b: { order: number; title: string }) => {
+      if (a.order !== b.order) return a.order - b.order;
+      return a.title.localeCompare(b.title);
+    };
+
+    rootPages.sort(sortPages);
+
+    const items: Array<{ id: string; name: string; anchor: string; description: string; children?: Array<{ id: string; name: string; anchor: string; description: string }> }> = [];
+
+    // Root pages first
+    for (const p of rootPages) {
+      items.push({
+        id: `doc-${p.slug}`,
+        name: p.title,
+        anchor: `${base}/docs/${p.slug}`,
+        description: "",
+      });
+    }
+
+    // Folder groups alphabetically
+    const sortedFolders = [...folderMap.keys()].sort();
+    for (const folder of sortedFolders) {
+      const pages = folderMap.get(folder)!;
+      pages.sort(sortPages);
+
+      const folderLabel = folder
+        .replace(/-/g, " ")
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+
+      items.push({
+        id: `docs-folder-${folder}`,
+        name: folderLabel,
+        anchor: "",
+        description: "",
+        children: pages.map((p) => ({
           id: `doc-${p.slug}`,
           name: p.title,
           anchor: `${base}/docs/${p.slug}`,
@@ -234,6 +272,12 @@ function buildNavigationManifest(
         })),
       });
     }
+
+    sections.push({
+      id: "docs",
+      title: "Documentation",
+      items,
+    });
   }
 
   if (schema.queries.length > 0) {

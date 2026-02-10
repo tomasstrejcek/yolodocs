@@ -70,7 +70,6 @@ Add markdown files to your docs directory with frontmatter:
 ---
 title: Authentication
 order: 2
-category: Guides
 ---
 
 # Authentication
@@ -78,6 +77,25 @@ category: Guides
 Your content here. Supports **bold**, `inline code`, tables, blockquotes,
 images, and fenced code blocks with syntax highlighting.
 ```
+
+### Nested Folders
+
+Organize docs into subfolders to create collapsible groups in the sidebar (two levels max):
+
+```
+docs/
+├── getting-started.md        ← root-level pages appear first
+├── authentication.md
+├── guides/
+│   ├── filtering.md          ← grouped under "Guides"
+│   ├── sorting.md
+│   └── real-time-updates.md
+└── advanced/
+    ├── custom-scalars.md     ← grouped under "Advanced"
+    └── performance.md
+```
+
+Root-level files are listed first, followed by folder groups sorted alphabetically. Each folder becomes a collapsible section in the sidebar, with its name derived from the folder name. Pages within each group are sorted by `order`, then by `title`.
 
 ## CI/CD
 
