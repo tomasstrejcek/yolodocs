@@ -7,7 +7,7 @@ export function UnionSection() {
 
   return (
     <Show when={unions.length > 0}>
-      <section class="mb-12 px-6 py-6 xl:px-8">
+      <section id="unions" class="mb-12 px-6 py-6 xl:px-8 scroll-mt-14">
         <h2 class="text-2xl font-bold text-text-primary mb-1 flex items-center gap-2">
           <span class="text-syntax-variable">●</span> Unions
         </h2>
