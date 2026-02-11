@@ -1,5 +1,5 @@
 import { For, Show } from "solid-js";
-import { TypeLink } from "./TypeLink";
+import { TypeBadge } from "./TypeBadge";
 import { DeprecationBadge } from "./DeprecationBadge";
 
 interface FieldDef {
@@ -31,43 +31,33 @@ export function FieldTable(props: {
           {props.title}
         </h4>
       </Show>
-      <div class="border border-border-primary rounded-lg overflow-hidden">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="bg-bg-tertiary">
-              <th class="text-left px-3 py-2 text-xs font-semibold text-text-muted uppercase tracking-wider">Name</th>
-              <th class="text-left px-3 py-2 text-xs font-semibold text-text-muted uppercase tracking-wider">Type</th>
-              <th class="text-left px-3 py-2 text-xs font-semibold text-text-muted uppercase tracking-wider hidden md:table-cell">Description</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-border-secondary">
-            <For each={props.fields}>
-              {(field) => (
-                <tr class="hover:bg-bg-hover/50 transition-colors">
-                  <td class="px-3 py-2 font-mono text-sm text-text-primary whitespace-nowrap">
-                    <span>{field.name}</span>
-                    <Show when={field.defaultValue != null}>
-                      <span class="text-text-muted ml-1">
-                        = <span class="text-syntax-string">{field.defaultValue}</span>
-                      </span>
-                    </Show>
-                  </td>
-                  <td class="px-3 py-2 whitespace-nowrap">
-                    <TypeLink type={field.type} />
-                  </td>
-                  <td class="px-3 py-2 text-text-secondary hidden md:table-cell">
-                    <Show when={field.isDeprecated}>
-                      <DeprecationBadge reason={field.deprecationReason || null} />
-                    </Show>
-                    <Show when={field.description}>
-                      <span class="text-sm">{field.description}</span>
-                    </Show>
-                  </td>
-                </tr>
-              )}
-            </For>
-          </tbody>
-        </table>
+      <div class="border border-border-primary rounded-lg">
+        <For each={props.fields}>
+          {(field, i) => (
+            <div
+              class="px-3 py-2.5"
+              classList={{ "border-b border-border-secondary": i() < props.fields.length - 1 }}
+            >
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="font-mono text-sm font-semibold text-text-primary">
+                  {field.name}
+                </span>
+                <Show when={field.defaultValue != null}>
+                  <span class="text-text-muted text-sm">
+                    = <span class="text-syntax-string">{field.defaultValue}</span>
+                  </span>
+                </Show>
+                <TypeBadge type={field.type} />
+                <Show when={field.isDeprecated}>
+                  <DeprecationBadge reason={field.deprecationReason || null} />
+                </Show>
+              </div>
+              <Show when={field.description}>
+                <p class="mt-1 text-sm text-text-secondary">{field.description}</p>
+              </Show>
+            </div>
+          )}
+        </For>
       </div>
     </div>
   );
@@ -80,43 +70,33 @@ export function ArgsTable(props: {
     <Show when={props.args.length > 0}>
       <div class="mt-3">
         <h4 class="text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">Arguments</h4>
-        <div class="border border-border-primary rounded-lg overflow-hidden">
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="bg-bg-tertiary">
-                <th class="text-left px-3 py-2 text-xs font-semibold text-text-muted uppercase tracking-wider">Argument</th>
-                <th class="text-left px-3 py-2 text-xs font-semibold text-text-muted uppercase tracking-wider">Type</th>
-                <th class="text-left px-3 py-2 text-xs font-semibold text-text-muted uppercase tracking-wider hidden md:table-cell">Description</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-border-secondary">
-              <For each={props.args}>
-                {(arg) => (
-                  <tr class="hover:bg-bg-hover/50 transition-colors">
-                    <td class="px-3 py-2 font-mono text-sm text-syntax-variable whitespace-nowrap">
-                      {arg.name}
-                      <Show when={arg.defaultValue != null}>
-                        <span class="text-text-muted ml-1">
-                          = <span class="text-syntax-string">{arg.defaultValue}</span>
-                        </span>
-                      </Show>
-                    </td>
-                    <td class="px-3 py-2 whitespace-nowrap">
-                      <TypeLink type={arg.type} />
-                    </td>
-                    <td class="px-3 py-2 text-text-secondary hidden md:table-cell">
-                      <Show when={arg.isDeprecated}>
-                        <DeprecationBadge reason={arg.deprecationReason || null} />
-                      </Show>
-                      <Show when={arg.description}>
-                        <span class="text-sm">{arg.description}</span>
-                      </Show>
-                    </td>
-                  </tr>
-                )}
-              </For>
-            </tbody>
-          </table>
+        <div class="border border-border-primary rounded-lg">
+          <For each={props.args}>
+            {(arg, i) => (
+              <div
+                class="px-3 py-2.5"
+                classList={{ "border-b border-border-secondary": i() < props.args.length - 1 }}
+              >
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="font-mono text-sm font-semibold text-syntax-variable">
+                    {arg.name}
+                  </span>
+                  <Show when={arg.defaultValue != null}>
+                    <span class="text-text-muted text-sm">
+                      = <span class="text-syntax-string">{arg.defaultValue}</span>
+                    </span>
+                  </Show>
+                  <TypeBadge type={arg.type} />
+                  <Show when={arg.isDeprecated}>
+                    <DeprecationBadge reason={arg.deprecationReason || null} />
+                  </Show>
+                </div>
+                <Show when={arg.description}>
+                  <p class="mt-1 text-sm text-text-secondary">{arg.description}</p>
+                </Show>
+              </div>
+            )}
+          </For>
         </div>
       </div>
     </Show>
