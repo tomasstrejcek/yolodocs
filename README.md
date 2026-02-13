@@ -1,20 +1,43 @@
 # yolodocs
 
-Generate beautiful, searchable, static documentation sites from GraphQL schemas. No config required.
+Generate beautiful, searchable, static documentation sites from GraphQL schemas. One command, zero config, deploy anywhere.
 
-```
+```bash
 npx -y github:tomasstrejcek/yolodocs --schema schema.graphql --output docs-site
 ```
 
-## Features
+![Homepage — schema overview with category cards](.github/screenshot-home.png)
 
-- **Zero config** — point at a schema, get a docs site
-- **Static output** — deploy anywhere (GitHub Pages, Netlify, S3, etc.)
-- **Full-text search** — powered by Pagefind, works offline
-- **Syntax highlighting** — GraphQL and JSON with Monokai-inspired colors
-- **Interactive playground** — try queries against your API from the docs
-- **Custom docs** — add markdown guides alongside the generated reference
-- **Dark theme** — Tailwind-inspired dark UI
+## Why yolodocs?
+
+Most GraphQL documentation tools either require a running server (GraphiQL, Apollo Studio), need complex configuration (SpectaQL), or produce bare-bones output (graphql-markdown). yolodocs takes a different approach:
+
+- **One command** — point at a `.graphql` file or introspection endpoint, get a complete docs site
+- **Fully static** — the output is plain HTML/CSS/JS, no server required at runtime
+- **Complete out of the box** — auto-generated query/mutation examples, type reference, search, and navigation without any configuration
+
+## What You Get
+
+yolodocs generates a complete documentation site with:
+
+- **API reference** — every query, mutation, subscription, type, enum, interface, union, input, and scalar from your schema, organized in a sidebar with collapsible sections
+- **Auto-generated examples** — realistic query/mutation examples with variables and expected responses, generated from your schema's type definitions
+- **Type badges** — colored pills showing argument types (green for scalars, purple for enums, blue for objects, orange for non-null `!`)
+- **Full-text search** — powered by Pagefind, works entirely client-side with no server
+- **Custom guide pages** — write markdown docs alongside the generated reference, with syntax-highlighted code blocks
+- **Dark theme UI** — Tailwind CSS v4 dark theme inspired by modern developer tools
+
+### API Reference
+
+Each operation shows its description, return type, arguments with type badges, and a side panel with the auto-generated query, variables, and example response:
+
+![Reference page — query detail with auto-generated example](.github/screenshot-reference.png)
+
+### Custom Documentation
+
+Add markdown files with frontmatter to include guide pages. Supports nested folders for collapsible sidebar groups, fenced code blocks with syntax highlighting, and standard markdown formatting:
+
+![Docs page — custom markdown guide with syntax highlighting](.github/screenshot-docs.png)
 
 ## Quick Start
 
@@ -127,6 +150,23 @@ jobs:
 4. Builds a SolidStart static site with Tailwind CSS
 5. Creates a Pagefind search index over all content
 6. Outputs a static folder you can deploy anywhere
+
+## Development
+
+```bash
+npm run build    # compile TypeScript -> dist/
+npm run dev      # watch mode
+npm test         # run tests (vitest)
+```
+
+End-to-end test with a real schema:
+
+```bash
+rm -rf test-output && node dist/bin/yolodocs.js --schema schema.graphql --output test-output --title "Test API" --docs-dir ./docs
+npx serve test-output -p 3456
+```
+
+`dist/` is committed to git so the tool works via `npx github:tomasstrejcek/yolodocs`. After changing source files, run `npm run build` and commit `dist/` alongside your changes.
 
 ## Tech Stack
 

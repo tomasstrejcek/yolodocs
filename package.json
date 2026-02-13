@@ -12,6 +12,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
+    "test": "vitest run",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
@@ -23,17 +24,18 @@
   "license": "MIT",
   "dependencies": {
     "commander": "^12.1.0",
+    "fs-extra": "^11.2.0",
     "graphql": "^16.9.0",
+    "gray-matter": "^4.0.3",
     "js-yaml": "^4.1.0",
     "marked": "^14.0.0",
-    "gray-matter": "^4.0.3",
-    "zod": "^3.23.0",
-    "fs-extra": "^11.2.0"
+    "zod": "^3.23.0"
   },
   "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.0.0",
-    "@types/fs-extra": "^11.0.4",
-    "typescript": "^5.6.0"
+    "typescript": "^5.6.0",
+    "vitest": "^4.0.18"
   }
 }

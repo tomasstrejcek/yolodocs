@@ -17,5 +17,5 @@
     "isolatedModules": true
   },
   "include": ["bin/**/*.ts", "src/cli/**/*.ts", "src/schema/**/*.ts", "src/markdown/**/*.ts", "src/index.ts"],
-  "exclude": ["node_modules", "dist", "src/site/**"]
+  "exclude": ["node_modules", "dist", "src/site/**", "**/*.test.ts"]
 }
