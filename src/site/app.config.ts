@@ -10,13 +10,24 @@ const siteConfig = JSON.parse(
 );
 const base = siteConfig.base || "";
 
+// Read docs manifest to generate explicit prerender routes
+const docsManifest = JSON.parse(
+  readFileSync(resolve(__dirname, "src/data/docs-manifest.json"), "utf-8")
+);
+
+const prerenderRoutes = ["/", "/reference"];
+for (const page of (docsManifest as any).pages || []) {
+  prerenderRoutes.push(`/docs/${page.slug}`);
+}
+
 export default defineConfig({
   server: {
     baseURL: base || undefined,
     preset: "static",
     prerender: {
-      routes: ["/", "/reference"],
+      routes: prerenderRoutes,
       crawlLinks: true,
+      failOnError: true,
     },
   },
   vite: {
