@@ -122,9 +122,19 @@ jobs:
 ## Development
 
 ```bash
-npm run build    # compile TypeScript
+npm run build    # compile TypeScript -> dist/
+npm run dev      # watch mode
 npm test         # run tests (vitest)
 ```
+
+End-to-end test with a real schema:
+
+```bash
+rm -rf test-output && node dist/bin/yolodocs.js --schema schema.graphql --output test-output --title "Test API" --docs-dir ./docs
+npx serve test-output -p 3456
+```
+
+`dist/` is committed to git so the tool works via `npx github:tomasstrejcek/yolodocs`. After changing source files, run `npm run build` and commit `dist/` alongside your changes.
 
 ## How It Works
 
