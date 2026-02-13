@@ -119,6 +119,13 @@ jobs:
           path: docs-site
 ```
 
+## Development
+
+```bash
+npm run build    # compile TypeScript
+npm test         # run tests (vitest)
+```
+
 ## How It Works
 
 1. Parses your GraphQL schema (SDL, introspection URL, or JSON)
