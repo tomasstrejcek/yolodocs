@@ -142,6 +142,12 @@ export async function build(config: YolodocsConfig): Promise<void> {
     throw new Error("SolidStart build failed");
   }
 
+  // Log prerender summary from build output
+  const prerenderSummary = buildOutput.match(/Prerendered \d+ routes? in .+/);
+  if (prerenderSummary) {
+    console.log(`        ${prerenderSummary[0]}`);
+  }
+
   // Copy built output
   const builtOutput = path.join(buildDir, ".output", "public");
   if (fs.existsSync(builtOutput)) {
@@ -153,6 +159,20 @@ export async function build(config: YolodocsConfig): Promise<void> {
     console.error(buildOutput);
     throw new Error(
       "Build failed: .output/public not found. Run with YOLODOCS_DEBUG=1 to inspect the build directory."
+    );
+  }
+
+  // Validate HTML was actually generated
+  const indexHtml = path.join(outputDir, "index.html");
+  if (!fs.existsSync(indexHtml)) {
+    console.error("\n        Build succeeded but no HTML files were generated.");
+    console.error("        The SolidStart prerender step likely failed silently.");
+    console.error("        Full build output:\n");
+    console.error(buildOutput);
+    throw new Error(
+      "Build failed: prerender produced no HTML files. " +
+      "This often happens in Docker/CI environments due to Node version incompatibilities. " +
+      "Run with YOLODOCS_DEBUG=1 to keep the build directory for inspection."
     );
   }
 
