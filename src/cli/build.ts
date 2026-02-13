@@ -86,10 +86,24 @@ export async function build(config: YolodocsConfig): Promise<void> {
     path.join(dataDir, "examples.json"),
     JSON.stringify(examples, null, 2)
   );
+  // Write docs-manifest.json without content (metadata only) to keep bundle small
+  const docsManifestMeta = {
+    pages: docsManifest.pages.map(({ content, ...meta }) => meta),
+  };
   fs.writeFileSync(
     path.join(dataDir, "docs-manifest.json"),
-    JSON.stringify(docsManifest, null, 2)
+    JSON.stringify(docsManifestMeta, null, 2)
   );
+
+  // Write individual doc page content as separate JS modules to avoid
+  // bundling all markdown into one large JSON module (breaks Nitro prerender)
+  const docsPagesDir = path.join(dataDir, "docs-pages");
+  fse.ensureDirSync(docsPagesDir);
+  for (const page of docsManifest.pages) {
+    const pageFile = path.join(docsPagesDir, `${page.slug}.js`);
+    fse.ensureDirSync(path.dirname(pageFile));
+    fs.writeFileSync(pageFile, `export default ${JSON.stringify(page.content)};`);
+  }
 
   // Write site config for the SolidStart app
   const siteConfig = {
