@@ -1,19 +1,36 @@
 import { useParams } from "@solidjs/router";
-import { Show, createMemo } from "solid-js";
+import { Show, createMemo, createResource } from "solid-js";
 import { Shell } from "../../components/layout/Shell";
 import { MarkdownPage } from "../../components/markdown/MarkdownPage";
 import docsManifest from "../../data/docs-manifest.json";
 import { withBase } from "../../lib/base-path";
 
+// Lazy-load individual doc page content to avoid bundling all markdown
+// into one large JSON module (which breaks Nitro prerender in Docker)
+const contentModules = import.meta.glob<string>(
+  "../../data/docs-pages/**/*.js",
+  { import: "default" }
+);
+
+async function loadContent(slug: string): Promise<string> {
+  const key = `../../data/docs-pages/${slug}.js`;
+  const loader = contentModules[key];
+  if (!loader) return "";
+  return (await loader()) as string;
+}
+
 export default function DocsPage() {
   const params = useParams();
 
+  const slug = createMemo(() => params.path || "");
+
   const page = createMemo(() => {
-    const slug = params.path || "";
     return (docsManifest as any).pages?.find(
-      (p: any) => p.slug === slug
+      (p: any) => p.slug === slug()
     );
   });
+
+  const [content] = createResource(slug, loadContent);
 
   return (
     <Shell>
@@ -31,7 +48,7 @@ export default function DocsPage() {
           </div>
         }
       >
-        <MarkdownPage title={page()!.title} content={page()!.content} />
+        <MarkdownPage title={page()!.title} content={content() || ""} />
       </Show>
     </Shell>
   );
