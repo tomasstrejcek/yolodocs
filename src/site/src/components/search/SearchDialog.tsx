@@ -1,4 +1,4 @@
-import { createSignal, Show, For, onMount, onCleanup } from "solid-js";
+import { createSignal, createEffect, Show, For, onCleanup } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import manifest from "../../data/manifest.json";
 import { withBase } from "../../lib/base-path";
@@ -84,9 +84,9 @@ export function SearchDialog(props: { open: boolean; onClose: () => void }) {
   };
 
   // Focus input when dialog opens
-  onMount(() => {
+  createEffect(() => {
     if (props.open) {
-      setTimeout(() => inputRef?.focus(), 50);
+      setTimeout(() => inputRef?.focus(), 0);
     }
   });
 
