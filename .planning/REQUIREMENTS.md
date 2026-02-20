@@ -9,10 +9,10 @@
 
 - [ ] **NAV-01**: Sidebar renders 3-level folder hierarchy (section → collapsible group → leaf page)
 - [ ] **NAV-02**: `SidebarSubGroup` (or replacement) recursively renders nested children up to 3 levels
-- [ ] **NAV-03**: Folder group labels are title-cased from directory names (e.g., `developer-reference/` → "Developer Reference")
+- [x] **NAV-03**: Folder group labels are title-cased from directory names (e.g., `developer-reference/` → "Developer Reference")
 - [ ] **NAV-04**: Active page is visually highlighted in sidebar regardless of nesting depth
 - [ ] **NAV-05**: Collapsible sidebar groups retain expanded/collapsed state across page navigation
-- [ ] **NAV-06**: Top-level docs folders become separate sidebar sections (e.g., `docs/product/` → "Product Docs" section, `docs/developer/` → "Developer Docs" section)
+- [x] **NAV-06**: Top-level docs folders become separate sidebar sections (e.g., `docs/product/` → "Product Docs" section, `docs/developer/` → "Developer Docs" section)
 - [ ] **NAV-07**: Sidebar group containing the active page auto-expands on direct URL access
 
 ### Titles
@@ -31,9 +31,9 @@
 
 ### Data Layer
 
-- [ ] **DATA-01**: `buildNavigationManifest` parses two levels of path segments for 3-level hierarchy
+- [x] **DATA-01**: `buildNavigationManifest` parses two levels of path segments for 3-level hierarchy
 - [x] **DATA-02**: `scanDocsFolder` extracts first H1 from markdown body as title source
-- [ ] **DATA-03**: Docs manifest correctly handles nested slug paths (e.g., `product/guides/filtering`)
+- [x] **DATA-03**: Docs manifest correctly handles nested slug paths (e.g., `product/guides/filtering`)
 - [x] **DATA-04**: No slug collisions between files and folders at the same level
 
 ## v2 Requirements
@@ -60,10 +60,10 @@
 |-------------|-------|--------|
 | NAV-01 | Phase 3 | Pending |
 | NAV-02 | Phase 3 | Pending |
-| NAV-03 | Phase 1 | Pending |
+| NAV-03 | Phase 1 | Complete |
 | NAV-04 | Phase 3 | Pending |
 | NAV-05 | Phase 3 | Pending |
-| NAV-06 | Phase 1 | Pending |
+| NAV-06 | Phase 1 | Complete |
 | NAV-07 | Phase 3 | Pending |
 | TITL-01 | Phase 1 | Complete |
 | TITL-02 | Phase 1 | Complete |
@@ -73,9 +73,9 @@
 | HOST-02 | Phase 2 | Pending |
 | HOST-03 | Phase 2 | Pending |
 | HOST-04 | Phase 2 | Pending |
-| DATA-01 | Phase 1 | Pending |
+| DATA-01 | Phase 1 | Complete |
 | DATA-02 | Phase 1 | Complete |
-| DATA-03 | Phase 1 | Pending |
+| DATA-03 | Phase 1 | Complete |
 | DATA-04 | Phase 1 | Complete |
 
 **Coverage:**

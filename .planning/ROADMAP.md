@@ -10,7 +10,7 @@ Three tightly coupled improvements ship in dependency order: the manifest builde
 - Integer phases (1, 2, 3): Planned milestone work
 - Decimal phases (e.g., 2.1): Urgent insertions only
 
-- [ ] **Phase 1: Data Layer** - Extend manifest builder and markdown loader to emit 3-level hierarchy with H1-derived titles
+- [x] **Phase 1: Data Layer** - Extend manifest builder and markdown loader to emit 3-level hierarchy with H1-derived titles
 - [ ] **Phase 2: Flat HTML Output** - Switch Nitro prerender to flat `.html` files and update all anchor hrefs
 - [ ] **Phase 3: Sidebar and Page Rendering** - Recursive sidebar component, active state, page titles, and docs restructuring
 
@@ -29,8 +29,8 @@ Three tightly coupled improvements ship in dependency order: the manifest builde
 **Plans:** 2 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — TDD: Loader enhancements (H1 extraction, slug normalization, collision detection)
-- [ ] 01-02-PLAN.md — TDD: Manifest restructuring (3-level hierarchy, multi-section, title-casing)
+- [x] 01-01-PLAN.md — TDD: Loader enhancements (H1 extraction, slug normalization, collision detection)
+- [x] 01-02-PLAN.md — TDD: Manifest restructuring (3-level hierarchy, multi-section, title-casing)
 
 ### Phase 2: Flat HTML Output
 **Goal**: Prerender produces flat `.html` files and all doc links use `.html`-suffixed paths that work on GCS/S3 without URL rewriting
@@ -62,6 +62,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Data Layer | 0/2 | Not started | - |
+| 1. Data Layer | 2/2 | Complete | 2026-02-20 |
 | 2. Flat HTML Output | 0/TBD | Not started | - |
 | 3. Sidebar and Page Rendering | 0/TBD | Not started | - |
