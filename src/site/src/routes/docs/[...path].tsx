@@ -22,7 +22,10 @@ async function loadContent(slug: string): Promise<string> {
 export default function DocsPage() {
   const params = useParams();
 
-  const slug = createMemo(() => params.path || "");
+  const slug = createMemo(() => {
+    const raw = params.path || "";
+    return raw.endsWith(".html") ? raw.slice(0, -5) : raw;
+  });
 
   const page = createMemo(() => {
     return (docsManifest as any).pages?.find(

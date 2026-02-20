@@ -39,7 +39,8 @@ export function Sidebar(props: Props) {
     const pathname = location.pathname;
     const docsPrefix = withBase("/docs/");
     if (pathname.startsWith(docsPrefix)) {
-      const slug = pathname.slice(docsPrefix.length);
+      const rawSlug = pathname.slice(docsPrefix.length);
+      const slug = rawSlug.endsWith(".html") ? rawSlug.slice(0, -5) : rawSlug;
       return `doc-${slug}`;
     }
     // For reference page, match by hash
