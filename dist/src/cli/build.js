@@ -174,54 +174,52 @@ async function loadSchema(config) {
     }
     throw new Error("No schema source configured");
 }
-function buildNavigationManifest(schema, docsManifest, base) {
+export function toTitleCase(s) {
+    return s.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+const sortPages = (a, b) => {
+    if (a.order !== b.order)
+        return a.order - b.order;
+    return a.title.localeCompare(b.title);
+};
+export function buildNavigationManifest(schema, docsManifest, base) {
     const sections = [];
     // Add custom docs first (guides at the top of sidebar)
     if (docsManifest.pages.length > 0) {
         const rootPages = [];
-        const folderMap = new Map();
+        // sectionKey -> { ungrouped: pages, groups: groupKey -> pages }
+        const sectionMap = new Map();
         for (const page of docsManifest.pages) {
-            const slashIdx = page.slug.indexOf("/");
-            if (slashIdx === -1) {
+            const parts = page.slug.split("/");
+            if (parts.length === 1) {
+                // Root page (no folder)
                 rootPages.push(page);
             }
+            else if (parts.length === 2) {
+                // 2-segment: section=parts[0], ungrouped leaf
+                const sectionKey = parts[0];
+                const entry = sectionMap.get(sectionKey) ?? { ungrouped: [], groups: new Map() };
+                entry.ungrouped.push(page);
+                sectionMap.set(sectionKey, entry);
+            }
             else {
-                const folder = page.slug.slice(0, slashIdx);
-                const group = folderMap.get(folder) || [];
-                group.push(page);
-                folderMap.set(folder, group);
+                // 3+ segments: section=parts[0], group=parts[1], leaf=rest
+                const sectionKey = parts[0];
+                const groupKey = parts[1];
+                const entry = sectionMap.get(sectionKey) ?? { ungrouped: [], groups: new Map() };
+                const groupPages = entry.groups.get(groupKey) ?? [];
+                groupPages.push(page);
+                entry.groups.set(groupKey, groupPages);
+                sectionMap.set(sectionKey, entry);
             }
         }
-        const sortPages = (a, b) => {
-            if (a.order !== b.order)
-                return a.order - b.order;
-            return a.title.localeCompare(b.title);
-        };
-        rootPages.sort(sortPages);
-        const items = [];
-        // Root pages first
-        for (const p of rootPages) {
-            items.push({
-                id: `doc-${p.slug}`,
-                name: p.title,
-                anchor: `${base}/docs/${p.slug}`,
-                description: "",
-            });
-        }
-        // Folder groups alphabetically
-        const sortedFolders = [...folderMap.keys()].sort();
-        for (const folder of sortedFolders) {
-            const pages = folderMap.get(folder);
-            pages.sort(sortPages);
-            const folderLabel = folder
-                .replace(/-/g, " ")
-                .replace(/\b\w/g, (c) => c.toUpperCase());
-            items.push({
-                id: `docs-folder-${folder}`,
-                name: folderLabel,
-                anchor: "",
-                description: "",
-                children: pages.map((p) => ({
+        // Emit root "Documentation" section
+        if (rootPages.length > 0) {
+            rootPages.sort(sortPages);
+            sections.push({
+                id: "docs",
+                title: "Documentation",
+                items: rootPages.map((p) => ({
                     id: `doc-${p.slug}`,
                     name: p.title,
                     anchor: `${base}/docs/${p.slug}`,
@@ -229,11 +227,45 @@ function buildNavigationManifest(schema, docsManifest, base) {
                 })),
             });
         }
-        sections.push({
-            id: "docs",
-            title: "Documentation",
-            items,
-        });
+        // Emit folder sections alphabetically by section key
+        const sortedSectionKeys = [...sectionMap.keys()].sort();
+        for (const sectionKey of sortedSectionKeys) {
+            const { ungrouped, groups } = sectionMap.get(sectionKey);
+            ungrouped.sort(sortPages);
+            const items = [];
+            // Ungrouped pages first (sorted by order/title)
+            for (const p of ungrouped) {
+                items.push({
+                    id: `doc-${p.slug}`,
+                    name: p.title,
+                    anchor: `${base}/docs/${p.slug}`,
+                    description: "",
+                });
+            }
+            // Groups alphabetically by group key
+            const sortedGroupKeys = [...groups.keys()].sort();
+            for (const groupKey of sortedGroupKeys) {
+                const groupPages = groups.get(groupKey);
+                groupPages.sort(sortPages);
+                items.push({
+                    id: `docs-folder-${sectionKey}-${groupKey}`,
+                    name: toTitleCase(groupKey),
+                    anchor: "",
+                    description: "",
+                    children: groupPages.map((p) => ({
+                        id: `doc-${p.slug}`,
+                        name: p.title,
+                        anchor: `${base}/docs/${p.slug}`,
+                        description: "",
+                    })),
+                });
+            }
+            sections.push({
+                id: `docs-${sectionKey}`,
+                title: toTitleCase(sectionKey),
+                items,
+            });
+        }
     }
     if (schema.queries.length > 0) {
         sections.push({
