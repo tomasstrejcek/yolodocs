@@ -83,4 +83,4 @@ query SortedAccounts {
 
 ---
 
-*For more information on optimizing data fetching, see the [Error Handling](/docs/error-handling) guide for retry strategies.*
+*For more information on optimizing data fetching, see the [Error Handling](/docs/developer/error-handling) guide for retry strategies.*

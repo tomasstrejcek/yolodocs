@@ -87,4 +87,4 @@ API keys **do not expire** but can be revoked at any time. They have the same pe
 
 ---
 
-*For error handling related to authentication failures, see the [Error Handling](/docs/error-handling) guide.*
+*For error handling related to authentication failures, see the [Error Handling](/docs/developer/error-handling) guide.*
