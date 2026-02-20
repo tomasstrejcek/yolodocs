@@ -24,9 +24,9 @@
 
 ### Static Hosting
 
-- [ ] **HOST-01**: Prerender output produces flat HTML files (e.g., `architecture.html` instead of `architecture/index.html`)
-- [ ] **HOST-02**: Direct URL access works on GCS/S3 without clean-URL resolution or server-side rewrites
-- [ ] **HOST-03**: Sidebar anchor hrefs match the flat HTML file paths
+- [x] **HOST-01**: Prerender output produces flat HTML files (e.g., `architecture.html` instead of `architecture/index.html`)
+- [x] **HOST-02**: Direct URL access works on GCS/S3 without clean-URL resolution or server-side rewrites
+- [x] **HOST-03**: Sidebar anchor hrefs match the flat HTML file paths
 - [ ] **HOST-04**: Active state derivation handles `.html` extension in URL pathname
 
 ### Data Layer
@@ -69,9 +69,9 @@
 | TITL-02 | Phase 1 | Complete |
 | TITL-03 | Phase 3 | Pending |
 | TITL-04 | Phase 3 | Pending |
-| HOST-01 | Phase 2 | Pending |
-| HOST-02 | Phase 2 | Pending |
-| HOST-03 | Phase 2 | Pending |
+| HOST-01 | Phase 2 | Complete |
+| HOST-02 | Phase 2 | Complete |
+| HOST-03 | Phase 2 | Complete |
 | HOST-04 | Phase 2 | Pending |
 | DATA-01 | Phase 1 | Complete |
 | DATA-02 | Phase 1 | Complete |
