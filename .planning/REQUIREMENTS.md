@@ -7,13 +7,13 @@
 
 ### Navigation
 
-- [ ] **NAV-01**: Sidebar renders 3-level folder hierarchy (section → collapsible group → leaf page)
-- [ ] **NAV-02**: `SidebarSubGroup` (or replacement) recursively renders nested children up to 3 levels
+- [x] **NAV-01**: Sidebar renders 3-level folder hierarchy (section → collapsible group → leaf page)
+- [x] **NAV-02**: `SidebarSubGroup` (or replacement) recursively renders nested children up to 3 levels
 - [x] **NAV-03**: Folder group labels are title-cased from directory names (e.g., `developer-reference/` → "Developer Reference")
-- [ ] **NAV-04**: Active page is visually highlighted in sidebar regardless of nesting depth
-- [ ] **NAV-05**: Collapsible sidebar groups retain expanded/collapsed state across page navigation
+- [x] **NAV-04**: Active page is visually highlighted in sidebar regardless of nesting depth
+- [x] **NAV-05**: Collapsible sidebar groups retain expanded/collapsed state across page navigation
 - [x] **NAV-06**: Top-level docs folders become separate sidebar sections (e.g., `docs/product/` → "Product Docs" section, `docs/developer/` → "Developer Docs" section)
-- [ ] **NAV-07**: Sidebar group containing the active page auto-expands on direct URL access
+- [x] **NAV-07**: Sidebar group containing the active page auto-expands on direct URL access
 
 ### Titles
 
@@ -58,13 +58,13 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| NAV-01 | Phase 3 | Pending |
-| NAV-02 | Phase 3 | Pending |
+| NAV-01 | Phase 3 | Complete |
+| NAV-02 | Phase 3 | Complete |
 | NAV-03 | Phase 1 | Complete |
-| NAV-04 | Phase 3 | Pending |
-| NAV-05 | Phase 3 | Pending |
+| NAV-04 | Phase 3 | Complete |
+| NAV-05 | Phase 3 | Complete |
 | NAV-06 | Phase 1 | Complete |
-| NAV-07 | Phase 3 | Pending |
+| NAV-07 | Phase 3 | Complete |
 | TITL-01 | Phase 1 | Complete |
 | TITL-02 | Phase 1 | Complete |
 | TITL-03 | Phase 3 | Complete |

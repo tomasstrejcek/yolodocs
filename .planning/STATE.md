@@ -82,5 +82,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-20
-Stopped at: Completed 03-02-PLAN.md (conditional H1 suppression in MarkdownPage, reactive document.title in DocsPage)
+Stopped at: Completed 03-01-PLAN.md (localStorage collapse persistence in SidebarSubGroup, recursive SearchDialog flattenNavItems) and 03-02-PLAN.md (conditional H1 suppression in MarkdownPage, reactive document.title in DocsPage)
 Resume file: None
