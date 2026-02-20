@@ -250,7 +250,7 @@ describe("buildNavigationManifest", () => {
     expect(section.title).toBe("Documentation");
     expect(section.items).toHaveLength(1);
     expect(section.items[0].name).toBe("Getting Started");
-    expect(section.items[0].anchor).toBe("/docs/getting-started");
+    expect(section.items[0].anchor).toBe("/docs/getting-started.html");
   });
 
   it("produces separate NavigationSections per top-level folder", () => {
@@ -305,7 +305,7 @@ describe("buildNavigationManifest", () => {
     // children sorted alphabetically (same order => sort by title)
     expect(group.children![0].name).toBe("Auth");
     expect(group.children![1].name).toBe("Filtering");
-    expect(group.children![0].anchor).toBe("/docs/product/guides/auth");
+    expect(group.children![0].anchor).toBe("/docs/product/guides/auth.html");
   });
 
   it("places ungrouped 2-level pages directly in section (no group wrapper)", () => {
@@ -318,7 +318,7 @@ describe("buildNavigationManifest", () => {
     const section = manifest.sections.find((s) => s.id === "docs-product")!;
     expect(section.items).toHaveLength(1);
     expect(section.items[0].name).toBe("Billing");
-    expect(section.items[0].anchor).toBe("/docs/product/billing");
+    expect(section.items[0].anchor).toBe("/docs/product/billing.html");
     expect(section.items[0].children).toBeUndefined();
   });
 
@@ -400,7 +400,7 @@ describe("buildNavigationManifest", () => {
     const group = section.items[0];
     expect(group.id).toBe("docs-folder-a-b");
     expect(group.children).toHaveLength(1);
-    expect(group.children![0].anchor).toBe("/docs/a/b/c/d");
+    expect(group.children![0].anchor).toBe("/docs/a/b/c/d.html");
   });
 
   it("respects base prefix in anchor URLs", () => {
@@ -411,7 +411,7 @@ describe("buildNavigationManifest", () => {
     };
     const manifest = buildNavigationManifest(emptySchema, docs, "/v2");
     const section = manifest.sections[0];
-    expect(section.items[0].anchor).toBe("/v2/docs/getting-started");
+    expect(section.items[0].anchor).toBe("/v2/docs/getting-started.html");
   });
 
   it("schema sections remain unchanged and appear after docs sections", () => {
