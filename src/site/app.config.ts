@@ -28,6 +28,7 @@ export default defineConfig({
       routes: prerenderRoutes,
       crawlLinks: true,
       failOnError: true,
+      autoSubfolderIndex: false,
     },
   },
   vite: {

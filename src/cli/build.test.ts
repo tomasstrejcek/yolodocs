@@ -4,6 +4,7 @@ import fse from "fs-extra";
 import path from "node:path";
 import os from "node:os";
 import type { DocsManifest } from "../schema/types.js";
+import { buildNavigationManifest, toTitleCase } from "./build.js";
 
 /**
  * Regression test for Nitro prerender JSON corruption.
@@ -201,5 +202,261 @@ describe("docs content splitting", () => {
     );
     expect(written.pages).toHaveLength(0);
     expect(fs.existsSync(path.join(tmpDir, "docs-pages"))).toBe(true);
+  });
+});
+
+// Helper to build an empty schema for use in manifest tests
+const emptySchema = {
+  queries: [],
+  mutations: [],
+  subscriptions: [],
+  types: [],
+  enums: [],
+  interfaces: [],
+  unions: [],
+  inputs: [],
+  scalars: [],
+};
+
+describe("toTitleCase", () => {
+  it("converts a single word", () => {
+    expect(toTitleCase("product")).toBe("Product");
+  });
+
+  it("converts hyphen-separated words", () => {
+    expect(toTitleCase("developer-reference")).toBe("Developer Reference");
+  });
+
+  it("converts a multi-part hyphenated slug", () => {
+    expect(toTitleCase("auth-and-oauth")).toBe("Auth And Oauth");
+  });
+
+  it("leaves already-capitalised word unchanged", () => {
+    expect(toTitleCase("Auth")).toBe("Auth");
+  });
+});
+
+describe("buildNavigationManifest", () => {
+  it("produces a 'Documentation' section for root-level pages", () => {
+    const docs = {
+      pages: [
+        { slug: "getting-started", title: "Getting Started", category: "", order: 0, content: "" },
+      ],
+    };
+    const manifest = buildNavigationManifest(emptySchema, docs, "");
+    expect(manifest.sections).toHaveLength(1);
+    const section = manifest.sections[0];
+    expect(section.id).toBe("docs");
+    expect(section.title).toBe("Documentation");
+    expect(section.items).toHaveLength(1);
+    expect(section.items[0].name).toBe("Getting Started");
+    expect(section.items[0].anchor).toBe("/docs/getting-started.html");
+  });
+
+  it("produces separate NavigationSections per top-level folder", () => {
+    const docs = {
+      pages: [
+        { slug: "product/billing", title: "Billing", category: "", order: 0, content: "" },
+        { slug: "developer/api", title: "Api", category: "", order: 0, content: "" },
+      ],
+    };
+    const manifest = buildNavigationManifest(emptySchema, docs, "");
+    // developer comes before product alphabetically
+    const ids = manifest.sections.map((s) => s.id);
+    expect(ids).toContain("docs-developer");
+    expect(ids).toContain("docs-product");
+    expect(ids).not.toContain("docs");
+  });
+
+  it("places root pages in docs section and folder pages in separate sections", () => {
+    const docs = {
+      pages: [
+        { slug: "getting-started", title: "Getting Started", category: "", order: 0, content: "" },
+        { slug: "product/billing", title: "Billing", category: "", order: 0, content: "" },
+      ],
+    };
+    const manifest = buildNavigationManifest(emptySchema, docs, "");
+    const ids = manifest.sections.map((s) => s.id);
+    expect(ids).toContain("docs");
+    expect(ids).toContain("docs-product");
+    // root section comes first
+    expect(ids.indexOf("docs")).toBeLessThan(ids.indexOf("docs-product"));
+  });
+
+  it("creates a group item for 3-level slugs (section > group > page)", () => {
+    const docs = {
+      pages: [
+        { slug: "product/guides/filtering", title: "Filtering", category: "", order: 0, content: "" },
+        { slug: "product/guides/auth", title: "Auth", category: "", order: 0, content: "" },
+      ],
+    };
+    const manifest = buildNavigationManifest(emptySchema, docs, "");
+    expect(manifest.sections).toHaveLength(1);
+    const section = manifest.sections[0];
+    expect(section.id).toBe("docs-product");
+    expect(section.title).toBe("Product");
+    // One group item
+    expect(section.items).toHaveLength(1);
+    const group = section.items[0];
+    expect(group.id).toBe("docs-folder-product-guides");
+    expect(group.name).toBe("Guides");
+    expect(group.anchor).toBe("");
+    expect(group.children).toHaveLength(2);
+    // children sorted alphabetically (same order => sort by title)
+    expect(group.children![0].name).toBe("Auth");
+    expect(group.children![1].name).toBe("Filtering");
+    expect(group.children![0].anchor).toBe("/docs/product/guides/auth.html");
+  });
+
+  it("places ungrouped 2-level pages directly in section (no group wrapper)", () => {
+    const docs = {
+      pages: [
+        { slug: "product/billing", title: "Billing", category: "", order: 0, content: "" },
+      ],
+    };
+    const manifest = buildNavigationManifest(emptySchema, docs, "");
+    const section = manifest.sections.find((s) => s.id === "docs-product")!;
+    expect(section.items).toHaveLength(1);
+    expect(section.items[0].name).toBe("Billing");
+    expect(section.items[0].anchor).toBe("/docs/product/billing.html");
+    expect(section.items[0].children).toBeUndefined();
+  });
+
+  it("title-cases hyphenated folder names for section titles", () => {
+    const docs = {
+      pages: [
+        { slug: "developer-reference/intro", title: "Intro", category: "", order: 0, content: "" },
+      ],
+    };
+    const manifest = buildNavigationManifest(emptySchema, docs, "");
+    const section = manifest.sections.find((s) => s.id === "docs-developer-reference")!;
+    expect(section.title).toBe("Developer Reference");
+  });
+
+  it("title-cases hyphenated group folder names", () => {
+    const docs = {
+      pages: [
+        { slug: "product/getting-started/overview", title: "Overview", category: "", order: 0, content: "" },
+      ],
+    };
+    const manifest = buildNavigationManifest(emptySchema, docs, "");
+    const section = manifest.sections.find((s) => s.id === "docs-product")!;
+    expect(section.items[0].name).toBe("Getting Started");
+  });
+
+  it("sorts docs sections: root first, then folder sections alphabetically", () => {
+    const docs = {
+      pages: [
+        { slug: "getting-started", title: "Getting Started", category: "", order: 0, content: "" },
+        { slug: "product/billing", title: "Billing", category: "", order: 0, content: "" },
+        { slug: "developer/api", title: "Api", category: "", order: 0, content: "" },
+      ],
+    };
+    const manifest = buildNavigationManifest(emptySchema, docs, "");
+    const docsSections = manifest.sections.filter((s) => s.id.startsWith("docs"));
+    expect(docsSections[0].id).toBe("docs");
+    expect(docsSections[1].id).toBe("docs-developer");
+    expect(docsSections[2].id).toBe("docs-product");
+  });
+
+  it("within a section: ungrouped pages appear before groups", () => {
+    const docs = {
+      pages: [
+        { slug: "product/billing", title: "Billing", category: "", order: 0, content: "" },
+        { slug: "product/guides/filtering", title: "Filtering", category: "", order: 0, content: "" },
+      ],
+    };
+    const manifest = buildNavigationManifest(emptySchema, docs, "");
+    const section = manifest.sections.find((s) => s.id === "docs-product")!;
+    expect(section.items[0].name).toBe("Billing");
+    expect(section.items[1].name).toBe("Guides");
+  });
+
+  it("sorts pages by order then title within a section", () => {
+    const docs = {
+      pages: [
+        { slug: "product/z-page", title: "Z Page", category: "", order: 2, content: "" },
+        { slug: "product/a-page", title: "A Page", category: "", order: 1, content: "" },
+        { slug: "product/m-page", title: "M Page", category: "", order: 1, content: "" },
+      ],
+    };
+    const manifest = buildNavigationManifest(emptySchema, docs, "");
+    const section = manifest.sections.find((s) => s.id === "docs-product")!;
+    expect(section.items[0].name).toBe("A Page");
+    expect(section.items[1].name).toBe("M Page");
+    expect(section.items[2].name).toBe("Z Page");
+  });
+
+  it("4+ segment slugs: section=parts[0], group=parts[1], leaf=rest joined", () => {
+    const docs = {
+      pages: [
+        { slug: "a/b/c/d", title: "Deep Page", category: "", order: 0, content: "" },
+      ],
+    };
+    const manifest = buildNavigationManifest(emptySchema, docs, "");
+    const section = manifest.sections.find((s) => s.id === "docs-a")!;
+    expect(section).toBeDefined();
+    expect(section.items).toHaveLength(1);
+    const group = section.items[0];
+    expect(group.id).toBe("docs-folder-a-b");
+    expect(group.children).toHaveLength(1);
+    expect(group.children![0].anchor).toBe("/docs/a/b/c/d.html");
+  });
+
+  it("respects base prefix in anchor URLs", () => {
+    const docs = {
+      pages: [
+        { slug: "getting-started", title: "Getting Started", category: "", order: 0, content: "" },
+      ],
+    };
+    const manifest = buildNavigationManifest(emptySchema, docs, "/v2");
+    const section = manifest.sections[0];
+    expect(section.items[0].anchor).toBe("/v2/docs/getting-started.html");
+  });
+
+  it("schema sections remain unchanged and appear after docs sections", () => {
+    const docs = {
+      pages: [
+        { slug: "intro", title: "Intro", category: "", order: 0, content: "" },
+      ],
+    };
+    const schemaWithQuery = {
+      ...emptySchema,
+      queries: [{ name: "getUser", description: null, type: { name: "User", kind: "OBJECT" as const, ofType: null }, args: [], isDeprecated: false, deprecationReason: null }],
+    };
+    const manifest = buildNavigationManifest(schemaWithQuery, docs, "");
+    expect(manifest.sections[0].id).toBe("docs");
+    expect(manifest.sections[1].id).toBe("queries");
+  });
+
+  it("produces no docs sections when docs are empty", () => {
+    const manifest = buildNavigationManifest(emptySchema, { pages: [] }, "");
+    expect(manifest.sections).toHaveLength(0);
+  });
+
+  it("full example: getting-started + product/billing + product/guides/filtering + product/guides/auth + developer/api", () => {
+    const docs = {
+      pages: [
+        { slug: "getting-started", title: "Getting Started", category: "", order: 0, content: "" },
+        { slug: "product/billing", title: "Billing", category: "", order: 0, content: "" },
+        { slug: "product/guides/filtering", title: "Filtering", category: "", order: 0, content: "" },
+        { slug: "product/guides/auth", title: "Auth", category: "", order: 0, content: "" },
+        { slug: "developer/api", title: "Api", category: "", order: 0, content: "" },
+      ],
+    };
+    const manifest = buildNavigationManifest(emptySchema, docs, "");
+
+    const docsSection = manifest.sections.find((s) => s.id === "docs")!;
+    expect(docsSection.items[0].name).toBe("Getting Started");
+
+    const developerSection = manifest.sections.find((s) => s.id === "docs-developer")!;
+    expect(developerSection.items[0].name).toBe("Api");
+
+    const productSection = manifest.sections.find((s) => s.id === "docs-product")!;
+    expect(productSection.items[0].name).toBe("Billing"); // ungrouped first
+    expect(productSection.items[1].name).toBe("Guides"); // group second
+    expect(productSection.items[1].children).toHaveLength(2);
+    expect(productSection.items[1].children![0].name).toBe("Auth");
+    expect(productSection.items[1].children![1].name).toBe("Filtering");
   });
 });

@@ -127,7 +127,7 @@ export function WelcomePage() {
             count={(docs.pages || []).length}
             label="pages"
             color="text-accent-blue"
-            href={withBase(`/docs/${(docs.pages || [])[0]?.slug || ""}`)}
+            href={withBase(`/docs/${(docs.pages || [])[0]?.slug || ""}.html`)}
             icon="G"
           />
         </Show>

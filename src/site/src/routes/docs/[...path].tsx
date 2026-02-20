@@ -1,8 +1,9 @@
 import { useParams } from "@solidjs/router";
-import { Show, createMemo, createResource } from "solid-js";
+import { Show, createMemo, createResource, createEffect } from "solid-js";
 import { Shell } from "../../components/layout/Shell";
 import { MarkdownPage } from "../../components/markdown/MarkdownPage";
 import docsManifest from "../../data/docs-manifest.json";
+import siteConfig from "../../data/site-config.json";
 import { withBase } from "../../lib/base-path";
 
 // Lazy-load individual doc page content to avoid bundling all markdown
@@ -22,7 +23,10 @@ async function loadContent(slug: string): Promise<string> {
 export default function DocsPage() {
   const params = useParams();
 
-  const slug = createMemo(() => params.path || "");
+  const slug = createMemo(() => {
+    const raw = params.path || "";
+    return raw.endsWith(".html") ? raw.slice(0, -5) : raw;
+  });
 
   const page = createMemo(() => {
     return (docsManifest as any).pages?.find(
@@ -31,6 +35,13 @@ export default function DocsPage() {
   });
 
   const [content] = createResource(slug, loadContent);
+
+  createEffect(() => {
+    const p = page();
+    if (typeof document !== "undefined" && p) {
+      document.title = `${p.title} \u2014 ${(siteConfig as any).title}`;
+    }
+  });
 
   return (
     <Shell>

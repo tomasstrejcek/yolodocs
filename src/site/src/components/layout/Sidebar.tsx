@@ -1,4 +1,4 @@
-import { For, createSignal, Show, onMount, onCleanup } from "solid-js";
+import { For, createSignal, createEffect, Show, onMount, onCleanup } from "solid-js";
 import { useLocation } from "@solidjs/router";
 import manifest from "../../data/manifest.json";
 import { withBase } from "../../lib/base-path";
@@ -39,7 +39,8 @@ export function Sidebar(props: Props) {
     const pathname = location.pathname;
     const docsPrefix = withBase("/docs/");
     if (pathname.startsWith(docsPrefix)) {
-      const slug = pathname.slice(docsPrefix.length);
+      const rawSlug = pathname.slice(docsPrefix.length);
+      const slug = rawSlug.endsWith(".html") ? rawSlug.slice(0, -5) : rawSlug;
       return `doc-${slug}`;
     }
     // For reference page, match by hash
@@ -144,10 +145,30 @@ function SidebarSubGroup(props: {
   isDocSection: boolean;
   onNavigate?: () => void;
 }) {
-  const [collapsed, setCollapsed] = createSignal(false);
+  const STORAGE_KEY = `sidebar-group-${props.item.id}`;
+
+  const [collapsed, setCollapsed] = createSignal<boolean>(
+    (() => {
+      try {
+        if (typeof window === "undefined") return false;
+        const stored = localStorage.getItem(STORAGE_KEY);
+        return stored !== null ? stored === "true" : false;
+      } catch {
+        return false;
+      }
+    })()
+  );
 
   const hasActiveChild = () =>
     props.item.children?.some((child) => child.id === props.activeId) ?? false;
+
+  // NAV-07: auto-expand when active child is inside this group
+  createEffect(() => {
+    if (hasActiveChild() && collapsed()) {
+      setCollapsed(false);
+      try { localStorage.setItem(STORAGE_KEY, "false"); } catch {}
+    }
+  });
 
   return (
     <li class="mt-1">
@@ -157,7 +178,11 @@ function SidebarSubGroup(props: {
           "font-semibold text-text-primary": hasActiveChild(),
           "text-text-secondary hover:text-text-primary": !hasActiveChild(),
         }}
-        onClick={() => setCollapsed(!collapsed())}
+        onClick={() => {
+          const next = !collapsed();
+          setCollapsed(next);
+          try { localStorage.setItem(STORAGE_KEY, String(next)); } catch {}
+        }}
       >
         <svg
           class="w-3 h-3 shrink-0 transition-transform"

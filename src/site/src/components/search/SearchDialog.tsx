@@ -11,6 +11,27 @@ interface SearchResult {
   description: string;
 }
 
+function flattenNavItems(
+  items: any[],
+  sectionTitle: string,
+  into: SearchResult[]
+): void {
+  for (const item of items) {
+    if (item.children && item.children.length > 0) {
+      // Group header: not navigable itself, recurse into children
+      flattenNavItems(item.children, sectionTitle, into);
+    } else if (item.anchor) {
+      into.push({
+        id: item.id,
+        name: item.name,
+        section: sectionTitle,
+        anchor: item.anchor,
+        description: item.description || "",
+      });
+    }
+  }
+}
+
 export function SearchDialog(props: { open: boolean; onClose: () => void }) {
   const [query, setQuery] = createSignal("");
   const [results, setResults] = createSignal<SearchResult[]>([]);
@@ -19,15 +40,7 @@ export function SearchDialog(props: { open: boolean; onClose: () => void }) {
 
   const allItems: SearchResult[] = [];
   for (const section of (manifest as any).sections || []) {
-    for (const item of section.items) {
-      allItems.push({
-        id: item.id,
-        name: item.name,
-        section: section.title,
-        anchor: item.anchor,
-        description: item.description || "",
-      });
-    }
+    flattenNavItems(section.items, section.title, allItems);
   }
 
   const search = (q: string) => {
