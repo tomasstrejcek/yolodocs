@@ -41,7 +41,11 @@ Plans:
   2. Opening a doc page URL directly in a browser on GCS/S3 returns the correct HTML page without a 404
   3. Sidebar anchor hrefs contain the `.html` extension matching the flat file output paths
   4. Active sidebar highlighting works correctly when the browser URL pathname includes the `.html` extension
-**Plans**: TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — TDD: Flat prerender config + .html-suffixed doc anchors in manifest
+- [ ] 02-02-PLAN.md — Client-side .html handling (Sidebar, route params, WelcomePage) + integration test
 
 ### Phase 3: Sidebar and Page Rendering
 **Goal**: The sidebar renders all 3 nesting levels with correct active state, collapse persistence, and auto-expansion; page headings and browser titles are clean and per-page
@@ -63,5 +67,5 @@ Phases execute in numeric order: 1 → 2 → 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Data Layer | 2/2 | Complete    | 2026-02-20 |
-| 2. Flat HTML Output | 0/TBD | Not started | - |
+| 2. Flat HTML Output | 0/2 | Planned | - |
 | 3. Sidebar and Page Rendering | 0/TBD | Not started | - |
