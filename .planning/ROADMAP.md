@@ -11,7 +11,7 @@ Three tightly coupled improvements ship in dependency order: the manifest builde
 - Decimal phases (e.g., 2.1): Urgent insertions only
 
 - [x] **Phase 1: Data Layer** - Extend manifest builder and markdown loader to emit 3-level hierarchy with H1-derived titles
-- [ ] **Phase 2: Flat HTML Output** - Switch Nitro prerender to flat `.html` files and update all anchor hrefs
+- [x] **Phase 2: Flat HTML Output** - Switch Nitro prerender to flat `.html` files and update all anchor hrefs
 - [ ] **Phase 3: Sidebar and Page Rendering** - Recursive sidebar component, active state, page titles, and docs restructuring
 
 ## Phase Details
@@ -41,11 +41,11 @@ Plans:
   2. Opening a doc page URL directly in a browser on GCS/S3 returns the correct HTML page without a 404
   3. Sidebar anchor hrefs contain the `.html` extension matching the flat file output paths
   4. Active sidebar highlighting works correctly when the browser URL pathname includes the `.html` extension
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 
 Plans:
-- [ ] 02-01-PLAN.md — TDD: Flat prerender config + .html-suffixed doc anchors in manifest
-- [ ] 02-02-PLAN.md — Client-side .html handling (Sidebar, route params, WelcomePage) + integration test
+- [x] 02-01-PLAN.md — TDD: Flat prerender config + .html-suffixed doc anchors in manifest
+- [x] 02-02-PLAN.md — Client-side .html handling (Sidebar, route params, WelcomePage) + integration test
 
 ### Phase 3: Sidebar and Page Rendering
 **Goal**: The sidebar renders all 3 nesting levels with correct active state, collapse persistence, and auto-expansion; page headings and browser titles are clean and per-page
@@ -67,5 +67,5 @@ Phases execute in numeric order: 1 → 2 → 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Data Layer | 2/2 | Complete    | 2026-02-20 |
-| 2. Flat HTML Output | 0/2 | Planned | - |
+| 2. Flat HTML Output | 2/2 | Complete    | 2026-02-20 |
 | 3. Sidebar and Page Rendering | 0/TBD | Not started | - |
