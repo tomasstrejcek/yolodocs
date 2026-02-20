@@ -151,7 +151,7 @@ Then run `npm run docs` anytime you want to regenerate.
 
 ## Next Steps
 
-- Read about [Authentication](/docs/authentication) patterns
-- Learn [Pagination](/docs/pagination) for large result sets
-- Understand [Error Handling](/docs/error-handling) best practices
+- Read about [Authentication](/docs/developer/authentication) patterns
+- Learn [Pagination](/docs/developer/pagination) for large result sets
+- Understand [Error Handling](/docs/developer/error-handling) best practices
 - Explore the [API Reference](/reference) generated from your schema
