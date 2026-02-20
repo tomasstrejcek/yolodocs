@@ -1,4 +1,4 @@
-import { createMemo } from "solid-js";
+import { createMemo, Show } from "solid-js";
 import { marked } from "marked";
 import { highlight } from "../../lib/syntax";
 
@@ -23,9 +23,13 @@ export function MarkdownPage(props: { content: string; title: string }) {
     return marked.parse(props.content, { gfm: true, breaks: false, renderer }) as string;
   });
 
+  const hasH1 = createMemo(() => /^#\s+/m.test(props.content));
+
   return (
     <div class="max-w-3xl mx-auto px-6 py-8">
-      <h1 class="text-3xl font-bold text-text-primary mb-6">{props.title}</h1>
+      <Show when={!hasH1()}>
+        <h1 class="text-3xl font-bold text-text-primary mb-6">{props.title}</h1>
+      </Show>
       <div class="markdown-content" innerHTML={html()} />
     </div>
   );
