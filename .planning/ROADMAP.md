@@ -26,7 +26,7 @@ Three tightly coupled improvements ship in dependency order: the manifest builde
   3. Top-level doc folders (`product/`, `developer/`) appear as distinct sidebar sections in the manifest
   4. Folder group labels are title-cased from directory names (e.g., `developer-reference/` becomes "Developer Reference")
   5. A build containing a slug collision (file and folder sharing the same basename) fails with a descriptive error before prerender runs
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 
 Plans:
 - [x] 01-01-PLAN.md — TDD: Loader enhancements (H1 extraction, slug normalization, collision detection)
@@ -62,6 +62,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Data Layer | 2/2 | Complete | 2026-02-20 |
+| 1. Data Layer | 2/2 | Complete    | 2026-02-20 |
 | 2. Flat HTML Output | 0/TBD | Not started | - |
 | 3. Sidebar and Page Rendering | 0/TBD | Not started | - |
