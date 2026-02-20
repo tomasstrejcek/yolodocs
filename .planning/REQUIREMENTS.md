@@ -19,8 +19,8 @@
 
 - [x] **TITL-01**: Menu item label is derived from first H1 header in markdown content, not filename
 - [x] **TITL-02**: Frontmatter `title` takes priority over H1 when explicitly set; filename is last fallback
-- [ ] **TITL-03**: Redundant page heading is removed when markdown content already contains an H1
-- [ ] **TITL-04**: Browser tab `<title>` tag shows per-page title (e.g., "Getting Started — Carl API")
+- [x] **TITL-03**: Redundant page heading is removed when markdown content already contains an H1
+- [x] **TITL-04**: Browser tab `<title>` tag shows per-page title (e.g., "Getting Started — Carl API")
 
 ### Static Hosting
 
@@ -67,8 +67,8 @@
 | NAV-07 | Phase 3 | Pending |
 | TITL-01 | Phase 1 | Complete |
 | TITL-02 | Phase 1 | Complete |
-| TITL-03 | Phase 3 | Pending |
-| TITL-04 | Phase 3 | Pending |
+| TITL-03 | Phase 3 | Complete |
+| TITL-04 | Phase 3 | Complete |
 | HOST-01 | Phase 2 | Complete |
 | HOST-02 | Phase 2 | Complete |
 | HOST-03 | Phase 2 | Complete |

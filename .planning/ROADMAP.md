@@ -12,7 +12,7 @@ Three tightly coupled improvements ship in dependency order: the manifest builde
 
 - [x] **Phase 1: Data Layer** - Extend manifest builder and markdown loader to emit 3-level hierarchy with H1-derived titles
 - [x] **Phase 2: Flat HTML Output** - Switch Nitro prerender to flat `.html` files and update all anchor hrefs
-- [ ] **Phase 3: Sidebar and Page Rendering** - Recursive sidebar component, active state, page titles, and docs restructuring
+- [x] **Phase 3: Sidebar and Page Rendering** - Recursive sidebar component, active state, page titles, and docs restructuring (completed 2026-02-20)
 
 ## Phase Details
 
@@ -68,4 +68,4 @@ Phases execute in numeric order: 1 → 2 → 3
 |-------|----------------|--------|-----------|
 | 1. Data Layer | 2/2 | Complete    | 2026-02-20 |
 | 2. Flat HTML Output | 2/2 | Complete    | 2026-02-20 |
-| 3. Sidebar and Page Rendering | 0/TBD | Not started | - |
+| 3. Sidebar and Page Rendering | 2/2 | Complete   | 2026-02-20 |
