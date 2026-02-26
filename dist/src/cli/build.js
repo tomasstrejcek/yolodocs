@@ -135,6 +135,39 @@ export async function build(config) {
             "This often happens in Docker/CI environments due to Node version incompatibilities. " +
             "Run with YOLODOCS_DEBUG=1 to keep the build directory for inspection.");
     }
+    // Write raw markdown files so /<slug>.md serves the source
+    for (const page of docsManifest.pages) {
+        const mdFile = path.join(outputDir, `${page.slug}.md`);
+        fse.ensureDirSync(path.dirname(mdFile));
+        fs.writeFileSync(mdFile, page.content);
+    }
+    // Write docs.json manifest for machine-readable discovery
+    const basePath = config.base || "";
+    const docsJson = {
+        pages: docsManifest.pages.map((p) => ({
+            slug: p.slug,
+            title: p.title,
+            markdown: `${basePath}/${p.slug}.md`,
+        })),
+    };
+    fs.writeFileSync(path.join(outputDir, "docs.json"), JSON.stringify(docsJson, null, 2));
+    // Inject <link rel="alternate"> tags into pre-rendered HTML
+    const docsJsonLink = `<link rel="alternate" type="application/json" href="${basePath}/docs.json" title="Documentation Index">`;
+    const htmlFiles = findHtmlFiles(outputDir);
+    const docSlugs = new Set(docsManifest.pages.map((p) => p.slug));
+    for (const htmlFile of htmlFiles) {
+        let html = fs.readFileSync(htmlFile, "utf-8");
+        // Per-page markdown link for doc pages
+        const rel = path.relative(outputDir, htmlFile);
+        const slug = rel.replace(/\.html$/, "").replace(/\/index$/, "");
+        if (docSlugs.has(slug)) {
+            const mdLink = `<link rel="alternate" type="text/markdown" href="${basePath}/${slug}.md">`;
+            html = html.replace("</head>", `${mdLink}\n</head>`);
+        }
+        // Site-wide docs.json link for all pages
+        html = html.replace("</head>", `${docsJsonLink}\n</head>`);
+        fs.writeFileSync(htmlFile, html);
+    }
     // Step 6: Post-build - Pagefind indexing
     console.log("  [5/5] Indexing for search...");
     try {
@@ -389,6 +422,19 @@ async function runDevServer(buildDir) {
     return new Promise((resolve) => {
         child.on("close", () => resolve());
     });
+}
+function findHtmlFiles(dir) {
+    const results = [];
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+            results.push(...findHtmlFiles(full));
+        }
+        else if (entry.name.endsWith(".html")) {
+            results.push(full);
+        }
+    }
+    return results;
 }
 function serveOutput(config) {
     const outputDir = path.resolve(process.cwd(), config.output);
