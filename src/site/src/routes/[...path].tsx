@@ -59,7 +59,7 @@ export default function DocsPage() {
           </div>
         }
       >
-        <MarkdownPage title={page()!.title} content={content() || ""} />
+        <MarkdownPage title={page()!.title} content={content() || ""} slug={slug()} />
       </Show>
     </Shell>
   );
