@@ -1,7 +1,7 @@
 import { For, createSignal, createEffect, Show, onMount, onCleanup } from "solid-js";
 import { useLocation } from "@solidjs/router";
 import manifest from "../../data/manifest.json";
-import { withBase } from "../../lib/base-path";
+import { base, withBase } from "../../lib/base-path";
 
 interface NavItem {
   id: string;
@@ -35,11 +35,13 @@ export function Sidebar(props: Props) {
 
   const derivedActiveId = () => {
     if (props.activeId) return props.activeId;
-    // For doc pages, match by pathname
     const pathname = location.pathname;
-    const docsPrefix = withBase("/docs/");
-    if (pathname.startsWith(docsPrefix)) {
-      const rawSlug = pathname.slice(docsPrefix.length);
+    // Strip base to get internal path, then match as doc page
+    // (anything that's not "/" or "/reference")
+    const basePath = base;
+    const stripped = basePath ? pathname.slice(basePath.length) : pathname;
+    if (stripped && stripped !== "/" && !stripped.startsWith("/reference")) {
+      const rawSlug = stripped.startsWith("/") ? stripped.slice(1) : stripped;
       const slug = rawSlug.endsWith(".html") ? rawSlug.slice(0, -5) : rawSlug;
       return `doc-${slug}`;
     }
@@ -111,7 +113,7 @@ function SidebarSection(props: {
               }
 
               const href = () => {
-                if (isDocSection()) return item.anchor;
+                if (isDocSection()) return withBase(item.anchor);
                 return withBase(`/reference${item.anchor}`);
               };
               const isActive = () => props.activeId === item.id;
@@ -201,7 +203,7 @@ function SidebarSubGroup(props: {
           <For each={props.item.children}>
             {(child) => {
               const href = () => {
-                if (props.isDocSection) return child.anchor;
+                if (props.isDocSection) return withBase(child.anchor);
                 return withBase(`/reference${child.anchor}`);
               };
               const isActive = () => props.activeId === child.id;

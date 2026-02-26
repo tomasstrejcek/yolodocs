@@ -17,7 +17,7 @@ const docsManifest = JSON.parse(
 
 const prerenderRoutes = ["/", "/reference"];
 for (const page of (docsManifest as any).pages || []) {
-  prerenderRoutes.push(`/docs/${page.slug}`);
+  prerenderRoutes.push(`/${page.slug}`);
 }
 
 export default defineConfig({

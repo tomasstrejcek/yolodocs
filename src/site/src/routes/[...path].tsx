@@ -1,20 +1,20 @@
 import { useParams } from "@solidjs/router";
 import { Show, createMemo, createResource, createEffect } from "solid-js";
-import { Shell } from "../../components/layout/Shell";
-import { MarkdownPage } from "../../components/markdown/MarkdownPage";
-import docsManifest from "../../data/docs-manifest.json";
-import siteConfig from "../../data/site-config.json";
-import { withBase } from "../../lib/base-path";
+import { Shell } from "../components/layout/Shell";
+import { MarkdownPage } from "../components/markdown/MarkdownPage";
+import docsManifest from "../data/docs-manifest.json";
+import siteConfig from "../data/site-config.json";
+import { withBase } from "../lib/base-path";
 
 // Lazy-load individual doc page content to avoid bundling all markdown
 // into one large JSON module (which breaks Nitro prerender in Docker)
 const contentModules = import.meta.glob<string>(
-  "../../data/docs-pages/**/*.js",
+  "../data/docs-pages/**/*.js",
   { import: "default" }
 );
 
 async function loadContent(slug: string): Promise<string> {
-  const key = `../../data/docs-pages/${slug}.js`;
+  const key = `../data/docs-pages/${slug}.js`;
   const loader = contentModules[key];
   if (!loader) return "";
   return (await loader()) as string;
@@ -39,7 +39,7 @@ export default function DocsPage() {
   createEffect(() => {
     const p = page();
     if (typeof document !== "undefined" && p) {
-      document.title = `${p.title} \u2014 ${(siteConfig as any).title}`;
+      document.title = `${p.title} — ${(siteConfig as any).title}`;
     }
   });
 

@@ -1,5 +1,6 @@
 // @refresh reload
 import { createHandler, StartServer } from "@solidjs/start/server";
+import { withBase } from "./lib/base-path";
 
 export default createHandler(() => (
   <StartServer
@@ -8,7 +9,7 @@ export default createHandler(() => (
         <head>
           <meta charset="utf-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <link rel="icon" href="/favicon.png" />
+          <link rel="icon" href={withBase("/favicon.png")} />
           {assets}
         </head>
         <body>

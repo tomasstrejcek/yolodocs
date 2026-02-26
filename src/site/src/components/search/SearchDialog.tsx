@@ -72,11 +72,11 @@ export function SearchDialog(props: { open: boolean; onClose: () => void }) {
   };
 
   const navigate = (result: SearchResult) => {
-    const isDoc = result.anchor.startsWith("/docs/") || result.anchor.includes("/docs/");
-    if (isDoc) {
-      window.location.href = result.anchor;
-    } else {
+    const isRef = result.anchor.startsWith("#");
+    if (isRef) {
       window.location.href = withBase(`/reference${result.anchor}`);
+    } else {
+      window.location.href = withBase(result.anchor);
     }
     props.onClose();
     setQuery("");
