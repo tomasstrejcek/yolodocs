@@ -254,7 +254,7 @@ const sortPages = (a: DocsPageLike, b: DocsPageLike) => {
 export function buildNavigationManifest(
   schema: ParsedSchema,
   docsManifest: { pages: Array<{ slug: string; title: string; category: string; order: number }> },
-  base: string
+  _base?: string
 ): NavigationManifest {
   const sections: NavigationSection[] = [];
 
@@ -299,7 +299,7 @@ export function buildNavigationManifest(
         items: rootPages.map((p) => ({
           id: `doc-${p.slug}`,
           name: p.title,
-          anchor: `${base}/docs/${p.slug}.html`,
+          anchor: `/${p.slug}.html`,
           description: "",
         })),
       });
@@ -318,7 +318,7 @@ export function buildNavigationManifest(
         items.push({
           id: `doc-${p.slug}`,
           name: p.title,
-          anchor: `${base}/docs/${p.slug}.html`,
+          anchor: `/${p.slug}.html`,
           description: "",
         });
       }
@@ -336,7 +336,7 @@ export function buildNavigationManifest(
           children: groupPages.map((p) => ({
             id: `doc-${p.slug}`,
             name: p.title,
-            anchor: `${base}/docs/${p.slug}.html`,
+            anchor: `/${p.slug}.html`,
             description: "",
           })),
         });

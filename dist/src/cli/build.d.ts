@@ -9,5 +9,5 @@ export declare function buildNavigationManifest(schema: ParsedSchema, docsManife
         category: string;
         order: number;
     }>;
-}, base: string): NavigationManifest;
+}, _base?: string): NavigationManifest;
 //# sourceMappingURL=build.d.ts.map

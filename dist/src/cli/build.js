@@ -182,7 +182,7 @@ const sortPages = (a, b) => {
         return a.order - b.order;
     return a.title.localeCompare(b.title);
 };
-export function buildNavigationManifest(schema, docsManifest, base) {
+export function buildNavigationManifest(schema, docsManifest, _base) {
     const sections = [];
     // Add custom docs first (guides at the top of sidebar)
     if (docsManifest.pages.length > 0) {
@@ -222,7 +222,7 @@ export function buildNavigationManifest(schema, docsManifest, base) {
                 items: rootPages.map((p) => ({
                     id: `doc-${p.slug}`,
                     name: p.title,
-                    anchor: `${base}/docs/${p.slug}.html`,
+                    anchor: `/${p.slug}.html`,
                     description: "",
                 })),
             });
@@ -238,7 +238,7 @@ export function buildNavigationManifest(schema, docsManifest, base) {
                 items.push({
                     id: `doc-${p.slug}`,
                     name: p.title,
-                    anchor: `${base}/docs/${p.slug}.html`,
+                    anchor: `/${p.slug}.html`,
                     description: "",
                 });
             }
@@ -255,7 +255,7 @@ export function buildNavigationManifest(schema, docsManifest, base) {
                     children: groupPages.map((p) => ({
                         id: `doc-${p.slug}`,
                         name: p.title,
-                        anchor: `${base}/docs/${p.slug}.html`,
+                        anchor: `/${p.slug}.html`,
                         description: "",
                     })),
                 });
