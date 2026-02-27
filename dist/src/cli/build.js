@@ -9,12 +9,21 @@ import { loadSchemaFromIntrospectionUrl, loadSchemaFromIntrospectionFile, } from
 import { scanDocsFolder } from "../markdown/loader.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+function getVersion() {
+    const pkgPath = path.resolve(__dirname, "../../../package.json");
+    try {
+        return JSON.parse(fs.readFileSync(pkgPath, "utf-8")).version;
+    }
+    catch {
+        return "unknown";
+    }
+}
 function getSiteTemplatePath() {
     // Navigate from dist/src/cli/ up to project root, then into src/site/
     return path.resolve(__dirname, "../../../src/site");
 }
 export async function build(config) {
-    console.log("\n  yolodocs - GraphQL Documentation Generator\n");
+    console.log(`\n  yolodocs v${getVersion()} - GraphQL Documentation Generator\n`);
     if (config.serve) {
         return serveOutput(config);
     }
