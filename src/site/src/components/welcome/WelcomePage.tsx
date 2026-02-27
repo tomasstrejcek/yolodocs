@@ -127,15 +127,18 @@ export function WelcomePage() {
             count={(docs.pages || []).length}
             label="pages"
             color="text-accent-blue"
-            href={withBase(`/docs/${(docs.pages || [])[0]?.slug || ""}.html`)}
+            href={withBase(`/${(docs.pages || [])[0]?.slug || ""}.html`)}
             icon="G"
           />
         </Show>
       </div>
 
-      <div class="border-t border-border-primary pt-6">
-        <p class="text-sm text-text-muted text-center">
-          Generated with yolodocs
+      <div class="border-t border-border-primary pt-6 text-sm text-text-muted text-center space-y-1">
+        <p>
+          <a href={withBase("/docs.json")} target="_blank" rel="noopener" class="hover:text-text-secondary">docs.json</a>
+        </p>
+        <p>
+          Generated with <a href="https://github.com/tomasstrejcek/yolodocs" target="_blank" rel="noopener" class="hover:text-text-secondary underline">yolodocs</a>
         </p>
       </div>
     </div>
