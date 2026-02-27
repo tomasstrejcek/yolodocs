@@ -1,10 +1,10 @@
-import { useParams } from "@solidjs/router";
+import { useLocation } from "@solidjs/router";
 import { Show, createMemo, createResource, createEffect } from "solid-js";
 import { Shell } from "../components/layout/Shell";
 import { MarkdownPage } from "../components/markdown/MarkdownPage";
 import docsManifest from "../data/docs-manifest.json";
 import siteConfig from "../data/site-config.json";
-import { withBase } from "../lib/base-path";
+import { base, withBase } from "../lib/base-path";
 
 // Lazy-load individual doc page content to avoid bundling all markdown
 // into one large JSON module (which breaks Nitro prerender in Docker)
@@ -21,11 +21,19 @@ async function loadContent(slug: string): Promise<string> {
 }
 
 export default function DocsPage() {
-  const params = useParams();
+  // Use useLocation() instead of useParams() — catch-all params from
+  // useParams() don't reliably trigger reactivity when navigating between
+  // pages that match the same [...path] route in @solidjs/router 0.15.x.
+  const location = useLocation();
 
   const slug = createMemo(() => {
-    const raw = params.path || "";
-    return raw.endsWith(".html") ? raw.slice(0, -5) : raw;
+    let pathname = location.pathname;
+    if (base && pathname.startsWith(base)) {
+      pathname = pathname.slice(base.length);
+    }
+    if (pathname.startsWith("/")) pathname = pathname.slice(1);
+    if (pathname.endsWith(".html")) pathname = pathname.slice(0, -5);
+    return pathname;
   });
 
   const page = createMemo(() => {
