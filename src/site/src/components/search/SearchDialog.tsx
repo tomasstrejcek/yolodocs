@@ -71,13 +71,11 @@ export function SearchDialog(props: { open: boolean; onClose: () => void }) {
     setResults(filtered.slice(0, 20));
   };
 
-  const navigate = (result: SearchResult) => {
+  const routerNavigate = useNavigate();
+  const navigateTo = (result: SearchResult) => {
     const isRef = result.anchor.startsWith("#");
-    if (isRef) {
-      window.location.href = withBase(`/reference${result.anchor}`);
-    } else {
-      window.location.href = withBase(result.anchor);
-    }
+    const path = isRef ? `/reference${result.anchor}` : result.anchor;
+    routerNavigate(path);
     props.onClose();
     setQuery("");
     setResults([]);
@@ -92,7 +90,7 @@ export function SearchDialog(props: { open: boolean; onClose: () => void }) {
       setSelectedIndex((i) => Math.max(i - 1, 0));
     } else if (e.key === "Enter" && results().length > 0) {
       e.preventDefault();
-      navigate(results()[selectedIndex()]);
+      navigateTo(results()[selectedIndex()]);
     }
   };
 
@@ -161,7 +159,7 @@ export function SearchDialog(props: { open: boolean; onClose: () => void }) {
                     <button
                       class="w-full flex items-center gap-2.5 px-4 py-2 text-left hover:bg-bg-hover transition-colors"
                       classList={{ "bg-bg-hover": selectedIndex() === i() }}
-                      onClick={() => navigate(result)}
+                      onClick={() => navigateTo(result)}
                       onMouseEnter={() => setSelectedIndex(i())}
                     >
                       <span
