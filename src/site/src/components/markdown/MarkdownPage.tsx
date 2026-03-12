@@ -2,6 +2,7 @@ import { createMemo, Show } from "solid-js";
 import { marked } from "marked";
 import { highlight } from "../../lib/syntax";
 import { withBase } from "../../lib/base-path";
+import siteConfig from "../../data/site-config.json";
 
 function escapeHtml(str: string): string {
   return str
@@ -20,6 +21,7 @@ renderer.code = function ({ text, lang }: { text: string; lang?: string }) {
 };
 
 export function MarkdownPage(props: { content: string; title: string; slug?: string }) {
+  const cfg = siteConfig as any;
   const html = createMemo(() => {
     return marked.parse(props.content, { gfm: true, breaks: false, renderer }) as string;
   });
@@ -39,6 +41,15 @@ export function MarkdownPage(props: { content: string; title: string; slug?: str
           <a href={withBase("/docs.json")} target="_blank" rel="noopener" class="hover:text-text-secondary">Documentation index (JSON)</a>
         </div>
       </Show>
+      <div class="mt-8 pt-4 border-t border-border-primary text-sm text-text-muted text-center space-y-1">
+        <p>
+          Generated with <a href="https://github.com/tomasstrejcek/yolodocs" target="_blank" rel="noopener" class="hover:text-text-secondary underline">yolodocs</a>
+          <Show when={cfg.yolodocsVersion}>{" "}v{cfg.yolodocsVersion}</Show>
+        </p>
+        <Show when={cfg.generatedAt}>
+          <p>{new Date(cfg.generatedAt).toLocaleString()}</p>
+        </Show>
+      </div>
     </div>
   );
 }
