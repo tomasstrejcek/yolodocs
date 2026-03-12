@@ -139,7 +139,11 @@ export function WelcomePage() {
         </p>
         <p>
           Generated with <a href="https://github.com/tomasstrejcek/yolodocs" target="_blank" rel="noopener" class="hover:text-text-secondary underline">yolodocs</a>
+          <Show when={cfg.yolodocsVersion}>{" "}v{cfg.yolodocsVersion}</Show>
         </p>
+        <Show when={cfg.generatedAt}>
+          <p>{new Date(cfg.generatedAt).toLocaleString()}</p>
+        </Show>
       </div>
     </div>
   );

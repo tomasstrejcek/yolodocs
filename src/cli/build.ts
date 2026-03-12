@@ -124,6 +124,8 @@ export async function build(config: YolodocsConfig): Promise<void> {
     hideDeprecated: config.hideDeprecated,
     showDescriptions: config.showDescriptions,
     base: config.base,
+    yolodocsVersion: getVersion(),
+    generatedAt: new Date().toISOString(),
   };
   fs.writeFileSync(
     path.join(dataDir, "site-config.json"),

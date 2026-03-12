@@ -85,6 +85,8 @@ export async function build(config) {
         hideDeprecated: config.hideDeprecated,
         showDescriptions: config.showDescriptions,
         base: config.base,
+        yolodocsVersion: getVersion(),
+        generatedAt: new Date().toISOString(),
     };
     fs.writeFileSync(path.join(dataDir, "site-config.json"), JSON.stringify(siteConfig, null, 2));
     // Copy user assets
