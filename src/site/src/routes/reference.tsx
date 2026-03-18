@@ -1,4 +1,5 @@
-import { onMount, Show } from "solid-js";
+import { Show, createEffect } from "solid-js";
+import { useLocation } from "@solidjs/router";
 import { Shell } from "../components/layout/Shell";
 import { QuerySection } from "../components/reference/QuerySection";
 import { MutationSection } from "../components/reference/MutationSection";
@@ -11,12 +12,12 @@ import { ScalarSection } from "../components/reference/ScalarSection";
 import siteConfig from "../data/site-config.json";
 
 export default function Reference() {
+  const location = useLocation();
   const cfg = siteConfig as any;
 
-  onMount(() => {
-    const hash = window.location.hash;
+  createEffect(() => {
+    const hash = location.hash;
     if (hash) {
-      // Defer to let the DOM render fully before scrolling
       requestAnimationFrame(() => {
         const el = document.querySelector(hash);
         if (el) {
