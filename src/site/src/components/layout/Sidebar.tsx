@@ -131,7 +131,7 @@ function SidebarSection(props: {
                     onClick={(e) => {
                       if (isDocSection()) {
                         e.preventDefault();
-                        navigate(item.anchor);
+                        navigate(item.anchor.replace(/\.html$/, ""));
                       }
                       props.onNavigate?.();
                     }}
@@ -228,7 +228,7 @@ function SidebarSubGroup(props: {
                     onClick={(e) => {
                       if (props.isDocSection) {
                         e.preventDefault();
-                        navigate(child.anchor);
+                        navigate(child.anchor.replace(/\.html$/, ""));
                       }
                       props.onNavigate?.();
                     }}
