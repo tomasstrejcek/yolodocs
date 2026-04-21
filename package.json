@@ -1,6 +1,6 @@
 {
   "name": "yolodocs",
-  "version": "0.1.23",
+  "version": "0.1.24",
   "description": "Generate beautiful, searchable, static documentation sites from GraphQL schemas",
   "type": "module",
   "bin": {
