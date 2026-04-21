@@ -1,5 +1,5 @@
 import { For, createSignal, createEffect, Show, onMount, onCleanup } from "solid-js";
-import { useLocation, useNavigate } from "@solidjs/router";
+import { useLocation } from "@solidjs/router";
 import manifest from "../../data/manifest.json";
 import { base, withBase } from "../../lib/base-path";
 
@@ -75,7 +75,6 @@ function SidebarSection(props: {
   activeId?: string;
   onNavigate?: () => void;
 }) {
-  const navigate = useNavigate();
   const [collapsed, setCollapsed] = createSignal(false);
 
   const isDocSection = () => props.id.startsWith("docs");
@@ -128,11 +127,7 @@ function SidebarSection(props: {
                       "font-semibold text-text-primary border-accent-blue": isActive(),
                       "text-text-secondary border-transparent hover:text-text-primary hover:border-text-muted": !isActive(),
                     }}
-                    onClick={(e) => {
-                      if (isDocSection()) {
-                        e.preventDefault();
-                        navigate(item.anchor.replace(/\.html$/, ""));
-                      }
+                    onClick={() => {
                       props.onNavigate?.();
                     }}
                   >
@@ -154,7 +149,6 @@ function SidebarSubGroup(props: {
   isDocSection: boolean;
   onNavigate?: () => void;
 }) {
-  const navigate = useNavigate();
   const STORAGE_KEY = `sidebar-group-${props.item.id}`;
 
   const [collapsed, setCollapsed] = createSignal<boolean>(
@@ -225,11 +219,7 @@ function SidebarSubGroup(props: {
                       "font-semibold text-text-primary border-accent-blue": isActive(),
                       "text-text-secondary border-transparent hover:text-text-primary hover:border-text-muted": !isActive(),
                     }}
-                    onClick={(e) => {
-                      if (props.isDocSection) {
-                        e.preventDefault();
-                        navigate(child.anchor.replace(/\.html$/, ""));
-                      }
+                    onClick={() => {
                       props.onNavigate?.();
                     }}
                   >
