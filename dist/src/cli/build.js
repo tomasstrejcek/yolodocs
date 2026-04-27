@@ -266,7 +266,7 @@ export function buildNavigationManifest(schema, docsManifest, _base) {
                 items: rootPages.map((p) => ({
                     id: `doc-${p.slug}`,
                     name: p.title,
-                    anchor: `/${p.slug}.html`,
+                    anchor: `/${p.slug}`,
                     description: "",
                 })),
             });
@@ -282,7 +282,7 @@ export function buildNavigationManifest(schema, docsManifest, _base) {
                 items.push({
                     id: `doc-${p.slug}`,
                     name: p.title,
-                    anchor: `/${p.slug}.html`,
+                    anchor: `/${p.slug}`,
                     description: "",
                 });
             }
@@ -299,7 +299,7 @@ export function buildNavigationManifest(schema, docsManifest, _base) {
                     children: groupPages.map((p) => ({
                         id: `doc-${p.slug}`,
                         name: p.title,
-                        anchor: `/${p.slug}.html`,
+                        anchor: `/${p.slug}`,
                         description: "",
                     })),
                 });
