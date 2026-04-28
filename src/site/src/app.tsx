@@ -8,6 +8,7 @@ export default function App() {
   return (
     <Router
       base={(siteConfig as any).base || ""}
+      transformUrl={(url) => url.replace(/\.html$/, "")}
       root={(props) => <Suspense>{props.children}</Suspense>}
     >
       <FileRoutes />
