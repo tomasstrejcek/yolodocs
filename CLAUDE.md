@@ -3,9 +3,12 @@
 ## Commands
 
 ```bash
-npm run build            # compile TypeScript -> dist/ (must commit dist/)
-npm run dev              # watch mode
-npm test                 # vitest (src/**/*.test.ts)
+pnpm run build           # compile TypeScript -> dist/ (must commit dist/)
+pnpm run dev             # watch mode
+pnpm test                # vitest (src/**/*.test.ts)
+pnpm run lint            # oxlint src/ bin/
+pnpm run format          # oxfmt src/ bin/
+pnpm run format:check    # check formatting without writing
 ```
 
 ```bash
@@ -16,7 +19,7 @@ rm -rf test-output && node dist/bin/yolodocs.js --schema schema.graphql --output
 
 ## Rules
 
-- After changing any file in `src/`, run `npm test && npm run build` before committing.
+- After changing any file in `src/`, run `pnpm test && pnpm run build` before committing.
 - Commit `dist/` alongside source changes -- it is the published artifact.
 - Every user-facing change (new CLI option, new config field, changed behavior) MUST be reflected in README.md before committing.
 - Always branch off main. Never push directly to main.
@@ -39,5 +42,6 @@ docs/                    Sample markdown docs (shipped as test fixtures)
 - Site template path resolves from `dist/src/cli/` via `../../../src/site`. Do not restructure dist/ without updating this.
 - When running via `npx github:...`, everything is under `node_modules/yolodocs/`. Use `path.relative()` before checking path segments -- never filter on absolute paths containing `node_modules`.
 - `marked` v14 renderer.code uses `({ text, lang })` object param, not positional args.
-- Use `npm run build` / `npm run dev` to invoke vinxi, not direct binary paths.
+- Use `pnpm run build` / `pnpm run dev` in `src/site/` to invoke vinxi, not direct binary paths.
+- The internal CLI build still uses `npm install` inside the temp build dir (pnpm is not required on end-user machines).
 - Doc page content is split into individual `.js` files (not inlined in docs-manifest.json) to avoid Nitro prerender corruption with large JSON modules.

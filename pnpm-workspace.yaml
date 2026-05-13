@@ -1,0 +1,7 @@
+packages:
+  - '.'
+  - 'src/site'
+
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - esbuild

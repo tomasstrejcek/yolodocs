@@ -1,5 +1,5 @@
 import { For, createSignal, createEffect, Show, onMount, onCleanup } from "solid-js";
-import { useLocation } from "@solidjs/router";
+import { useLocation, useNavigate } from "@solidjs/router";
 import manifest from "../../data/manifest.json";
 import { base, withBase } from "../../lib/base-path";
 
@@ -75,6 +75,7 @@ function SidebarSection(props: {
   activeId?: string;
   onNavigate?: () => void;
 }) {
+  const navigate = useNavigate();
   const [collapsed, setCollapsed] = createSignal(false);
 
   const isDocSection = () => props.id.startsWith("docs");
@@ -116,6 +117,10 @@ function SidebarSection(props: {
                 if (isDocSection()) return withBase(item.anchor);
                 return withBase(`/reference${item.anchor}`);
               };
+              const navPath = () => {
+                if (isDocSection()) return item.anchor.replace(/\.html$/, "");
+                return `/reference${item.anchor}`;
+              };
               const isActive = () => props.activeId === item.id;
 
               return (
@@ -127,7 +132,9 @@ function SidebarSection(props: {
                       "font-semibold text-text-primary border-accent-blue": isActive(),
                       "text-text-secondary border-transparent hover:text-text-primary hover:border-text-muted": !isActive(),
                     }}
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigate(navPath());
                       props.onNavigate?.();
                     }}
                   >
@@ -149,6 +156,7 @@ function SidebarSubGroup(props: {
   isDocSection: boolean;
   onNavigate?: () => void;
 }) {
+  const navigate = useNavigate();
   const STORAGE_KEY = `sidebar-group-${props.item.id}`;
 
   const [collapsed, setCollapsed] = createSignal<boolean>(
@@ -208,6 +216,10 @@ function SidebarSubGroup(props: {
                 if (props.isDocSection) return withBase(child.anchor);
                 return withBase(`/reference${child.anchor}`);
               };
+              const navPath = () => {
+                if (props.isDocSection) return child.anchor.replace(/\.html$/, "");
+                return `/reference${child.anchor}`;
+              };
               const isActive = () => props.activeId === child.id;
 
               return (
@@ -219,7 +231,9 @@ function SidebarSubGroup(props: {
                       "font-semibold text-text-primary border-accent-blue": isActive(),
                       "text-text-secondary border-transparent hover:text-text-primary hover:border-text-muted": !isActive(),
                     }}
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigate(navPath());
                       props.onNavigate?.();
                     }}
                   >

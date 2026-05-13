@@ -11,3 +11,4 @@ src/site/node_modules
 src/site/.output
 src/site/.vinxi
 test-results
+.pnpm-store
