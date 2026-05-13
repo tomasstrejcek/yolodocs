@@ -483,6 +483,8 @@ const transformUrl = (url: string): string => {
 };
 
 // The navPath computation used in Sidebar.tsx onClick handlers.
+// Anchors have .html; navigate() strips it. A post-build step copies slug.html → slug/index.html
+// so hard-refresh at the clean URL still resolves to a real file.
 const toNavPath = (anchor: string, isDocSection: boolean): string => {
   if (isDocSection) return anchor.replace(/\.html$/, "");
   return `/reference${anchor}`;
