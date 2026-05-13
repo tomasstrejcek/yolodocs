@@ -15,22 +15,25 @@
   --color-text-secondary: #e2e8f0;
   --color-text-muted: #64748b;
 
-  --color-accent-blue: #66D9EF;
-  --color-accent-green: #A6E22E;
-  --color-accent-orange: #FD971F;
-  --color-accent-red: #F92672;
-  --color-accent-purple: #AE81FF;
+  --color-accent-blue: #66d9ef;
+  --color-accent-green: #a6e22e;
+  --color-accent-orange: #fd971f;
+  --color-accent-red: #f92672;
+  --color-accent-purple: #ae81ff;
 
-  --color-syntax-keyword: #F92672;
-  --color-syntax-string: #E6DB74;
-  --color-syntax-variable: #FD971F;
-  --color-syntax-type: #66D9EF;
+  --color-syntax-keyword: #f92672;
+  --color-syntax-string: #e6db74;
+  --color-syntax-variable: #fd971f;
+  --color-syntax-type: #66d9ef;
 
-  --color-error: #FF6767;
-  --color-link: #C7C7FF;
+  --color-error: #ff6767;
+  --color-link: #c7c7ff;
 
-  --font-mono: Menlo, "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, "SF Mono", Consolas, monospace;
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+  --font-mono:
+    Menlo, "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, "SF Mono", Consolas,
+    monospace;
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
 }
 
 html {
@@ -80,18 +83,46 @@ code {
 }
 
 /* Syntax highlighting classes */
-.syn-keyword { color: #F92672; font-weight: 500; }
-.syn-string { color: #E6DB74; }
-.syn-number { color: #AE81FF; }
-.syn-type { color: #66D9EF; font-style: italic; }
-.syn-field { color: #e2e8f0; }
-.syn-variable { color: #FD971F; }
-.syn-comment { color: #636d83; font-style: italic; }
-.syn-punctuation { color: #7c8594; }
-.syn-directive { color: #A6E22E; }
-.syn-property { color: #A6E22E; }
-.syn-boolean { color: #AE81FF; }
-.syn-null { color: #AE81FF; font-style: italic; }
+.syn-keyword {
+  color: #f92672;
+  font-weight: 500;
+}
+.syn-string {
+  color: #e6db74;
+}
+.syn-number {
+  color: #ae81ff;
+}
+.syn-type {
+  color: #66d9ef;
+  font-style: italic;
+}
+.syn-field {
+  color: #e2e8f0;
+}
+.syn-variable {
+  color: #fd971f;
+}
+.syn-comment {
+  color: #636d83;
+  font-style: italic;
+}
+.syn-punctuation {
+  color: #7c8594;
+}
+.syn-directive {
+  color: #a6e22e;
+}
+.syn-property {
+  color: #a6e22e;
+}
+.syn-boolean {
+  color: #ae81ff;
+}
+.syn-null {
+  color: #ae81ff;
+  font-style: italic;
+}
 
 /* Markdown styles */
 .markdown-content h1,
@@ -105,12 +136,37 @@ code {
   margin-bottom: 0.75rem;
   line-height: 1.3;
 }
-.markdown-content h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.025em; margin-top: 0; }
-.markdown-content h2 { font-size: 1.5rem; font-weight: 700; padding-bottom: 0.5rem; border-bottom: 1px solid var(--color-border-primary); }
-.markdown-content h3 { font-size: 1.25rem; font-weight: 600; }
-.markdown-content h4 { font-size: 1.1rem; font-weight: 600; }
-.markdown-content h5 { font-size: 1rem; font-weight: 600; }
-.markdown-content h6 { font-size: 0.875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-muted); }
+.markdown-content h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  margin-top: 0;
+}
+.markdown-content h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-border-primary);
+}
+.markdown-content h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+.markdown-content h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.markdown-content h5 {
+  font-size: 1rem;
+  font-weight: 600;
+}
+.markdown-content h6 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+}
 
 .markdown-content p {
   color: var(--color-text-secondary);

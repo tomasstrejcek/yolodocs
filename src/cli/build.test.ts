@@ -24,11 +24,11 @@ import { buildNavigationManifest, toTitleCase } from "./build.js";
 // Reproduces the content-splitting logic from build.ts
 function writeDocsData(dataDir: string, docsManifest: DocsManifest) {
   const docsManifestMeta = {
-    pages: docsManifest.pages.map(({ content, ...meta }) => meta),
+    pages: docsManifest.pages.map(({ content: _content, ...meta }) => meta),
   };
   fs.writeFileSync(
     path.join(dataDir, "docs-manifest.json"),
-    JSON.stringify(docsManifestMeta, null, 2)
+    JSON.stringify(docsManifestMeta, null, 2),
   );
 
   const docsPagesDir = path.join(dataDir, "docs-pages");
@@ -36,10 +36,7 @@ function writeDocsData(dataDir: string, docsManifest: DocsManifest) {
   for (const page of docsManifest.pages) {
     const pageFile = path.join(docsPagesDir, `${page.slug}.js`);
     fse.ensureDirSync(path.dirname(pageFile));
-    fs.writeFileSync(
-      pageFile,
-      `export default ${JSON.stringify(page.content)};`
-    );
+    fs.writeFileSync(pageFile, `export default ${JSON.stringify(page.content)};`);
   }
 }
 
@@ -69,9 +66,7 @@ describe("docs content splitting", () => {
 
     writeDocsData(tmpDir, manifest);
 
-    const written = JSON.parse(
-      fs.readFileSync(path.join(tmpDir, "docs-manifest.json"), "utf-8")
-    );
+    const written = JSON.parse(fs.readFileSync(path.join(tmpDir, "docs-manifest.json"), "utf-8"));
     expect(written.pages).toHaveLength(1);
     expect(written.pages[0].slug).toBe("intro");
     expect(written.pages[0].title).toBe("Introduction");
@@ -100,12 +95,8 @@ describe("docs content splitting", () => {
 
     writeDocsData(tmpDir, manifest);
 
-    expect(
-      fs.existsSync(path.join(tmpDir, "docs-pages", "page-a.js"))
-    ).toBe(true);
-    expect(
-      fs.existsSync(path.join(tmpDir, "docs-pages", "page-b.js"))
-    ).toBe(true);
+    expect(fs.existsSync(path.join(tmpDir, "docs-pages", "page-a.js"))).toBe(true);
+    expect(fs.existsSync(path.join(tmpDir, "docs-pages", "page-b.js"))).toBe(true);
   });
 
   it("creates subdirectories for nested slugs", () => {
@@ -131,75 +122,58 @@ describe("docs content splitting", () => {
   const problematicCases: [string, string][] = [
     ["backticks", "Use \\`template\\` literals like \\`this\\`"],
     ["template literal interpolation", "Value is ${variable} and ${other}"],
-    [
-      "backslash sequences",
-      'Path is C:\\Users\\name\\docs and escape \\n \\t \\" sequences',
-    ],
-    [
-      "unicode line/paragraph separators",
-      `Before\u2028middle\u2029after`,
-    ],
+    ["backslash sequences", 'Path is C:\\Users\\name\\docs and escape \\n \\t \\" sequences'],
+    ["unicode line/paragraph separators", `Before\u2028middle\u2029after`],
     ["single quotes", "It's a 'quoted' string with \"doubles\" too"],
     ["HTML script tags", '<script>alert("xss")</script> and </script>'],
     ["null bytes and control chars", "Before\x00after and \x01\x02\x03"],
     [
       "mixed dangerous content",
-      "```graphql\nquery { user(id: $id) { name } }\n```\n\n${injection}\n\nBackslash: \\ and quote: \" end",
+      '```graphql\nquery { user(id: $id) { name } }\n```\n\n${injection}\n\nBackslash: \\ and quote: " end',
     ],
     [
       "large content with repeating patterns",
-      "# Title\n\n".repeat(500) +
-        "```\ncode block with `backticks` and ${vars}\n```\n".repeat(100),
+      "# Title\n\n".repeat(500) + "```\ncode block with `backticks` and ${vars}\n```\n".repeat(100),
     ],
   ];
 
-  it.each(problematicCases)(
-    "round-trips content with %s",
-    (_label, content) => {
-      const manifest: DocsManifest = {
-        pages: [
-          {
-            slug: "test-page",
-            title: "Test",
-            category: "General",
-            order: 1,
-            content,
-          },
-        ],
-      };
+  it.each(problematicCases)("round-trips content with %s", (_label, content) => {
+    const manifest: DocsManifest = {
+      pages: [
+        {
+          slug: "test-page",
+          title: "Test",
+          category: "General",
+          order: 1,
+          content,
+        },
+      ],
+    };
 
-      writeDocsData(tmpDir, manifest);
+    writeDocsData(tmpDir, manifest);
 
-      // Verify manifest has no content
-      const written = JSON.parse(
-        fs.readFileSync(path.join(tmpDir, "docs-manifest.json"), "utf-8")
-      );
-      expect(written.pages[0]).not.toHaveProperty("content");
+    // Verify manifest has no content
+    const written = JSON.parse(fs.readFileSync(path.join(tmpDir, "docs-manifest.json"), "utf-8"));
+    expect(written.pages[0]).not.toHaveProperty("content");
 
-      // Verify the .js file content survives round-trip:
-      // The file contains `export default <JSON-stringified content>;`
-      // Extracting the JSON string and parsing it should yield the original
-      const jsContent = fs.readFileSync(
-        path.join(tmpDir, "docs-pages", "test-page.js"),
-        "utf-8"
-      );
-      expect(jsContent.startsWith("export default ")).toBe(true);
-      expect(jsContent.endsWith(";")).toBe(true);
+    // Verify the .js file content survives round-trip:
+    // The file contains `export default <JSON-stringified content>;`
+    // Extracting the JSON string and parsing it should yield the original
+    const jsContent = fs.readFileSync(path.join(tmpDir, "docs-pages", "test-page.js"), "utf-8");
+    expect(jsContent.startsWith("export default ")).toBe(true);
+    expect(jsContent.endsWith(";")).toBe(true);
 
-      const jsonStr = jsContent.slice("export default ".length, -1);
-      const recovered = JSON.parse(jsonStr);
-      expect(recovered).toBe(content);
-    }
-  );
+    const jsonStr = jsContent.slice("export default ".length, -1);
+    const recovered = JSON.parse(jsonStr);
+    expect(recovered).toBe(content);
+  });
 
   it("handles empty docs manifest", () => {
     const manifest: DocsManifest = { pages: [] };
 
     writeDocsData(tmpDir, manifest);
 
-    const written = JSON.parse(
-      fs.readFileSync(path.join(tmpDir, "docs-manifest.json"), "utf-8")
-    );
+    const written = JSON.parse(fs.readFileSync(path.join(tmpDir, "docs-manifest.json"), "utf-8"));
     expect(written.pages).toHaveLength(0);
     expect(fs.existsSync(path.join(tmpDir, "docs-pages"))).toBe(true);
   });
@@ -286,7 +260,13 @@ describe("buildNavigationManifest", () => {
   it("creates a group item for 3-level slugs (section > group > page)", () => {
     const docs = {
       pages: [
-        { slug: "product/guides/filtering", title: "Filtering", category: "", order: 0, content: "" },
+        {
+          slug: "product/guides/filtering",
+          title: "Filtering",
+          category: "",
+          order: 0,
+          content: "",
+        },
         { slug: "product/guides/auth", title: "Auth", category: "", order: 0, content: "" },
       ],
     };
@@ -310,9 +290,7 @@ describe("buildNavigationManifest", () => {
 
   it("places ungrouped 2-level pages directly in section (no group wrapper)", () => {
     const docs = {
-      pages: [
-        { slug: "product/billing", title: "Billing", category: "", order: 0, content: "" },
-      ],
+      pages: [{ slug: "product/billing", title: "Billing", category: "", order: 0, content: "" }],
     };
     const manifest = buildNavigationManifest(emptySchema, docs, "");
     const section = manifest.sections.find((s) => s.id === "docs-product")!;
@@ -336,7 +314,13 @@ describe("buildNavigationManifest", () => {
   it("title-cases hyphenated group folder names", () => {
     const docs = {
       pages: [
-        { slug: "product/getting-started/overview", title: "Overview", category: "", order: 0, content: "" },
+        {
+          slug: "product/getting-started/overview",
+          title: "Overview",
+          category: "",
+          order: 0,
+          content: "",
+        },
       ],
     };
     const manifest = buildNavigationManifest(emptySchema, docs, "");
@@ -363,7 +347,13 @@ describe("buildNavigationManifest", () => {
     const docs = {
       pages: [
         { slug: "product/billing", title: "Billing", category: "", order: 0, content: "" },
-        { slug: "product/guides/filtering", title: "Filtering", category: "", order: 0, content: "" },
+        {
+          slug: "product/guides/filtering",
+          title: "Filtering",
+          category: "",
+          order: 0,
+          content: "",
+        },
       ],
     };
     const manifest = buildNavigationManifest(emptySchema, docs, "");
@@ -389,9 +379,7 @@ describe("buildNavigationManifest", () => {
 
   it("4+ segment slugs: section=parts[0], group=parts[1], leaf=rest joined", () => {
     const docs = {
-      pages: [
-        { slug: "a/b/c/d", title: "Deep Page", category: "", order: 0, content: "" },
-      ],
+      pages: [{ slug: "a/b/c/d", title: "Deep Page", category: "", order: 0, content: "" }],
     };
     const manifest = buildNavigationManifest(emptySchema, docs, "");
     const section = manifest.sections.find((s) => s.id === "docs-a")!;
@@ -416,13 +404,20 @@ describe("buildNavigationManifest", () => {
 
   it("schema sections remain unchanged and appear after docs sections", () => {
     const docs = {
-      pages: [
-        { slug: "intro", title: "Intro", category: "", order: 0, content: "" },
-      ],
+      pages: [{ slug: "intro", title: "Intro", category: "", order: 0, content: "" }],
     };
     const schemaWithQuery = {
       ...emptySchema,
-      queries: [{ name: "getUser", description: null, type: { name: "User", kind: "OBJECT" as const, ofType: null }, args: [], isDeprecated: false, deprecationReason: null }],
+      queries: [
+        {
+          name: "getUser",
+          description: null,
+          type: { name: "User", kind: "OBJECT" as const, ofType: null },
+          args: [],
+          isDeprecated: false,
+          deprecationReason: null,
+        },
+      ],
     };
     const manifest = buildNavigationManifest(schemaWithQuery, docs, "");
     expect(manifest.sections[0].id).toBe("docs");
@@ -453,7 +448,13 @@ describe("buildNavigationManifest", () => {
       pages: [
         { slug: "getting-started", title: "Getting Started", category: "", order: 0, content: "" },
         { slug: "product/billing", title: "Billing", category: "", order: 0, content: "" },
-        { slug: "product/guides/filtering", title: "Filtering", category: "", order: 0, content: "" },
+        {
+          slug: "product/guides/filtering",
+          title: "Filtering",
+          category: "",
+          order: 0,
+          content: "",
+        },
         { slug: "product/guides/auth", title: "Auth", category: "", order: 0, content: "" },
         { slug: "developer/api", title: "Api", category: "", order: 0, content: "" },
       ],
@@ -522,7 +523,9 @@ describe("sidebar navPath (navigate() argument)", () => {
   it("passes .html doc anchors through unchanged", () => {
     expect(toNavPath("/getting-started.html", true)).toBe("/getting-started.html");
     expect(toNavPath("/developer/auth.html", true)).toBe("/developer/auth.html");
-    expect(toNavPath("/product/guides/filtering.html", true)).toBe("/product/guides/filtering.html");
+    expect(toNavPath("/product/guides/filtering.html", true)).toBe(
+      "/product/guides/filtering.html",
+    );
   });
 
   it("prefixes reference anchors with /reference", () => {

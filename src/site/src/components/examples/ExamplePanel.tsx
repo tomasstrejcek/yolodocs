@@ -8,19 +8,12 @@ interface OperationExample {
   response: Record<string, unknown>;
 }
 
-export function ExamplePanel(props: {
-  name: string;
-  example: OperationExample;
-}) {
+export function ExamplePanel(props: { name: string; example: OperationExample }) {
   return (
     <div class="mb-8" id={`example-${props.name}`}>
       <h4 class="text-sm font-semibold text-text-primary mb-3">{props.name}</h4>
 
-      <CodeBlock
-        code={props.example.query}
-        language="graphql"
-        title="Query"
-      />
+      <CodeBlock code={props.example.query} language="graphql" title="Query" />
 
       <Show when={props.example.variables}>
         <CodeBlock

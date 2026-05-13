@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import { loadConfig, type YolodocsConfig } from "./config.js";
+import { loadConfig } from "./config.js";
 import { build } from "./build.js";
 
 export function createCli() {
@@ -7,21 +7,13 @@ export function createCli() {
 
   program
     .name("yolodocs")
-    .description(
-      "Generate beautiful, searchable, static documentation from GraphQL schemas"
-    )
+    .description("Generate beautiful, searchable, static documentation from GraphQL schemas")
     .version("0.1.0");
 
   program
     .option("-s, --schema <path>", "Path to GraphQL SDL schema file")
-    .option(
-      "--introspection-url <url>",
-      "URL to introspect for schema"
-    )
-    .option(
-      "--introspection-file <path>",
-      "Path to introspection JSON file"
-    )
+    .option("--introspection-url <url>", "URL to introspect for schema")
+    .option("--introspection-file <path>", "Path to introspection JSON file")
     .option("-o, --output <path>", "Output directory", "./docs-site")
     .option("-c, --config <path>", "Path to config file")
     .option("--title <title>", "Site title")

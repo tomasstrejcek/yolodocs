@@ -34,7 +34,6 @@ class ExampleContext {
         this.inputMap = new Map(schema.inputs.map((i) => [i.name, i]));
     }
     generateOperationExample(field, operationType) {
-        const args = this.generateArgs(field);
         const variables = this.generateVariables(field);
         const responseFields = this.generateResponseSelection(field.type, 0);
         const responseData = this.generateMockResponse(field.type, 0);
@@ -42,9 +41,7 @@ class ExampleContext {
         const varDefs = field.args.length > 0
             ? `(${field.args.map((a) => `$${a.name}: ${typeRefToString(a.type)}`).join(", ")})`
             : "";
-        const argUsage = field.args.length > 0
-            ? `(${field.args.map((a) => `${a.name}: $${a.name}`).join(", ")})`
-            : "";
+        const argUsage = field.args.length > 0 ? `(${field.args.map((a) => `${a.name}: $${a.name}`).join(", ")})` : "";
         const query = `${operationType} ${capitalize(field.name)}${varDefs} {\n  ${field.name}${argUsage}${responseFields}\n}`;
         return {
             query,
@@ -57,9 +54,7 @@ class ExampleContext {
         };
     }
     generateArgs(field) {
-        return field.args
-            .map((a) => `${a.name}: $${a.name}`)
-            .join(", ");
+        return field.args.map((a) => `${a.name}: $${a.name}`).join(", ");
     }
     generateVariables(field) {
         const vars = {};
@@ -201,13 +196,7 @@ function stripList(ref) {
 function isScalarLike(typeName, typeMap) {
     if (SCALAR_MOCKS[typeName] !== undefined)
         return true;
-    if ([
-        "String",
-        "Int",
-        "Float",
-        "Boolean",
-        "ID",
-    ].includes(typeName))
+    if (["String", "Int", "Float", "Boolean", "ID"].includes(typeName))
         return true;
     return !typeMap.has(typeName);
 }

@@ -1,7 +1,6 @@
-import { createSignal, createEffect, Show, For, onCleanup } from "solid-js";
+import { createSignal, createEffect, Show, For } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import manifest from "../../data/manifest.json";
-import { withBase } from "../../lib/base-path";
 
 interface SearchResult {
   id: string;
@@ -11,11 +10,7 @@ interface SearchResult {
   description: string;
 }
 
-function flattenNavItems(
-  items: any[],
-  sectionTitle: string,
-  into: SearchResult[]
-): void {
+function flattenNavItems(items: any[], sectionTitle: string, into: SearchResult[]): void {
   for (const item of items) {
     if (item.children && item.children.length > 0) {
       // Group header: not navigable itself, recurse into children
@@ -36,6 +31,7 @@ export function SearchDialog(props: { open: boolean; onClose: () => void }) {
   const [query, setQuery] = createSignal("");
   const [results, setResults] = createSignal<SearchResult[]>([]);
   const [selectedIndex, setSelectedIndex] = createSignal(0);
+  // oxlint-disable-next-line no-unassigned-vars
   let inputRef: HTMLInputElement | undefined;
 
   const allItems: SearchResult[] = [];
@@ -56,7 +52,7 @@ export function SearchDialog(props: { open: boolean; onClose: () => void }) {
       (item) =>
         item.name.toLowerCase().includes(lower) ||
         item.section.toLowerCase().includes(lower) ||
-        item.description.toLowerCase().includes(lower)
+        item.description.toLowerCase().includes(lower),
     );
 
     // Sort: exact prefix matches first, then contains
@@ -115,24 +111,36 @@ export function SearchDialog(props: { open: boolean; onClose: () => void }) {
   };
 
   const getBadge = (section: string) => {
-    return sectionBadge[section] || { label: section.toUpperCase().slice(0, 6), cls: "bg-bg-tertiary text-text-muted" };
+    return (
+      sectionBadge[section] || {
+        label: section.toUpperCase().slice(0, 6),
+        cls: "bg-bg-tertiary text-text-muted",
+      }
+    );
   };
 
   return (
     <Show when={props.open}>
       <div class="fixed inset-0 z-50 flex items-start justify-center pt-[15vh]">
         {/* Backdrop */}
-        <div
-          class="fixed inset-0 bg-black/60 backdrop-blur-sm"
-          onClick={props.onClose}
-        />
+        <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={props.onClose} />
 
         {/* Dialog */}
         <div class="relative w-full max-w-xl mx-4 bg-bg-secondary border border-border-primary rounded-xl shadow-2xl overflow-hidden">
           {/* Input */}
           <div class="flex items-center px-4 border-b border-border-primary">
-            <svg class="w-5 h-5 text-text-muted shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            <svg
+              class="w-5 h-5 text-text-muted shrink-0"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
             </svg>
             <input
               ref={inputRef}

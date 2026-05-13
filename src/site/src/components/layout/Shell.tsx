@@ -37,11 +37,23 @@ export function Shell(props: { children: JSX.Element }) {
           aria-label="Toggle menu"
         >
           <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"
+            />
           </svg>
         </button>
 
-        <a href={withBase("/")} class="flex items-center gap-2 text-text-primary font-semibold text-lg no-underline" onClick={(e) => { e.preventDefault(); navigate("/"); }}>
+        <a
+          href={withBase("/")}
+          class="flex items-center gap-2 text-text-primary font-semibold text-lg no-underline"
+          onClick={(e) => {
+            e.preventDefault();
+            navigate("/");
+          }}
+        >
           <span class="text-accent-blue">⚡</span>
           <span>{siteConfig.title}</span>
         </a>
@@ -49,8 +61,26 @@ export function Shell(props: { children: JSX.Element }) {
         <div class="flex-1" />
 
         <nav class="hidden md:flex items-center gap-4 mr-4">
-          <a href={withBase("/")} class="text-sm text-text-secondary hover:text-text-primary no-underline transition-colors" onClick={(e) => { e.preventDefault(); navigate("/"); }}>Home</a>
-          <a href={withBase("/reference")} class="text-sm text-text-secondary hover:text-text-primary no-underline transition-colors" onClick={(e) => { e.preventDefault(); navigate("/reference"); }}>Reference</a>
+          <a
+            href={withBase("/")}
+            class="text-sm text-text-secondary hover:text-text-primary no-underline transition-colors"
+            onClick={(e) => {
+              e.preventDefault();
+              navigate("/");
+            }}
+          >
+            Home
+          </a>
+          <a
+            href={withBase("/reference")}
+            class="text-sm text-text-secondary hover:text-text-primary no-underline transition-colors"
+            onClick={(e) => {
+              e.preventDefault();
+              navigate("/reference");
+            }}
+          >
+            Reference
+          </a>
         </nav>
 
         <SettingsPanel />
@@ -60,10 +90,17 @@ export function Shell(props: { children: JSX.Element }) {
           onClick={() => setSearchOpen(true)}
         >
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
           </svg>
           <span class="hidden sm:inline">Search...</span>
-          <kbd class="hidden sm:inline-flex items-center px-1.5 py-0.5 text-xs bg-bg-primary rounded border border-border-primary">⌘K</kbd>
+          <kbd class="hidden sm:inline-flex items-center px-1.5 py-0.5 text-xs bg-bg-primary rounded border border-border-primary">
+            ⌘K
+          </kbd>
         </button>
       </header>
 
@@ -79,9 +116,7 @@ export function Shell(props: { children: JSX.Element }) {
         </MobileNav>
 
         {/* Main content */}
-        <main class="flex-1 min-w-0">
-          {props.children}
-        </main>
+        <main class="flex-1 min-w-0">{props.children}</main>
       </div>
 
       {/* Search dialog */}

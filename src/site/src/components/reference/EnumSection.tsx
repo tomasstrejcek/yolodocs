@@ -22,9 +22,7 @@ export function EnumSection() {
               id={`enum-${enumDef.name}`}
               class="mb-8 pb-8 border-b border-border-secondary last:border-b-0 scroll-mt-16"
             >
-              <h3 class="text-lg font-semibold text-text-primary font-mono">
-                {enumDef.name}
-              </h3>
+              <h3 class="text-lg font-semibold text-text-primary font-mono">{enumDef.name}</h3>
 
               <DescriptionBlock text={enumDef.description} />
 
@@ -32,8 +30,12 @@ export function EnumSection() {
                 <table class="w-full text-sm">
                   <thead>
                     <tr class="bg-bg-tertiary">
-                      <th class="text-left px-3 py-2 text-xs font-semibold text-text-muted uppercase tracking-wider">Value</th>
-                      <th class="text-left px-3 py-2 text-xs font-semibold text-text-muted uppercase tracking-wider hidden md:table-cell">Description</th>
+                      <th class="text-left px-3 py-2 text-xs font-semibold text-text-muted uppercase tracking-wider">
+                        Value
+                      </th>
+                      <th class="text-left px-3 py-2 text-xs font-semibold text-text-muted uppercase tracking-wider hidden md:table-cell">
+                        Description
+                      </th>
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-border-secondary">
@@ -45,8 +47,7 @@ export function EnumSection() {
                           </td>
                           <td class="px-3 py-2 text-text-secondary hidden md:table-cell">
                             <Show when={value.isDeprecated}>
-                              <DeprecationBadge reason={value.deprecationReason} />
-                              {" "}
+                              <DeprecationBadge reason={value.deprecationReason} />{" "}
                             </Show>
                             {value.description}
                           </td>

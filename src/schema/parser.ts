@@ -36,55 +36,32 @@ import type {
   ScalarDefinition,
 } from "./types.js";
 
-const BUILT_IN_SCALARS = new Set([
-  "String",
-  "Int",
-  "Float",
-  "Boolean",
-  "ID",
-]);
+const BUILT_IN_SCALARS = new Set(["String", "Int", "Float", "Boolean", "ID"]);
 
 const INTERNAL_TYPE_PREFIX = "__";
 
-export function parseSchemaFromFile(
-  filePath: string,
-  hideInternalTypes = true
-): ParsedSchema {
+export function parseSchemaFromFile(filePath: string, hideInternalTypes = true): ParsedSchema {
   const sdl = fs.readFileSync(filePath, "utf-8");
   return parseSchemaFromSDL(sdl, hideInternalTypes);
 }
 
-export function parseSchemaFromSDL(
-  sdl: string,
-  hideInternalTypes = true
-): ParsedSchema {
+export function parseSchemaFromSDL(sdl: string, hideInternalTypes = true): ParsedSchema {
   const schema = buildSchema(sdl);
   return extractSchema(schema, hideInternalTypes);
 }
 
-function extractSchema(
-  schema: GraphQLSchema,
-  hideInternalTypes: boolean
-): ParsedSchema {
+function extractSchema(schema: GraphQLSchema, hideInternalTypes: boolean): ParsedSchema {
   const queryType = schema.getQueryType();
   const mutationType = schema.getMutationType();
   const subscriptionType = schema.getSubscriptionType();
 
-  const queries = queryType
-    ? extractFields(queryType)
-    : [];
-  const mutations = mutationType
-    ? extractFields(mutationType)
-    : [];
-  const subscriptions = subscriptionType
-    ? extractFields(subscriptionType)
-    : [];
+  const queries = queryType ? extractFields(queryType) : [];
+  const mutations = mutationType ? extractFields(mutationType) : [];
+  const subscriptions = subscriptionType ? extractFields(subscriptionType) : [];
 
   const typeMap = schema.getTypeMap();
   const rootTypeNames = new Set(
-    [queryType, mutationType, subscriptionType]
-      .filter(Boolean)
-      .map((t) => t!.name)
+    [queryType, mutationType, subscriptionType].filter(Boolean).map((t) => t!.name),
   );
 
   const types: TypeDefinition[] = [];
@@ -141,9 +118,7 @@ function extractFields(type: GraphQLObjectType): FieldDefinition[] {
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-function extractField(
-  field: GraphQLField<unknown, unknown>
-): FieldDefinition {
+function extractField(field: GraphQLField<unknown, unknown>): FieldDefinition {
   return {
     name: field.name,
     description: field.description || null,
@@ -159,16 +134,15 @@ function extractArgument(arg: GraphQLArgument): ArgumentDefinition {
     name: arg.name,
     description: arg.description || null,
     type: extractTypeRef(arg.type),
-    defaultValue:
-      arg.defaultValue !== undefined
-        ? JSON.stringify(arg.defaultValue)
-        : null,
+    defaultValue: arg.defaultValue !== undefined ? JSON.stringify(arg.defaultValue) : null,
     isDeprecated: arg.deprecationReason != null,
     deprecationReason: arg.deprecationReason || null,
   };
 }
 
-function extractTypeRef(type: GraphQLOutputType | GraphQLInputType | import("graphql").GraphQLType): TypeRef {
+function extractTypeRef(
+  type: GraphQLOutputType | GraphQLInputType | import("graphql").GraphQLType,
+): TypeRef {
   if (isNonNullType(type)) {
     return {
       name: "",
@@ -193,9 +167,7 @@ function extractTypeRef(type: GraphQLOutputType | GraphQLInputType | import("gra
   return { name: "Unknown", kind: "SCALAR", ofType: null };
 }
 
-function getTypeKind(
-  type: GraphQLNamedType
-): TypeRef["kind"] {
+function getTypeKind(type: GraphQLNamedType): TypeRef["kind"] {
   if (isObjectType(type)) return "OBJECT";
   if (isEnumType(type)) return "ENUM";
   if (isInterfaceType(type)) return "INTERFACE";
@@ -228,7 +200,7 @@ function extractEnumType(type: GraphQLEnumType): EnumDefinition {
 
 function extractInterfaceType(
   type: GraphQLInterfaceType,
-  schema: GraphQLSchema
+  schema: GraphQLSchema,
 ): InterfaceDefinition {
   const fields = type.getFields();
   const implementations = schema
@@ -250,7 +222,10 @@ function extractUnionType(type: GraphQLUnionType): UnionDefinition {
   return {
     name: type.name,
     description: type.description || null,
-    types: type.getTypes().map((t) => t.name).sort(),
+    types: type
+      .getTypes()
+      .map((t) => t.name)
+      .sort(),
   };
 }
 
@@ -264,10 +239,7 @@ function extractInputType(type: GraphQLInputObjectType): InputDefinition {
         name: f.name,
         description: f.description || null,
         type: extractTypeRef(f.type),
-        defaultValue:
-          f.defaultValue !== undefined
-            ? JSON.stringify(f.defaultValue)
-            : null,
+        defaultValue: f.defaultValue !== undefined ? JSON.stringify(f.defaultValue) : null,
       }))
       .sort((a, b) => a.name.localeCompare(b.name)),
   };

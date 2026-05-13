@@ -31,7 +31,7 @@ const ConfigSchema = z.object({
       z.object({
         name: z.string(),
         operations: z.array(z.string()),
-      })
+      }),
     )
     .optional(),
 
@@ -43,14 +43,11 @@ const ConfigSchema = z.object({
 
 export type YolodocsConfig = z.infer<typeof ConfigSchema>;
 
-export async function loadConfig(
-  cliOptions: Record<string, unknown>
-): Promise<YolodocsConfig> {
+export async function loadConfig(cliOptions: Record<string, unknown>): Promise<YolodocsConfig> {
   let fileConfig: Record<string, unknown> = {};
 
   // Look for config file
-  const configPath =
-    (cliOptions.config as string) || findConfigFile(process.cwd());
+  const configPath = (cliOptions.config as string) || findConfigFile(process.cwd());
   if (configPath && fs.existsSync(configPath)) {
     const content = fs.readFileSync(configPath, "utf-8");
     if (configPath.endsWith(".json")) {
@@ -65,10 +62,8 @@ export async function loadConfig(
   const merged: Record<string, unknown> = { ...fileConfig };
 
   if (cliOptions.schema) merged.schema = cliOptions.schema;
-  if (cliOptions.introspectionUrl)
-    merged.introspectionUrl = cliOptions.introspectionUrl;
-  if (cliOptions.introspectionFile)
-    merged.introspectionFile = cliOptions.introspectionFile;
+  if (cliOptions.introspectionUrl) merged.introspectionUrl = cliOptions.introspectionUrl;
+  if (cliOptions.introspectionFile) merged.introspectionFile = cliOptions.introspectionFile;
   if (cliOptions.output) merged.output = cliOptions.output;
   if (cliOptions.title) merged.title = cliOptions.title;
   if (cliOptions.endpoint) merged.endpoint = cliOptions.endpoint;
@@ -99,7 +94,7 @@ export async function loadConfig(
   // Must have at least one schema source
   if (!config.schema && !config.introspectionUrl && !config.introspectionFile) {
     throw new Error(
-      "No schema source specified. Use --schema, --introspection-url, or --introspection-file"
+      "No schema source specified. Use --schema, --introspection-url, or --introspection-file",
     );
   }
 
@@ -107,11 +102,7 @@ export async function loadConfig(
 }
 
 function findConfigFile(dir: string): string | null {
-  const candidates = [
-    "yolodocs.config.yml",
-    "yolodocs.config.yaml",
-    "yolodocs.config.json",
-  ];
+  const candidates = ["yolodocs.config.yml", "yolodocs.config.yaml", "yolodocs.config.json"];
   for (const name of candidates) {
     const p = path.join(dir, name);
     if (fs.existsSync(p)) return p;

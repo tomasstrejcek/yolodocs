@@ -8,10 +8,9 @@ import { base, withBase } from "../lib/base-path";
 
 // Lazy-load individual doc page content to avoid bundling all markdown
 // into one large JSON module (which breaks Nitro prerender in Docker)
-const contentModules = import.meta.glob<string>(
-  "../data/docs-pages/**/*.js",
-  { import: "default" }
-);
+const contentModules = import.meta.glob<string>("../data/docs-pages/**/*.js", {
+  import: "default",
+});
 
 async function loadContent(slug: string): Promise<string> {
   const key = `../data/docs-pages/${slug}.js`;
@@ -37,9 +36,7 @@ export default function DocsPage() {
   });
 
   const page = createMemo(() => {
-    return (docsManifest as any).pages?.find(
-      (p: any) => p.slug === slug()
-    );
+    return (docsManifest as any).pages?.find((p: any) => p.slug === slug());
   });
 
   const [content] = createResource(slug, loadContent);

@@ -10,7 +10,7 @@ export function PlaygroundToggle(props: {
   const [active, setActive] = createSignal(false);
   const [queryText, setQueryText] = createSignal(props.query);
   const [varsText, setVarsText] = createSignal(
-    props.variables ? JSON.stringify(props.variables, null, 2) : ""
+    props.variables ? JSON.stringify(props.variables, null, 2) : "",
   );
   const [result, setResult] = createSignal<string | null>(null);
   const [loading, setLoading] = createSignal(false);

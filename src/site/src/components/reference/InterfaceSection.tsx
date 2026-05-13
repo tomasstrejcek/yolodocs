@@ -22,15 +22,15 @@ export function InterfaceSection() {
               id={`interface-${iface.name}`}
               class="mb-8 pb-8 border-b border-border-secondary last:border-b-0 scroll-mt-16"
             >
-              <h3 class="text-lg font-semibold text-text-primary font-mono">
-                {iface.name}
-              </h3>
+              <h3 class="text-lg font-semibold text-text-primary font-mono">{iface.name}</h3>
 
               <DescriptionBlock text={iface.description} />
 
               <Show when={iface.implementations?.length > 0}>
                 <div class="mt-2">
-                  <span class="text-xs font-semibold uppercase tracking-wider text-text-muted">Implemented by: </span>
+                  <span class="text-xs font-semibold uppercase tracking-wider text-text-muted">
+                    Implemented by:{" "}
+                  </span>
                   <For each={iface.implementations}>
                     {(impl: string, i) => (
                       <>

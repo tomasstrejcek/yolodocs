@@ -42,11 +42,7 @@ function kindColor(kind: string): string {
 
 export function TypeBadge(props: { type: TypeRef }) {
   const parts = unwrapType(props.type);
-  return (
-    <span class="inline-flex items-center gap-1 flex-wrap">
-      {parts}
-    </span>
-  );
+  return <span class="inline-flex items-center gap-1 flex-wrap">{parts}</span>;
 }
 
 function unwrapType(ref: TypeRef): any {
@@ -72,10 +68,15 @@ function unwrapType(ref: TypeRef): any {
     );
   }
 
-  const kind = ref.kind === "OBJECT" || ref.kind === "ENUM" || ref.kind === "SCALAR" ||
-    ref.kind === "INTERFACE" || ref.kind === "UNION" || ref.kind === "INPUT_OBJECT"
-    ? ref.kind
-    : getNamedTypeKind(ref.name);
+  const kind =
+    ref.kind === "OBJECT" ||
+    ref.kind === "ENUM" ||
+    ref.kind === "SCALAR" ||
+    ref.kind === "INTERFACE" ||
+    ref.kind === "UNION" ||
+    ref.kind === "INPUT_OBJECT"
+      ? ref.kind
+      : getNamedTypeKind(ref.name);
   const color = kindColor(kind);
   const anchor = getTypeAnchor(ref.name);
 
@@ -91,8 +92,6 @@ function unwrapType(ref: TypeRef): any {
   }
 
   return (
-    <span class={`px-2 py-0.5 text-xs font-mono font-medium rounded ${color}`}>
-      {ref.name}
-    </span>
+    <span class={`px-2 py-0.5 text-xs font-mono font-medium rounded ${color}`}>{ref.name}</span>
   );
 }

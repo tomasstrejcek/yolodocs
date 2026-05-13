@@ -13,14 +13,30 @@ function wrap(cls: string, text: string): string {
 // ---------- GraphQL tokenizer ----------
 
 const GQL_KEYWORDS = new Set([
-  "query", "mutation", "subscription", "fragment", "on",
-  "type", "input", "enum", "interface", "union", "scalar",
-  "schema", "extend", "implements", "directive", "repeatable",
+  "query",
+  "mutation",
+  "subscription",
+  "fragment",
+  "on",
+  "type",
+  "input",
+  "enum",
+  "interface",
+  "union",
+  "scalar",
+  "schema",
+  "extend",
+  "implements",
+  "directive",
+  "repeatable",
 ]);
 
 const GQL_BUILTINS = new Set(["String", "Int", "Float", "Boolean", "ID"]);
 
-interface Token { text: string; cls: string | null; }
+interface Token {
+  text: string;
+  cls: string | null;
+}
 
 function tokenizeGraphQL(code: string): Token[] {
   const tokens: Token[] = [];
@@ -146,12 +162,20 @@ function tokenizeGraphQL(code: string): Token[] {
 
     // Whitespace and anything else — pass through
     let j = i + 1;
-    while (j < len && !" \t\n\r#\"@${}()[]:,=!|0123456789".includes(code[j]) && !/[a-zA-Z_.]/.test(code[j])) {
+    while (
+      j < len &&
+      !' \t\n\r#"@${}()[]:,=!|0123456789'.includes(code[j]) &&
+      !/[a-zA-Z_.]/.test(code[j])
+    ) {
       j++;
     }
     // Collect whitespace runs
     if (code[i] === " " || code[i] === "\t" || code[i] === "\n" || code[i] === "\r") {
-      while (j < len && (code[j] === " " || code[j] === "\t" || code[j] === "\n" || code[j] === "\r")) j++;
+      while (
+        j < len &&
+        (code[j] === " " || code[j] === "\t" || code[j] === "\n" || code[j] === "\r")
+      )
+        j++;
     }
     tokens.push({ text: code.slice(i, j), cls: null });
     i = j;
@@ -162,10 +186,12 @@ function tokenizeGraphQL(code: string): Token[] {
 
 export function highlightGraphQL(code: string): string {
   const tokens = tokenizeGraphQL(code);
-  return tokens.map((t) => {
-    const escaped = escapeHtml(t.text);
-    return t.cls ? wrap(t.cls, escaped) : escaped;
-  }).join("");
+  return tokens
+    .map((t) => {
+      const escaped = escapeHtml(t.text);
+      return t.cls ? wrap(t.cls, escaped) : escaped;
+    })
+    .join("");
 }
 
 // ---------- JSON tokenizer ----------
@@ -184,7 +210,11 @@ function tokenizeJSON(code: string): Token[] {
     // Whitespace
     if (code[i] === " " || code[i] === "\t" || code[i] === "\n" || code[i] === "\r") {
       let j = i + 1;
-      while (j < len && (code[j] === " " || code[j] === "\t" || code[j] === "\n" || code[j] === "\r")) j++;
+      while (
+        j < len &&
+        (code[j] === " " || code[j] === "\t" || code[j] === "\n" || code[j] === "\r")
+      )
+        j++;
       tokens.push({ text: code.slice(i, j), cls: null });
       i = j;
       continue;
@@ -304,10 +334,12 @@ function tokenizeJSON(code: string): Token[] {
 
 export function highlightJSON(code: string): string {
   const tokens = tokenizeJSON(code);
-  return tokens.map((t) => {
-    const escaped = escapeHtml(t.text);
-    return t.cls ? wrap(t.cls, escaped) : escaped;
-  }).join("");
+  return tokens
+    .map((t) => {
+      const escaped = escapeHtml(t.text);
+      return t.cls ? wrap(t.cls, escaped) : escaped;
+    })
+    .join("");
 }
 
 // ---------- Entry ----------

@@ -23,10 +23,7 @@ const SCALAR_MOCKS: Record<string, unknown> = {
   JSON: {},
 };
 
-export function generateExamples(
-  schema: ParsedSchema,
-  maxDepth: number = 2
-): ExampleData {
+export function generateExamples(schema: ParsedSchema, maxDepth: number = 2): ExampleData {
   const ctx = new ExampleContext(schema, maxDepth);
   const operations: Record<string, OperationExample> = {};
 
@@ -34,10 +31,7 @@ export function generateExamples(
     operations[query.name] = ctx.generateOperationExample(query, "query");
   }
   for (const mutation of schema.mutations) {
-    operations[mutation.name] = ctx.generateOperationExample(
-      mutation,
-      "mutation"
-    );
+    operations[mutation.name] = ctx.generateOperationExample(mutation, "mutation");
   }
 
   return { operations };
@@ -58,9 +52,8 @@ class ExampleContext {
 
   generateOperationExample(
     field: FieldDefinition,
-    operationType: "query" | "mutation"
+    operationType: "query" | "mutation",
   ): OperationExample {
-    const args = this.generateArgs(field);
     const variables = this.generateVariables(field);
     const responseFields = this.generateResponseSelection(field.type, 0);
     const responseData = this.generateMockResponse(field.type, 0);
@@ -72,9 +65,7 @@ class ExampleContext {
         : "";
 
     const argUsage =
-      field.args.length > 0
-        ? `(${field.args.map((a) => `${a.name}: $${a.name}`).join(", ")})`
-        : "";
+      field.args.length > 0 ? `(${field.args.map((a) => `${a.name}: $${a.name}`).join(", ")})` : "";
 
     const query = `${operationType} ${capitalize(field.name)}${varDefs} {\n  ${field.name}${argUsage}${responseFields}\n}`;
 
@@ -89,17 +80,11 @@ class ExampleContext {
     };
   }
 
-  private generateArgs(
-    field: FieldDefinition
-  ): string {
-    return field.args
-      .map((a) => `${a.name}: $${a.name}`)
-      .join(", ");
+  private generateArgs(field: FieldDefinition): string {
+    return field.args.map((a) => `${a.name}: $${a.name}`).join(", ");
   }
 
-  private generateVariables(
-    field: FieldDefinition
-  ): Record<string, unknown> {
+  private generateVariables(field: FieldDefinition): Record<string, unknown> {
     const vars: Record<string, unknown> = {};
     for (const arg of field.args) {
       vars[arg.name] = this.mockValueForType(arg.type);
@@ -107,10 +92,7 @@ class ExampleContext {
     return vars;
   }
 
-  private generateResponseSelection(
-    typeRef: TypeRef,
-    depth: number
-  ): string {
+  private generateResponseSelection(typeRef: TypeRef, depth: number): string {
     const namedType = unwrapType(typeRef);
     const typeDef = this.typeMap.get(namedType.name);
 
@@ -118,8 +100,8 @@ class ExampleContext {
       // Scalar or max depth reached - check if it's still an object type
       if (typeDef && depth >= this.maxDepth) {
         // Just pick scalar fields at max depth
-        const scalarFields = typeDef.fields.filter(
-          (f) => isScalarLike(unwrapType(f.type).name, this.typeMap)
+        const scalarFields = typeDef.fields.filter((f) =>
+          isScalarLike(unwrapType(f.type).name, this.typeMap),
         );
         if (scalarFields.length > 0) {
           return (
@@ -150,8 +132,8 @@ class ExampleContext {
           lines.push(`${indent}${f.name}`);
         } else {
           // Object at depth limit - pick scalar sub-fields
-          const scalarFields = subType.fields.filter(
-            (sf) => isScalarLike(unwrapType(sf.type).name, this.typeMap)
+          const scalarFields = subType.fields.filter((sf) =>
+            isScalarLike(unwrapType(sf.type).name, this.typeMap),
           );
           if (scalarFields.length > 0) {
             lines.push(`${indent}${f.name} {`);
@@ -255,26 +237,13 @@ function isList(ref: TypeRef): boolean {
 
 function stripList(ref: TypeRef): TypeRef {
   if (ref.kind === "LIST") return ref.ofType!;
-  if (ref.kind === "NON_NULL" && ref.ofType)
-    return { ...ref, ofType: stripList(ref.ofType) };
+  if (ref.kind === "NON_NULL" && ref.ofType) return { ...ref, ofType: stripList(ref.ofType) };
   return ref;
 }
 
-function isScalarLike(
-  typeName: string,
-  typeMap: Map<string, TypeDefinition>
-): boolean {
+function isScalarLike(typeName: string, typeMap: Map<string, TypeDefinition>): boolean {
   if (SCALAR_MOCKS[typeName] !== undefined) return true;
-  if (
-    [
-      "String",
-      "Int",
-      "Float",
-      "Boolean",
-      "ID",
-    ].includes(typeName)
-  )
-    return true;
+  if (["String", "Int", "Float", "Boolean", "ID"].includes(typeName)) return true;
   return !typeMap.has(typeName);
 }
 

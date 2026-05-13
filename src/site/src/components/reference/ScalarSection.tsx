@@ -22,9 +22,7 @@ export function ScalarSection() {
                 id={`scalar-${scalar.name}`}
                 class="p-4 border border-border-primary rounded-lg bg-bg-secondary/30 scroll-mt-16"
               >
-                <h3 class="text-base font-semibold text-text-primary font-mono">
-                  {scalar.name}
-                </h3>
+                <h3 class="text-base font-semibold text-text-primary font-mono">{scalar.name}</h3>
                 <DescriptionBlock text={scalar.description} />
               </div>
             )}

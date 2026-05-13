@@ -36,15 +36,37 @@ export function MarkdownPage(props: { content: string; title: string; slug?: str
       <div class="markdown-content" innerHTML={html()} />
       <Show when={props.slug}>
         <div class="mt-8 pt-4 border-t border-border-primary text-sm text-text-muted">
-          <a href={withBase(`/${props.slug}.md`)} target="_blank" rel="noopener" class="hover:text-text-secondary">View Markdown source</a>
+          <a
+            href={withBase(`/${props.slug}.md`)}
+            target="_blank"
+            rel="noopener"
+            class="hover:text-text-secondary"
+          >
+            View Markdown source
+          </a>
           {" · "}
-          <a href={withBase("/docs.json")} target="_blank" rel="noopener" class="hover:text-text-secondary">Documentation index (JSON)</a>
+          <a
+            href={withBase("/docs.json")}
+            target="_blank"
+            rel="noopener"
+            class="hover:text-text-secondary"
+          >
+            Documentation index (JSON)
+          </a>
         </div>
       </Show>
       <div class="mt-8 pt-4 border-t border-border-primary text-sm text-text-muted text-center space-y-1">
         <p>
-          Generated with <a href="https://github.com/tomasstrejcek/yolodocs" target="_blank" rel="noopener" class="hover:text-text-secondary underline">yolodocs</a>
-          <Show when={cfg.yolodocsVersion}>{" "}v{cfg.yolodocsVersion}</Show>
+          Generated with{" "}
+          <a
+            href="https://github.com/tomasstrejcek/yolodocs"
+            target="_blank"
+            rel="noopener"
+            class="hover:text-text-secondary underline"
+          >
+            yolodocs
+          </a>
+          <Show when={cfg.yolodocsVersion}> v{cfg.yolodocsVersion}</Show>
         </p>
         <Show when={cfg.generatedAt}>
           <p>{new Date(cfg.generatedAt).toLocaleString()}</p>

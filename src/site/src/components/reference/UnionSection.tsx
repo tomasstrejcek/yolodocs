@@ -21,14 +21,14 @@ export function UnionSection() {
               id={`union-${union.name}`}
               class="mb-8 pb-8 border-b border-border-secondary last:border-b-0 scroll-mt-16"
             >
-              <h3 class="text-lg font-semibold text-text-primary font-mono">
-                {union.name}
-              </h3>
+              <h3 class="text-lg font-semibold text-text-primary font-mono">{union.name}</h3>
 
               <DescriptionBlock text={union.description} />
 
               <div class="mt-3">
-                <span class="text-xs font-semibold uppercase tracking-wider text-text-muted">Possible types: </span>
+                <span class="text-xs font-semibold uppercase tracking-wider text-text-muted">
+                  Possible types:{" "}
+                </span>
                 <div class="mt-1 flex flex-wrap gap-2">
                   <For each={union.types || []}>
                     {(typeName: string) => (
