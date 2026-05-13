@@ -434,6 +434,20 @@ describe("buildNavigationManifest", () => {
     expect(manifest.sections).toHaveLength(0);
   });
 
+  it("anchor format keeps .html extension (for href; navigate() strips it at runtime)", () => {
+    const docs = {
+      pages: [
+        { slug: "getting-started", title: "Getting Started", category: "", order: 0, content: "" },
+        { slug: "developer/auth", title: "Auth", category: "", order: 0, content: "" },
+      ],
+    };
+    const manifest = buildNavigationManifest(emptySchema, docs, "");
+    const rootItem = manifest.sections.find((s) => s.id === "docs")!.items[0];
+    expect(rootItem.anchor).toBe("/getting-started.html");
+    const devItem = manifest.sections.find((s) => s.id === "docs-developer")!.items[0];
+    expect(devItem.anchor).toBe("/developer/auth.html");
+  });
+
   it("full example: getting-started + product/billing + product/guides/filtering + product/guides/auth + developer/api", () => {
     const docs = {
       pages: [
@@ -458,5 +472,71 @@ describe("buildNavigationManifest", () => {
     expect(productSection.items[1].children).toHaveLength(2);
     expect(productSection.items[1].children![0].name).toBe("Auth");
     expect(productSection.items[1].children![1].name).toBe("Filtering");
+  });
+});
+
+// The transformUrl function used in app.tsx for route matching.
+// Inline here to ensure the logic is tested independently of the component.
+const transformUrl = (url: string): string => {
+  if (url.endsWith("/index.html")) return url.slice(0, -"index.html".length) || "/";
+  return url.replace(/\.html$/, "");
+};
+
+// The navPath computation used in Sidebar.tsx onClick handlers.
+const toNavPath = (anchor: string, isDocSection: boolean): string => {
+  if (isDocSection) return anchor.replace(/\.html$/, "");
+  return `/reference${anchor}`;
+};
+
+// The path computation used in SearchDialog.tsx navigateTo.
+const searchNavPath = (anchor: string): string => {
+  const isRef = anchor.startsWith("#");
+  return isRef ? `/reference${anchor}` : anchor.replace(/\.html$/, "");
+};
+
+describe("transformUrl (route matching)", () => {
+  it("strips .html from doc page paths", () => {
+    expect(transformUrl("/developer/authentication.html")).toBe("/developer/authentication");
+    expect(transformUrl("/getting-started.html")).toBe("/getting-started");
+  });
+
+  it("leaves clean paths unchanged", () => {
+    expect(transformUrl("/developer/authentication")).toBe("/developer/authentication");
+    expect(transformUrl("/")).toBe("/");
+    expect(transformUrl("/reference")).toBe("/reference");
+  });
+
+  it("maps /index.html to / so the root route matches correctly", () => {
+    expect(transformUrl("/index.html")).toBe("/");
+    expect(transformUrl("/base/index.html")).toBe("/base/");
+  });
+
+  it("does not modify reference hash paths", () => {
+    expect(transformUrl("/reference#queries")).toBe("/reference#queries");
+  });
+});
+
+describe("sidebar navPath (navigate() argument)", () => {
+  it("strips .html from doc section anchors", () => {
+    expect(toNavPath("/getting-started.html", true)).toBe("/getting-started");
+    expect(toNavPath("/developer/auth.html", true)).toBe("/developer/auth");
+    expect(toNavPath("/product/guides/filtering.html", true)).toBe("/product/guides/filtering");
+  });
+
+  it("prefixes reference anchors with /reference", () => {
+    expect(toNavPath("#queries", false)).toBe("/reference#queries");
+    expect(toNavPath("#mutations", false)).toBe("/reference#mutations");
+  });
+});
+
+describe("searchDialog navPath (navigateTo argument)", () => {
+  it("strips .html from doc page anchors", () => {
+    expect(searchNavPath("/developer/authentication.html")).toBe("/developer/authentication");
+    expect(searchNavPath("/getting-started.html")).toBe("/getting-started");
+  });
+
+  it("prefixes # anchors with /reference for schema items", () => {
+    expect(searchNavPath("#queries")).toBe("/reference#queries");
+    expect(searchNavPath("#User")).toBe("/reference#User");
   });
 });
