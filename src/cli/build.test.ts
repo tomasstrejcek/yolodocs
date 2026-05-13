@@ -483,17 +483,17 @@ const transformUrl = (url: string): string => {
 };
 
 // The navPath computation used in Sidebar.tsx onClick handlers.
-// Anchors have .html; navigate() strips it. A post-build step copies slug.html → slug/index.html
-// so hard-refresh at the clean URL still resolves to a real file.
+// Doc anchors keep .html so navigate() pushes the real file URL; Cloud CDN / GCS
+// serves slug.html directly without needing directory-index fallback.
 const toNavPath = (anchor: string, isDocSection: boolean): string => {
-  if (isDocSection) return anchor.replace(/\.html$/, "");
+  if (isDocSection) return anchor; // keep .html: /developer/auth.html
   return `/reference${anchor}`;
 };
 
 // The path computation used in SearchDialog.tsx navigateTo.
 const searchNavPath = (anchor: string): string => {
   const isRef = anchor.startsWith("#");
-  return isRef ? `/reference${anchor}` : anchor.replace(/\.html$/, "");
+  return isRef ? `/reference${anchor}` : anchor; // keep .html for doc pages
 };
 
 describe("transformUrl (route matching)", () => {
@@ -519,10 +519,10 @@ describe("transformUrl (route matching)", () => {
 });
 
 describe("sidebar navPath (navigate() argument)", () => {
-  it("strips .html from doc section anchors", () => {
-    expect(toNavPath("/getting-started.html", true)).toBe("/getting-started");
-    expect(toNavPath("/developer/auth.html", true)).toBe("/developer/auth");
-    expect(toNavPath("/product/guides/filtering.html", true)).toBe("/product/guides/filtering");
+  it("passes .html doc anchors through unchanged", () => {
+    expect(toNavPath("/getting-started.html", true)).toBe("/getting-started.html");
+    expect(toNavPath("/developer/auth.html", true)).toBe("/developer/auth.html");
+    expect(toNavPath("/product/guides/filtering.html", true)).toBe("/product/guides/filtering.html");
   });
 
   it("prefixes reference anchors with /reference", () => {
@@ -532,9 +532,9 @@ describe("sidebar navPath (navigate() argument)", () => {
 });
 
 describe("searchDialog navPath (navigateTo argument)", () => {
-  it("strips .html from doc page anchors", () => {
-    expect(searchNavPath("/developer/authentication.html")).toBe("/developer/authentication");
-    expect(searchNavPath("/getting-started.html")).toBe("/getting-started");
+  it("passes .html doc page anchors through unchanged", () => {
+    expect(searchNavPath("/developer/authentication.html")).toBe("/developer/authentication.html");
+    expect(searchNavPath("/getting-started.html")).toBe("/getting-started.html");
   });
 
   it("prefixes # anchors with /reference for schema items", () => {

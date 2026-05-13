@@ -244,27 +244,6 @@ export async function build(config: YolodocsConfig): Promise<void> {
     fs.writeFileSync(htmlFile, html);
   }
 
-  // Dual-output: copy slug.html → slug/index.html so that a hard-refresh at
-  // the clean URL (pushed by SPA navigation) is served by directory index.
-  for (const page of docsManifest.pages) {
-    const parts = page.slug.split("/");
-    const srcHtml = path.join(outputDir, ...parts.slice(0, -1), `${parts[parts.length - 1]}.html`);
-    const destDir = path.join(outputDir, ...parts);
-    const destHtml = path.join(destDir, "index.html");
-    if (fs.existsSync(srcHtml) && !fs.existsSync(destHtml)) {
-      fse.ensureDirSync(destDir);
-      fse.copySync(srcHtml, destHtml);
-    }
-  }
-  // Also copy reference.html → reference/index.html
-  const refHtml = path.join(outputDir, "reference.html");
-  const refDir = path.join(outputDir, "reference");
-  const refIndex = path.join(refDir, "index.html");
-  if (fs.existsSync(refHtml) && !fs.existsSync(refIndex)) {
-    fse.ensureDirSync(refDir);
-    fse.copySync(refHtml, refIndex);
-  }
-
   // Step 6: Post-build - Pagefind indexing
   console.log("  [5/5] Indexing for search...");
   try {

@@ -118,7 +118,7 @@ function SidebarSection(props: {
                 return withBase(`/reference${item.anchor}`);
               };
               const navPath = () => {
-                if (isDocSection()) return item.anchor.replace(/\.html$/, "");
+                if (isDocSection()) return item.anchor;
                 return `/reference${item.anchor}`;
               };
               const isActive = () => props.activeId === item.id;
@@ -217,7 +217,7 @@ function SidebarSubGroup(props: {
                 return withBase(`/reference${child.anchor}`);
               };
               const navPath = () => {
-                if (props.isDocSection) return child.anchor.replace(/\.html$/, "");
+                if (props.isDocSection) return child.anchor;
                 return `/reference${child.anchor}`;
               };
               const isActive = () => props.activeId === child.id;
