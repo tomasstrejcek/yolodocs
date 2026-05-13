@@ -74,7 +74,7 @@ export function SearchDialog(props: { open: boolean; onClose: () => void }) {
   const routerNavigate = useNavigate();
   const navigateTo = (result: SearchResult) => {
     const isRef = result.anchor.startsWith("#");
-    const path = isRef ? `/reference${result.anchor}` : result.anchor.replace(/\.html$/, "");
+    const path = isRef ? `/reference${result.anchor}` : result.anchor;
     routerNavigate(path);
     props.onClose();
     setQuery("");

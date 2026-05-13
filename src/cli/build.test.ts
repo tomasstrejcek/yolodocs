@@ -250,7 +250,7 @@ describe("buildNavigationManifest", () => {
     expect(section.title).toBe("Documentation");
     expect(section.items).toHaveLength(1);
     expect(section.items[0].name).toBe("Getting Started");
-    expect(section.items[0].anchor).toBe("/getting-started.html");
+    expect(section.items[0].anchor).toBe("/getting-started");
   });
 
   it("produces separate NavigationSections per top-level folder", () => {
@@ -305,7 +305,7 @@ describe("buildNavigationManifest", () => {
     // children sorted alphabetically (same order => sort by title)
     expect(group.children![0].name).toBe("Auth");
     expect(group.children![1].name).toBe("Filtering");
-    expect(group.children![0].anchor).toBe("/product/guides/auth.html");
+    expect(group.children![0].anchor).toBe("/product/guides/auth");
   });
 
   it("places ungrouped 2-level pages directly in section (no group wrapper)", () => {
@@ -318,7 +318,7 @@ describe("buildNavigationManifest", () => {
     const section = manifest.sections.find((s) => s.id === "docs-product")!;
     expect(section.items).toHaveLength(1);
     expect(section.items[0].name).toBe("Billing");
-    expect(section.items[0].anchor).toBe("/product/billing.html");
+    expect(section.items[0].anchor).toBe("/product/billing");
     expect(section.items[0].children).toBeUndefined();
   });
 
@@ -400,7 +400,7 @@ describe("buildNavigationManifest", () => {
     const group = section.items[0];
     expect(group.id).toBe("docs-folder-a-b");
     expect(group.children).toHaveLength(1);
-    expect(group.children![0].anchor).toBe("/a/b/c/d.html");
+    expect(group.children![0].anchor).toBe("/a/b/c/d");
   });
 
   it("doc anchors are base-agnostic (base applied at runtime via withBase)", () => {
@@ -411,7 +411,7 @@ describe("buildNavigationManifest", () => {
     };
     const manifest = buildNavigationManifest(emptySchema, docs, "/v2");
     const section = manifest.sections[0];
-    expect(section.items[0].anchor).toBe("/getting-started.html");
+    expect(section.items[0].anchor).toBe("/getting-started");
   });
 
   it("schema sections remain unchanged and appear after docs sections", () => {
@@ -434,7 +434,7 @@ describe("buildNavigationManifest", () => {
     expect(manifest.sections).toHaveLength(0);
   });
 
-  it("anchor format keeps .html extension (for href; navigate() strips it at runtime)", () => {
+  it("anchor format uses clean URLs (no .html) matching the directory-based static output", () => {
     const docs = {
       pages: [
         { slug: "getting-started", title: "Getting Started", category: "", order: 0, content: "" },
@@ -443,9 +443,9 @@ describe("buildNavigationManifest", () => {
     };
     const manifest = buildNavigationManifest(emptySchema, docs, "");
     const rootItem = manifest.sections.find((s) => s.id === "docs")!.items[0];
-    expect(rootItem.anchor).toBe("/getting-started.html");
+    expect(rootItem.anchor).toBe("/getting-started");
     const devItem = manifest.sections.find((s) => s.id === "docs-developer")!.items[0];
-    expect(devItem.anchor).toBe("/developer/auth.html");
+    expect(devItem.anchor).toBe("/developer/auth");
   });
 
   it("full example: getting-started + product/billing + product/guides/filtering + product/guides/auth + developer/api", () => {
@@ -483,15 +483,16 @@ const transformUrl = (url: string): string => {
 };
 
 // The navPath computation used in Sidebar.tsx onClick handlers.
+// Anchors are clean URLs (no .html) since autoSubfolderIndex:true generates folder/index.html.
 const toNavPath = (anchor: string, isDocSection: boolean): string => {
-  if (isDocSection) return anchor.replace(/\.html$/, "");
+  if (isDocSection) return anchor; // already clean: /developer/auth
   return `/reference${anchor}`;
 };
 
 // The path computation used in SearchDialog.tsx navigateTo.
 const searchNavPath = (anchor: string): string => {
   const isRef = anchor.startsWith("#");
-  return isRef ? `/reference${anchor}` : anchor.replace(/\.html$/, "");
+  return isRef ? `/reference${anchor}` : anchor; // already clean URL
 };
 
 describe("transformUrl (route matching)", () => {
@@ -517,10 +518,10 @@ describe("transformUrl (route matching)", () => {
 });
 
 describe("sidebar navPath (navigate() argument)", () => {
-  it("strips .html from doc section anchors", () => {
-    expect(toNavPath("/getting-started.html", true)).toBe("/getting-started");
-    expect(toNavPath("/developer/auth.html", true)).toBe("/developer/auth");
-    expect(toNavPath("/product/guides/filtering.html", true)).toBe("/product/guides/filtering");
+  it("passes clean doc section anchors through unchanged", () => {
+    expect(toNavPath("/getting-started", true)).toBe("/getting-started");
+    expect(toNavPath("/developer/auth", true)).toBe("/developer/auth");
+    expect(toNavPath("/product/guides/filtering", true)).toBe("/product/guides/filtering");
   });
 
   it("prefixes reference anchors with /reference", () => {
@@ -530,9 +531,9 @@ describe("sidebar navPath (navigate() argument)", () => {
 });
 
 describe("searchDialog navPath (navigateTo argument)", () => {
-  it("strips .html from doc page anchors", () => {
-    expect(searchNavPath("/developer/authentication.html")).toBe("/developer/authentication");
-    expect(searchNavPath("/getting-started.html")).toBe("/getting-started");
+  it("passes clean doc page anchors through unchanged", () => {
+    expect(searchNavPath("/developer/authentication")).toBe("/developer/authentication");
+    expect(searchNavPath("/getting-started")).toBe("/getting-started");
   });
 
   it("prefixes # anchors with /reference for schema items", () => {

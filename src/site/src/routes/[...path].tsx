@@ -33,6 +33,7 @@ export default function DocsPage() {
     }
     if (pathname.startsWith("/")) pathname = pathname.slice(1);
     if (pathname.endsWith(".html")) pathname = pathname.slice(0, -5);
+    if (pathname.endsWith("/")) pathname = pathname.slice(0, -1);
     return pathname;
   });
 

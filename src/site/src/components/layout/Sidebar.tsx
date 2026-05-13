@@ -41,9 +41,10 @@ export function Sidebar(props: Props) {
     const basePath = base;
     const stripped = basePath ? pathname.slice(basePath.length) : pathname;
     if (stripped && stripped !== "/" && !stripped.startsWith("/reference")) {
-      const rawSlug = stripped.startsWith("/") ? stripped.slice(1) : stripped;
-      const slug = rawSlug.endsWith(".html") ? rawSlug.slice(0, -5) : rawSlug;
-      return `doc-${slug}`;
+      let rawSlug = stripped.startsWith("/") ? stripped.slice(1) : stripped;
+      if (rawSlug.endsWith(".html")) rawSlug = rawSlug.slice(0, -5);
+      if (rawSlug.endsWith("/")) rawSlug = rawSlug.slice(0, -1);
+      return `doc-${rawSlug}`;
     }
     // For reference page, match by hash
     const h = hash();
@@ -117,10 +118,8 @@ function SidebarSection(props: {
                 if (isDocSection()) return withBase(item.anchor);
                 return withBase(`/reference${item.anchor}`);
               };
-              const navPath = () => {
-                if (isDocSection()) return item.anchor.replace(/\.html$/, "");
-                return `/reference${item.anchor}`;
-              };
+              const navPath = () =>
+                isDocSection() ? item.anchor : `/reference${item.anchor}`;
               const isActive = () => props.activeId === item.id;
 
               return (
@@ -216,10 +215,8 @@ function SidebarSubGroup(props: {
                 if (props.isDocSection) return withBase(child.anchor);
                 return withBase(`/reference${child.anchor}`);
               };
-              const navPath = () => {
-                if (props.isDocSection) return child.anchor.replace(/\.html$/, "");
-                return `/reference${child.anchor}`;
-              };
+              const navPath = () =>
+                props.isDocSection ? child.anchor : `/reference${child.anchor}`;
               const isActive = () => props.activeId === child.id;
 
               return (
