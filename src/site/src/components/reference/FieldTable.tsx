@@ -20,10 +20,7 @@ interface ArgDef {
   deprecationReason?: string | null;
 }
 
-export function FieldTable(props: {
-  fields: FieldDef[];
-  title?: string;
-}) {
+export function FieldTable(props: { fields: FieldDef[]; title?: string }) {
   return (
     <div class="mt-3">
       <Show when={props.title}>
@@ -39,9 +36,7 @@ export function FieldTable(props: {
               classList={{ "border-b border-border-secondary": i() < props.fields.length - 1 }}
             >
               <div class="flex items-center gap-2 flex-wrap">
-                <span class="font-mono text-sm font-semibold text-text-primary">
-                  {field.name}
-                </span>
+                <span class="font-mono text-sm font-semibold text-text-primary">{field.name}</span>
                 <Show when={field.defaultValue != null}>
                   <span class="text-text-muted text-sm">
                     = <span class="text-syntax-string">{field.defaultValue}</span>
@@ -63,13 +58,13 @@ export function FieldTable(props: {
   );
 }
 
-export function ArgsTable(props: {
-  args: ArgDef[];
-}) {
+export function ArgsTable(props: { args: ArgDef[] }) {
   return (
     <Show when={props.args.length > 0}>
       <div class="mt-3">
-        <h4 class="text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">Arguments</h4>
+        <h4 class="text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
+          Arguments
+        </h4>
         <div class="border border-border-primary rounded-lg">
           <For each={props.args}>
             {(arg, i) => (

@@ -3,11 +3,7 @@ import fs from "node:fs";
 import fse from "fs-extra";
 import path from "node:path";
 import os from "node:os";
-import {
-  extractFirstH1,
-  assertNoSlugCollisions,
-  scanDocsFolder,
-} from "./loader.js";
+import { extractFirstH1, assertNoSlugCollisions, scanDocsFolder } from "./loader.js";
 
 // ---------------------------------------------------------------------------
 // extractFirstH1
@@ -15,9 +11,7 @@ import {
 
 describe("extractFirstH1", () => {
   it("extracts a plain H1", () => {
-    expect(extractFirstH1("# Hello World\n\nSome body text.")).toBe(
-      "Hello World"
-    );
+    expect(extractFirstH1("# Hello World\n\nSome body text.")).toBe("Hello World");
   });
 
   it("extracts the first H1 when preceded by other headings", () => {
@@ -31,9 +25,7 @@ describe("extractFirstH1", () => {
   });
 
   it("preserves inline code markdown in H1", () => {
-    expect(extractFirstH1("# `createUser` Mutation")).toBe(
-      "`createUser` Mutation"
-    );
+    expect(extractFirstH1("# `createUser` Mutation")).toBe("`createUser` Mutation");
   });
 
   it("preserves bold markdown in H1", () => {
@@ -45,14 +37,14 @@ describe("extractFirstH1", () => {
   });
 
   it("ignores H2+ headings before the first H1", () => {
-    expect(
-      extractFirstH1("## Section A\n\n### Sub\n\n# Actual Title\n\nBody.")
-    ).toBe("Actual Title");
+    expect(extractFirstH1("## Section A\n\n### Sub\n\n# Actual Title\n\nBody.")).toBe(
+      "Actual Title",
+    );
   });
 
   it("trims trailing whitespace from the H1 capture", () => {
     expect(extractFirstH1("# Title With Trailing Space   \n\nBody.")).toBe(
-      "Title With Trailing Space"
+      "Title With Trailing Space",
     );
   });
 });
@@ -79,10 +71,7 @@ describe("title priority chain via scanDocsFolder", () => {
   }
 
   it("uses frontmatter title when set, even if H1 is present", () => {
-    writeFile(
-      "my-page.md",
-      "---\ntitle: Override Title\n---\n\n# H1 Title\n\nBody."
-    );
+    writeFile("my-page.md", "---\ntitle: Override Title\n---\n\n# H1 Title\n\nBody.");
     const manifest = scanDocsFolder(tmpDir);
     expect(manifest.pages[0].title).toBe("Override Title");
   });
@@ -191,7 +180,7 @@ describe("assertNoSlugCollisions", () => {
       },
     ];
     expect(() => assertNoSlugCollisions(pages)).toThrowError(
-      /dev\/api.*dev\/api\/intro|dev\/api\/intro.*dev\/api/
+      /dev\/api.*dev\/api\/intro|dev\/api\/intro.*dev\/api/,
     );
   });
 
@@ -208,9 +197,7 @@ describe("assertNoSlugCollisions", () => {
   });
 
   it("handles a single-page array", () => {
-    const pages = [
-      { slug: "intro", title: "Intro", category: "General", order: 1, content: "" },
-    ];
+    const pages = [{ slug: "intro", title: "Intro", category: "General", order: 1, content: "" }];
     expect(() => assertNoSlugCollisions(pages)).not.toThrow();
   });
 });
@@ -295,10 +282,7 @@ describe("scanDocsFolder integration", () => {
   });
 
   it("correctly derives titles for each priority scenario in a real scan", () => {
-    writeFile(
-      "with-frontmatter.md",
-      "---\ntitle: Frontmatter Title\n---\n\n# H1 Title\n\nBody."
-    );
+    writeFile("with-frontmatter.md", "---\ntitle: Frontmatter Title\n---\n\n# H1 Title\n\nBody.");
     writeFile("with-h1.md", "# Content Title\n\nBody.");
     writeFile("filename-only.md", "Just body with no heading.");
 

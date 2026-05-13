@@ -89,11 +89,7 @@ export async function loadConfig(cliOptions) {
     return config;
 }
 function findConfigFile(dir) {
-    const candidates = [
-        "yolodocs.config.yml",
-        "yolodocs.config.yaml",
-        "yolodocs.config.json",
-    ];
+    const candidates = ["yolodocs.config.yml", "yolodocs.config.yaml", "yolodocs.config.json"];
     for (const name of candidates) {
         const p = path.join(dir, name);
         if (fs.existsSync(p))

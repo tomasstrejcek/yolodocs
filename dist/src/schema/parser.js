@@ -1,12 +1,6 @@
 import { buildSchema, isObjectType, isEnumType, isInterfaceType, isUnionType, isInputObjectType, isScalarType, isNonNullType, isListType, isNamedType, } from "graphql";
 import fs from "node:fs";
-const BUILT_IN_SCALARS = new Set([
-    "String",
-    "Int",
-    "Float",
-    "Boolean",
-    "ID",
-]);
+const BUILT_IN_SCALARS = new Set(["String", "Int", "Float", "Boolean", "ID"]);
 const INTERNAL_TYPE_PREFIX = "__";
 export function parseSchemaFromFile(filePath, hideInternalTypes = true) {
     const sdl = fs.readFileSync(filePath, "utf-8");
@@ -20,19 +14,11 @@ function extractSchema(schema, hideInternalTypes) {
     const queryType = schema.getQueryType();
     const mutationType = schema.getMutationType();
     const subscriptionType = schema.getSubscriptionType();
-    const queries = queryType
-        ? extractFields(queryType)
-        : [];
-    const mutations = mutationType
-        ? extractFields(mutationType)
-        : [];
-    const subscriptions = subscriptionType
-        ? extractFields(subscriptionType)
-        : [];
+    const queries = queryType ? extractFields(queryType) : [];
+    const mutations = mutationType ? extractFields(mutationType) : [];
+    const subscriptions = subscriptionType ? extractFields(subscriptionType) : [];
     const typeMap = schema.getTypeMap();
-    const rootTypeNames = new Set([queryType, mutationType, subscriptionType]
-        .filter(Boolean)
-        .map((t) => t.name));
+    const rootTypeNames = new Set([queryType, mutationType, subscriptionType].filter(Boolean).map((t) => t.name));
     const types = [];
     const enums = [];
     const interfaces = [];
@@ -103,9 +89,7 @@ function extractArgument(arg) {
         name: arg.name,
         description: arg.description || null,
         type: extractTypeRef(arg.type),
-        defaultValue: arg.defaultValue !== undefined
-            ? JSON.stringify(arg.defaultValue)
-            : null,
+        defaultValue: arg.defaultValue !== undefined ? JSON.stringify(arg.defaultValue) : null,
         isDeprecated: arg.deprecationReason != null,
         deprecationReason: arg.deprecationReason || null,
     };
@@ -186,7 +170,10 @@ function extractUnionType(type) {
     return {
         name: type.name,
         description: type.description || null,
-        types: type.getTypes().map((t) => t.name).sort(),
+        types: type
+            .getTypes()
+            .map((t) => t.name)
+            .sort(),
     };
 }
 function extractInputType(type) {
@@ -199,9 +186,7 @@ function extractInputType(type) {
             name: f.name,
             description: f.description || null,
             type: extractTypeRef(f.type),
-            defaultValue: f.defaultValue !== undefined
-                ? JSON.stringify(f.defaultValue)
-                : null,
+            defaultValue: f.defaultValue !== undefined ? JSON.stringify(f.defaultValue) : null,
         }))
             .sort((a, b) => a.name.localeCompare(b.name)),
     };

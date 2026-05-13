@@ -63,7 +63,7 @@ export async function build(config) {
     fs.writeFileSync(path.join(dataDir, "examples.json"), JSON.stringify(examples, null, 2));
     // Write docs-manifest.json without content (metadata only) to keep bundle small
     const docsManifestMeta = {
-        pages: docsManifest.pages.map(({ content, ...meta }) => meta),
+        pages: docsManifest.pages.map(({ content: _content, ...meta }) => meta),
     };
     fs.writeFileSync(path.join(dataDir, "docs-manifest.json"), JSON.stringify(docsManifestMeta, null, 2));
     // Write individual doc page content as separate JS modules to avoid
@@ -182,7 +182,10 @@ export async function build(config) {
     // Step 6: Post-build - Pagefind indexing
     console.log("  [5/5] Indexing for search...");
     try {
-        execSync(`npm exec -- pagefind --site "${outputDir}" --output-subdir _pagefind`, { cwd: buildDir, stdio: "pipe" });
+        execSync(`npm exec -- pagefind --site "${outputDir}" --output-subdir _pagefind`, {
+            cwd: buildDir,
+            stdio: "pipe",
+        });
         console.log("        Search index generated");
     }
     catch {
@@ -242,7 +245,10 @@ export function buildNavigationManifest(schema, docsManifest, _base) {
             else if (parts.length === 2) {
                 // 2-segment: section=parts[0], ungrouped leaf
                 const sectionKey = parts[0];
-                const entry = sectionMap.get(sectionKey) ?? { ungrouped: [], groups: new Map() };
+                const entry = sectionMap.get(sectionKey) ?? {
+                    ungrouped: [],
+                    groups: new Map(),
+                };
                 entry.ungrouped.push(page);
                 sectionMap.set(sectionKey, entry);
             }
@@ -250,7 +256,10 @@ export function buildNavigationManifest(schema, docsManifest, _base) {
                 // 3+ segments: section=parts[0], group=parts[1], leaf=rest
                 const sectionKey = parts[0];
                 const groupKey = parts[1];
-                const entry = sectionMap.get(sectionKey) ?? { ungrouped: [], groups: new Map() };
+                const entry = sectionMap.get(sectionKey) ?? {
+                    ungrouped: [],
+                    groups: new Map(),
+                };
                 const groupPages = entry.groups.get(groupKey) ?? [];
                 groupPages.push(page);
                 entry.groups.set(groupKey, groupPages);

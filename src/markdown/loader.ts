@@ -39,7 +39,7 @@ export function assertNoSlugCollisions(pages: DocsPage[]): void {
       if (slugSet.has(prefix)) {
         throw new Error(
           `Slug collision detected: "${prefix}" exists as both a file and a parent path of "${slug}". ` +
-            `Rename either the file "${prefix}.md" or the directory "${prefix}/" to avoid ambiguity.`
+            `Rename either the file "${prefix}.md" or the directory "${prefix}/" to avoid ambiguity.`,
         );
       }
     }
@@ -68,11 +68,7 @@ export function scanDocsFolder(docsDir: string): DocsManifest {
   return { pages };
 }
 
-function scanDir(
-  baseDir: string,
-  currentDir: string,
-  pages: DocsPage[]
-): void {
+function scanDir(baseDir: string, currentDir: string, pages: DocsPage[]): void {
   const entries = fs.readdirSync(currentDir, { withFileTypes: true });
 
   for (const entry of entries) {

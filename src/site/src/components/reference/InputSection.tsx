@@ -22,9 +22,7 @@ export function InputSection() {
               id={`input-${input.name}`}
               class="mb-8 pb-8 border-b border-border-secondary last:border-b-0 scroll-mt-16"
             >
-              <h3 class="text-lg font-semibold text-text-primary font-mono">
-                {input.name}
-              </h3>
+              <h3 class="text-lg font-semibold text-text-primary font-mono">{input.name}</h3>
 
               <DescriptionBlock text={input.description} />
 

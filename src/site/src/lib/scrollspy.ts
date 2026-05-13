@@ -1,7 +1,7 @@
 export function setupScrollspy(
   containerSelector: string,
   itemSelector: string,
-  onActive: (id: string) => void
+  onActive: (id: string) => void,
 ) {
   if (typeof window === "undefined") return;
 
@@ -16,7 +16,7 @@ export function setupScrollspy(
     {
       rootMargin: "-20% 0px -70% 0px",
       threshold: 0,
-    }
+    },
   );
 
   const items = document.querySelectorAll(itemSelector);

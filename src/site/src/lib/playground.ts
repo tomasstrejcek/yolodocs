@@ -2,7 +2,7 @@ export async function executeQuery(
   endpoint: string,
   query: string,
   variables?: Record<string, unknown>,
-  headers?: Record<string, string>
+  headers?: Record<string, string>,
 ): Promise<unknown> {
   const res = await fetch(endpoint, {
     method: "POST",

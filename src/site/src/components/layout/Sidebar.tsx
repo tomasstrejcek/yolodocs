@@ -17,9 +17,7 @@ interface Props {
 
 export function Sidebar(props: Props) {
   const location = useLocation();
-  const [hash, setHash] = createSignal(
-    typeof window !== "undefined" ? window.location.hash : ""
-  );
+  const [hash, setHash] = createSignal(typeof window !== "undefined" ? window.location.hash : "");
 
   onMount(() => {
     const onHashChange = () => setHash(window.location.hash);
@@ -94,7 +92,12 @@ function SidebarSection(props: {
           viewBox="0 0 24 24"
           stroke="currentColor"
         >
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 9l-7 7-7-7"
+          />
         </svg>
       </button>
 
@@ -118,7 +121,7 @@ function SidebarSection(props: {
                 return withBase(`/reference${item.anchor}`);
               };
               const navPath = () => {
-                if (isDocSection()) return item.anchor.replace(/\.html$/, "");
+                if (isDocSection()) return item.anchor;
                 return `/reference${item.anchor}`;
               };
               const isActive = () => props.activeId === item.id;
@@ -130,7 +133,8 @@ function SidebarSection(props: {
                     class="block pl-3 py-1 text-sm no-underline truncate -ml-px border-l-2 transition-colors"
                     classList={{
                       "font-semibold text-text-primary border-accent-blue": isActive(),
-                      "text-text-secondary border-transparent hover:text-text-primary hover:border-text-muted": !isActive(),
+                      "text-text-secondary border-transparent hover:text-text-primary hover:border-text-muted":
+                        !isActive(),
                     }}
                     onClick={(e) => {
                       e.preventDefault();
@@ -168,7 +172,7 @@ function SidebarSubGroup(props: {
       } catch {
         return false;
       }
-    })()
+    })(),
   );
 
   const hasActiveChild = () =>
@@ -178,7 +182,9 @@ function SidebarSubGroup(props: {
   createEffect(() => {
     if (hasActiveChild() && collapsed()) {
       setCollapsed(false);
-      try { localStorage.setItem(STORAGE_KEY, "false"); } catch {}
+      try {
+        localStorage.setItem(STORAGE_KEY, "false");
+      } catch {}
     }
   });
 
@@ -193,7 +199,9 @@ function SidebarSubGroup(props: {
         onClick={() => {
           const next = !collapsed();
           setCollapsed(next);
-          try { localStorage.setItem(STORAGE_KEY, String(next)); } catch {}
+          try {
+            localStorage.setItem(STORAGE_KEY, String(next));
+          } catch {}
         }}
       >
         <svg
@@ -203,7 +211,12 @@ function SidebarSubGroup(props: {
           viewBox="0 0 24 24"
           stroke="currentColor"
         >
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 9l-7 7-7-7"
+          />
         </svg>
         <span class="truncate">{props.item.name}</span>
       </button>
@@ -217,7 +230,7 @@ function SidebarSubGroup(props: {
                 return withBase(`/reference${child.anchor}`);
               };
               const navPath = () => {
-                if (props.isDocSection) return child.anchor.replace(/\.html$/, "");
+                if (props.isDocSection) return child.anchor;
                 return `/reference${child.anchor}`;
               };
               const isActive = () => props.activeId === child.id;
@@ -229,7 +242,8 @@ function SidebarSubGroup(props: {
                     class="block pl-3 py-1 text-[13px] no-underline truncate -ml-px border-l-2 transition-colors"
                     classList={{
                       "font-semibold text-text-primary border-accent-blue": isActive(),
-                      "text-text-secondary border-transparent hover:text-text-primary hover:border-text-muted": !isActive(),
+                      "text-text-secondary border-transparent hover:text-text-primary hover:border-text-muted":
+                        !isActive(),
                     }}
                     onClick={(e) => {
                       e.preventDefault();

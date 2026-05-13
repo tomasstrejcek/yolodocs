@@ -23,9 +23,7 @@ export function TypeSection() {
               id={`type-${type.name}`}
               class="mb-8 pb-8 border-b border-border-secondary last:border-b-0 scroll-mt-16"
             >
-              <h3 class="text-lg font-semibold text-text-primary font-mono">
-                {type.name}
-              </h3>
+              <h3 class="text-lg font-semibold text-text-primary font-mono">{type.name}</h3>
 
               <Show when={type.interfaces?.length > 0}>
                 <p class="text-sm text-text-muted mt-1">

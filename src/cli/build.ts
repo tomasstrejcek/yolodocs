@@ -11,11 +11,7 @@ import {
   loadSchemaFromIntrospectionFile,
 } from "../schema/introspection.js";
 import { scanDocsFolder } from "../markdown/loader.js";
-import type {
-  NavigationManifest,
-  NavigationSection,
-  ParsedSchema,
-} from "../schema/types.js";
+import type { NavigationManifest, NavigationSection, ParsedSchema } from "../schema/types.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -45,15 +41,13 @@ export async function build(config: YolodocsConfig): Promise<void> {
   console.log("  [1/5] Parsing schema...");
   const schema = await loadSchema(config);
   console.log(
-    `        ${schema.queries.length} queries, ${schema.mutations.length} mutations, ${schema.types.length} types`
+    `        ${schema.queries.length} queries, ${schema.mutations.length} mutations, ${schema.types.length} types`,
   );
 
   // Step 2: Generate examples
   console.log("  [2/5] Generating examples...");
   const examples = generateExamples(schema, config.expandExampleDepth);
-  console.log(
-    `        ${Object.keys(examples.operations).length} operation examples`
-  );
+  console.log(`        ${Object.keys(examples.operations).length} operation examples`);
 
   // Step 3: Scan custom docs
   console.log("  [3/5] Scanning custom docs...");
@@ -83,25 +77,16 @@ export async function build(config: YolodocsConfig): Promise<void> {
   // Inject data files
   const dataDir = path.join(buildDir, "src", "data");
   fse.ensureDirSync(dataDir);
-  fs.writeFileSync(
-    path.join(dataDir, "schema.json"),
-    JSON.stringify(schema, null, 2)
-  );
-  fs.writeFileSync(
-    path.join(dataDir, "manifest.json"),
-    JSON.stringify(manifest, null, 2)
-  );
-  fs.writeFileSync(
-    path.join(dataDir, "examples.json"),
-    JSON.stringify(examples, null, 2)
-  );
+  fs.writeFileSync(path.join(dataDir, "schema.json"), JSON.stringify(schema, null, 2));
+  fs.writeFileSync(path.join(dataDir, "manifest.json"), JSON.stringify(manifest, null, 2));
+  fs.writeFileSync(path.join(dataDir, "examples.json"), JSON.stringify(examples, null, 2));
   // Write docs-manifest.json without content (metadata only) to keep bundle small
   const docsManifestMeta = {
-    pages: docsManifest.pages.map(({ content, ...meta }) => meta),
+    pages: docsManifest.pages.map(({ content: _content, ...meta }) => meta),
   };
   fs.writeFileSync(
     path.join(dataDir, "docs-manifest.json"),
-    JSON.stringify(docsManifestMeta, null, 2)
+    JSON.stringify(docsManifestMeta, null, 2),
   );
 
   // Write individual doc page content as separate JS modules to avoid
@@ -127,10 +112,7 @@ export async function build(config: YolodocsConfig): Promise<void> {
     yolodocsVersion: getVersion(),
     generatedAt: new Date().toISOString(),
   };
-  fs.writeFileSync(
-    path.join(dataDir, "site-config.json"),
-    JSON.stringify(siteConfig, null, 2)
-  );
+  fs.writeFileSync(path.join(dataDir, "site-config.json"), JSON.stringify(siteConfig, null, 2));
 
   // Copy user assets
   if (config.logo) {
@@ -142,10 +124,7 @@ export async function build(config: YolodocsConfig): Promise<void> {
   if (config.favicon) {
     const faviconSrc = path.resolve(process.cwd(), config.favicon);
     if (fs.existsSync(faviconSrc)) {
-      fse.copySync(
-        faviconSrc,
-        path.join(buildDir, "public", "favicon" + path.extname(faviconSrc))
-      );
+      fse.copySync(faviconSrc, path.join(buildDir, "public", "favicon" + path.extname(faviconSrc)));
     }
   }
 
@@ -183,7 +162,7 @@ export async function build(config: YolodocsConfig): Promise<void> {
     console.error("        Build output:\n");
     console.error(buildOutput);
     throw new Error(
-      "Build failed: .output/public not found. Run with YOLODOCS_DEBUG=1 to inspect the build directory."
+      "Build failed: .output/public not found. Run with YOLODOCS_DEBUG=1 to inspect the build directory.",
     );
   }
 
@@ -196,8 +175,8 @@ export async function build(config: YolodocsConfig): Promise<void> {
     console.error(buildOutput);
     throw new Error(
       "Build failed: prerender produced no HTML files. " +
-      "This often happens in Docker/CI environments due to Node version incompatibilities. " +
-      "Run with YOLODOCS_DEBUG=1 to keep the build directory for inspection."
+        "This often happens in Docker/CI environments due to Node version incompatibilities. " +
+        "Run with YOLODOCS_DEBUG=1 to keep the build directory for inspection.",
     );
   }
 
@@ -217,10 +196,7 @@ export async function build(config: YolodocsConfig): Promise<void> {
       markdown: `${basePath}/${p.slug}.md`,
     })),
   };
-  fs.writeFileSync(
-    path.join(outputDir, "docs.json"),
-    JSON.stringify(docsJson, null, 2)
-  );
+  fs.writeFileSync(path.join(outputDir, "docs.json"), JSON.stringify(docsJson, null, 2));
 
   // Inject <link rel="alternate"> tags into pre-rendered HTML
   const docsJsonLink = `<link rel="alternate" type="application/json" href="${basePath}/docs.json" title="Documentation Index">`;
@@ -247,10 +223,10 @@ export async function build(config: YolodocsConfig): Promise<void> {
   // Step 6: Post-build - Pagefind indexing
   console.log("  [5/5] Indexing for search...");
   try {
-    execSync(
-      `npm exec -- pagefind --site "${outputDir}" --output-subdir _pagefind`,
-      { cwd: buildDir, stdio: "pipe" }
-    );
+    execSync(`npm exec -- pagefind --site "${outputDir}" --output-subdir _pagefind`, {
+      cwd: buildDir,
+      stdio: "pipe",
+    });
     console.log("        Search index generated");
   } catch {
     console.log("        Skipping search indexing (pagefind not available)");
@@ -265,10 +241,9 @@ export async function build(config: YolodocsConfig): Promise<void> {
 
   console.log(`\n  Done! Output: ${outputDir}\n`);
   console.log(
-    `  Preview with: npx yolodocs --schema ${config.schema} --output ${config.output} --serve\n`
+    `  Preview with: npx yolodocs --schema ${config.schema} --output ${config.output} --serve\n`,
   );
 }
-
 
 async function loadSchema(config: YolodocsConfig): Promise<ParsedSchema> {
   let sdl: string;
@@ -282,7 +257,7 @@ async function loadSchema(config: YolodocsConfig): Promise<ParsedSchema> {
   } else if (config.introspectionUrl) {
     sdl = await loadSchemaFromIntrospectionUrl(
       config.introspectionUrl,
-      config.introspectionHeaders
+      config.introspectionHeaders,
     );
     return parseSchemaFromSDL(sdl, config.hideInternalTypes);
   } else if (config.introspectionFile) {
@@ -308,17 +283,20 @@ const sortPages = (a: DocsPageLike, b: DocsPageLike) => {
 export function buildNavigationManifest(
   schema: ParsedSchema,
   docsManifest: { pages: Array<{ slug: string; title: string; category: string; order: number }> },
-  _base?: string
+  _base?: string,
 ): NavigationManifest {
   const sections: NavigationSection[] = [];
 
   // Add custom docs first (guides at the top of sidebar)
   if (docsManifest.pages.length > 0) {
     // 3-level grouping: root pages, per-section ungrouped pages, per-section groups
-    type PageEntry = typeof docsManifest.pages[number];
+    type PageEntry = (typeof docsManifest.pages)[number];
     const rootPages: PageEntry[] = [];
     // sectionKey -> { ungrouped: pages, groups: groupKey -> pages }
-    const sectionMap = new Map<string, { ungrouped: PageEntry[]; groups: Map<string, PageEntry[]> }>();
+    const sectionMap = new Map<
+      string,
+      { ungrouped: PageEntry[]; groups: Map<string, PageEntry[]> }
+    >();
 
     for (const page of docsManifest.pages) {
       const parts = page.slug.split("/");
@@ -329,14 +307,20 @@ export function buildNavigationManifest(
       } else if (parts.length === 2) {
         // 2-segment: section=parts[0], ungrouped leaf
         const sectionKey = parts[0];
-        const entry = sectionMap.get(sectionKey) ?? { ungrouped: [] as PageEntry[], groups: new Map<string, PageEntry[]>() };
+        const entry = sectionMap.get(sectionKey) ?? {
+          ungrouped: [] as PageEntry[],
+          groups: new Map<string, PageEntry[]>(),
+        };
         entry.ungrouped.push(page);
         sectionMap.set(sectionKey, entry);
       } else {
         // 3+ segments: section=parts[0], group=parts[1], leaf=rest
         const sectionKey = parts[0];
         const groupKey = parts[1];
-        const entry = sectionMap.get(sectionKey) ?? { ungrouped: [] as PageEntry[], groups: new Map<string, PageEntry[]>() };
+        const entry = sectionMap.get(sectionKey) ?? {
+          ungrouped: [] as PageEntry[],
+          groups: new Map<string, PageEntry[]>(),
+        };
         const groupPages = entry.groups.get(groupKey) ?? [];
         groupPages.push(page);
         entry.groups.set(groupKey, groupPages);
@@ -556,9 +540,7 @@ function findHtmlFiles(dir: string): string[] {
 function serveOutput(config: YolodocsConfig): Promise<void> {
   const outputDir = path.resolve(process.cwd(), config.output);
   if (!fs.existsSync(outputDir)) {
-    throw new Error(
-      `Output directory not found: ${outputDir}. Run a build first.`
-    );
+    throw new Error(`Output directory not found: ${outputDir}. Run a build first.`);
   }
   console.log(`  Serving: ${outputDir}\n`);
   const child = spawn("npx", ["serve", outputDir], {

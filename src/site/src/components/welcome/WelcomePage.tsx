@@ -13,9 +13,7 @@ export function WelcomePage() {
   return (
     <div class="max-w-4xl mx-auto px-6 py-12">
       <div class="mb-10">
-        <h1 class="text-4xl font-bold text-text-primary mb-3">
-          {cfg.title}
-        </h1>
+        <h1 class="text-4xl font-bold text-text-primary mb-3">{cfg.title}</h1>
         <Show when={cfg.description}>
           <p class="text-lg text-text-secondary">{cfg.description}</p>
         </Show>
@@ -135,11 +133,26 @@ export function WelcomePage() {
 
       <div class="border-t border-border-primary pt-6 text-sm text-text-muted text-center space-y-1">
         <p>
-          <a href={withBase("/docs.json")} target="_blank" rel="noopener" class="hover:text-text-secondary">docs.json</a>
+          <a
+            href={withBase("/docs.json")}
+            target="_blank"
+            rel="noopener"
+            class="hover:text-text-secondary"
+          >
+            docs.json
+          </a>
         </p>
         <p>
-          Generated with <a href="https://github.com/tomasstrejcek/yolodocs" target="_blank" rel="noopener" class="hover:text-text-secondary underline">yolodocs</a>
-          <Show when={cfg.yolodocsVersion}>{" "}v{cfg.yolodocsVersion}</Show>
+          Generated with{" "}
+          <a
+            href="https://github.com/tomasstrejcek/yolodocs"
+            target="_blank"
+            rel="noopener"
+            class="hover:text-text-secondary underline"
+          >
+            yolodocs
+          </a>
+          <Show when={cfg.yolodocsVersion}> v{cfg.yolodocsVersion}</Show>
         </p>
         <Show when={cfg.generatedAt}>
           <p>{new Date(cfg.generatedAt).toLocaleString()}</p>
