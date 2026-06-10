@@ -545,3 +545,42 @@ describe("searchDialog navPath (navigateTo argument)", () => {
     expect(searchNavPath("#User")).toBe("/reference#User");
   });
 });
+
+// The Pagefind URL normalizer used in search-client.ts to convert indexed
+// HTML URLs into router-friendly paths.
+const normalizePagefindUrl = (url: string, base: string): string => {
+  let path = url;
+  if (base && path.startsWith(base)) path = path.slice(base.length);
+  if (path.endsWith("/index.html")) path = path.slice(0, -"index.html".length);
+  else if (path.endsWith(".html")) path = path.slice(0, -".html".length);
+  if (path.length > 1 && path.endsWith("/")) path = path.slice(0, -1);
+  if (!path.startsWith("/")) path = "/" + path;
+  return path;
+};
+
+describe("pagefind url normalizer", () => {
+  it("strips .html suffix", () => {
+    expect(normalizePagefindUrl("/getting-started.html", "")).toBe("/getting-started");
+    expect(normalizePagefindUrl("/developer/authentication.html", "")).toBe(
+      "/developer/authentication",
+    );
+  });
+
+  it("collapses /index.html to clean directory path", () => {
+    expect(normalizePagefindUrl("/getting-started/index.html", "")).toBe("/getting-started");
+    expect(normalizePagefindUrl("/index.html", "")).toBe("/");
+  });
+
+  it("strips base prefix before normalization", () => {
+    expect(normalizePagefindUrl("/foo/getting-started.html", "/foo")).toBe("/getting-started");
+    expect(normalizePagefindUrl("/foo/getting-started/index.html", "/foo")).toBe(
+      "/getting-started",
+    );
+  });
+
+  it("dedupes dual-output slug.html and slug/index.html to the same path", () => {
+    const a = normalizePagefindUrl("/getting-started.html", "");
+    const b = normalizePagefindUrl("/getting-started/index.html", "");
+    expect(a).toBe(b);
+  });
+});
