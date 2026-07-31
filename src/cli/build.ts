@@ -30,6 +30,42 @@ function getSiteTemplatePath(): string {
   return path.resolve(__dirname, "../../../src/site");
 }
 
+// Prefixes whose full tokens (`process.env.NODE_ENV`, `import.meta.env.DEV`, ...)
+// bundlers substitute textually.
+const BUILD_TOKEN_PREFIX = /process\.env|import\.meta/;
+
+/**
+ * Serialize one doc page's markdown into a JS module for the site bundle.
+ *
+ * Vite/vinxi and Nitro substitute build tokens like `process.env.NODE_ENV` and
+ * `import.meta.env.DEV` TEXTUALLY, with no regard for string literals. A page
+ * whose markdown merely mentions such a token gets it rewritten inside its own
+ * module: during the Nitro prerender pass `process.env.NODE_ENV` becomes
+ * `"prerender"`, whose quotes terminate the literal and leave invalid JS behind.
+ * The build then dies far from the cause, with a bogus
+ * `Expected ";" but found "prerender"` in `.vinxi/build/ssr/assets/<page>.js`.
+ * Before that surfaced as a hard failure, such pages silently published the
+ * substituted text (`if ("prerender" === 'production')`).
+ *
+ * So a page carrying one of those tokens is emitted base64-encoded and decoded
+ * at runtime: base64 is `[A-Za-z0-9+/=]` only, so no token can appear in the
+ * module text at any stage. Escaping the token inside the literal instead does
+ * NOT work -- Vite re-prints string literals with `\u` escapes decoded, handing
+ * the verbatim token back to Nitro. Pages without such a token (nearly all of
+ * them) keep the plain, readable literal.
+ */
+export function serializeDocPageModule(content: string): string {
+  if (!BUILD_TOKEN_PREFIX.test(content)) {
+    return `export default ${JSON.stringify(content)};`;
+  }
+
+  const encoded = Buffer.from(content, "utf-8").toString("base64");
+  return (
+    `export default new TextDecoder().decode(` +
+    `Uint8Array.from(atob(${JSON.stringify(encoded)}), (c) => c.charCodeAt(0)));`
+  );
+}
+
 export async function build(config: YolodocsConfig): Promise<void> {
   console.log(`\n  yolodocs v${getVersion()} - GraphQL Documentation Generator\n`);
 
@@ -96,7 +132,7 @@ export async function build(config: YolodocsConfig): Promise<void> {
   for (const page of docsManifest.pages) {
     const pageFile = path.join(docsPagesDir, `${page.slug}.js`);
     fse.ensureDirSync(path.dirname(pageFile));
-    fs.writeFileSync(pageFile, `export default ${JSON.stringify(page.content)};`);
+    fs.writeFileSync(pageFile, serializeDocPageModule(page.content));
   }
 
   // Write site config for the SolidStart app

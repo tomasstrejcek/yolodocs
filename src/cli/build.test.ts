@@ -4,7 +4,7 @@ import fse from "fs-extra";
 import path from "node:path";
 import os from "node:os";
 import type { DocsManifest } from "../schema/types.js";
-import { buildNavigationManifest, toTitleCase } from "./build.js";
+import { buildNavigationManifest, serializeDocPageModule, toTitleCase } from "./build.js";
 
 /**
  * Regression test for Nitro prerender JSON corruption.
@@ -21,7 +21,25 @@ import { buildNavigationManifest, toTitleCase } from "./build.js";
  *  3. Content with problematic characters survives the round-trip
  */
 
-// Reproduces the content-splitting logic from build.ts
+/**
+ * Inverse of serializeDocPageModule, which emits one of two shapes:
+ * a plain `export default "<json>";`, or a base64 payload decoded at runtime
+ * for pages whose markdown mentions a bundler build token.
+ */
+function decodeDocPageModule(module: string): string {
+  expect(module.startsWith("export default ")).toBe(true);
+  expect(module.endsWith(";")).toBe(true);
+
+  const base64 = module.match(/atob\("([A-Za-z0-9+/=]*)"\)/);
+  if (base64) {
+    return Buffer.from(base64[1], "base64").toString("utf-8");
+  }
+
+  return JSON.parse(module.slice("export default ".length, -1));
+}
+
+// Reproduces the content-splitting logic from build.ts, but writes page modules
+// through the real serializer so the two cannot drift apart.
 function writeDocsData(dataDir: string, docsManifest: DocsManifest) {
   const docsManifestMeta = {
     pages: docsManifest.pages.map(({ content: _content, ...meta }) => meta),
@@ -36,7 +54,7 @@ function writeDocsData(dataDir: string, docsManifest: DocsManifest) {
   for (const page of docsManifest.pages) {
     const pageFile = path.join(docsPagesDir, `${page.slug}.js`);
     fse.ensureDirSync(path.dirname(pageFile));
-    fs.writeFileSync(pageFile, `export default ${JSON.stringify(page.content)};`);
+    fs.writeFileSync(pageFile, serializeDocPageModule(page.content));
   }
 }
 
@@ -132,6 +150,10 @@ describe("docs content splitting", () => {
       '```graphql\nquery { user(id: $id) { name } }\n```\n\n${injection}\n\nBackslash: \\ and quote: " end',
     ],
     [
+      "bundler build tokens",
+      "Skip in prod: `if (process.env.NODE_ENV === 'production') skip()`, and `import.meta.env.DEV`",
+    ],
+    [
       "large content with repeating patterns",
       "# Title\n\n".repeat(500) + "```\ncode block with `backticks` and ${vars}\n```\n".repeat(100),
     ],
@@ -156,16 +178,9 @@ describe("docs content splitting", () => {
     const written = JSON.parse(fs.readFileSync(path.join(tmpDir, "docs-manifest.json"), "utf-8"));
     expect(written.pages[0]).not.toHaveProperty("content");
 
-    // Verify the .js file content survives round-trip:
-    // The file contains `export default <JSON-stringified content>;`
-    // Extracting the JSON string and parsing it should yield the original
+    // Verify the .js file content survives round-trip
     const jsContent = fs.readFileSync(path.join(tmpDir, "docs-pages", "test-page.js"), "utf-8");
-    expect(jsContent.startsWith("export default ")).toBe(true);
-    expect(jsContent.endsWith(";")).toBe(true);
-
-    const jsonStr = jsContent.slice("export default ".length, -1);
-    const recovered = JSON.parse(jsonStr);
-    expect(recovered).toBe(content);
+    expect(decodeDocPageModule(jsContent)).toBe(content);
   });
 
   it("handles empty docs manifest", () => {
@@ -176,6 +191,62 @@ describe("docs content splitting", () => {
     const written = JSON.parse(fs.readFileSync(path.join(tmpDir, "docs-manifest.json"), "utf-8"));
     expect(written.pages).toHaveLength(0);
     expect(fs.existsSync(path.join(tmpDir, "docs-pages"))).toBe(true);
+  });
+});
+
+/**
+ * Regression test for build-token substitution inside doc content.
+ *
+ * Vite/vinxi and Nitro rewrite `process.env.NODE_ENV` and `import.meta.env.*`
+ * textually, string literals included. During the Nitro prerender pass the env
+ * var resolves to `prerender`, so a page that merely documents the token used to
+ * get `"prerender"` injected into the middle of its own module: the quotes
+ * terminated the literal and esbuild failed with `Expected ";" but found
+ * "prerender"` in `.vinxi/build/ssr/assets/<page>.js`.
+ */
+describe("serializeDocPageModule", () => {
+  const content = "Skip in prod: `if (process.env.NODE_ENV === 'production') skip()`";
+
+  // What the bundler does to every module text it processes, ours included.
+  const substituteBuildTokens = (module: string): string =>
+    module.replace(/process\.env\.NODE_ENV/g, JSON.stringify("prerender"));
+
+  it("keeps the token out of the emitted module text", () => {
+    const module = serializeDocPageModule(content);
+
+    expect(module).not.toContain("process.env.NODE_ENV");
+    expect(module).toContain("atob(");
+    expect(decodeDocPageModule(module)).toBe(content);
+  });
+
+  it("survives substitution that would break the naive serialization", () => {
+    // Naive: `export default "<content>";` -- the injected quotes escape the literal,
+    // leaving a module that is no longer valid JS.
+    const naive = substituteBuildTokens(`export default ${JSON.stringify(content)};`);
+    expect(() => JSON.parse(naive.slice("export default ".length, -1))).toThrow();
+
+    // Ours has nothing left to substitute, so the payload is untouched.
+    const module = serializeDocPageModule(content);
+    expect(substituteBuildTokens(module)).toBe(module);
+    expect(decodeDocPageModule(module)).toBe(content);
+  });
+
+  it("encodes pages mentioning import.meta too", () => {
+    const importMetaDoc = "Read `import.meta.env.DEV` at build time";
+    const module = serializeDocPageModule(importMetaDoc);
+
+    expect(module).not.toContain("import.meta");
+    expect(decodeDocPageModule(module)).toBe(importMetaDoc);
+  });
+
+  it("round-trips multi-byte content through the encoded form", () => {
+    const unicodeDoc = "Trial → `process.env.NODE_ENV` — ✅ 日本語";
+
+    expect(decodeDocPageModule(serializeDocPageModule(unicodeDoc))).toBe(unicodeDoc);
+  });
+
+  it("leaves content without build tokens as a plain readable literal", () => {
+    expect(serializeDocPageModule("# Hello")).toBe('export default "# Hello";');
   });
 });
 
