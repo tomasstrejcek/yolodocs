@@ -45,3 +45,4 @@ docs/                    Sample markdown docs (shipped as test fixtures)
 - Use `pnpm run build` / `pnpm run dev` in `src/site/` to invoke vinxi, not direct binary paths.
 - The internal CLI build still uses `npm install` inside the temp build dir (pnpm is not required on end-user machines).
 - Doc page content is split into individual `.js` files (not inlined in docs-manifest.json) to avoid Nitro prerender corruption with large JSON modules.
+- Those modules are written via `serializeDocPageModule` (src/cli/build.ts), never a bare `JSON.stringify`. Vite/vinxi and Nitro substitute `process.env.NODE_ENV` / `import.meta.env.*` textually, string literals included -- the serializer escapes those prefixes so a page that merely documents such a token does not get `"prerender"` injected mid-literal, which breaks the build with `Expected ";" but found "prerender"`.
