@@ -4,7 +4,12 @@ import fse from "fs-extra";
 import path from "node:path";
 import os from "node:os";
 import type { DocsManifest } from "../schema/types.js";
-import { buildNavigationManifest, serializeDocPageModule, toTitleCase } from "./build.js";
+import {
+  buildNavigationManifest,
+  isStrayDataPage,
+  serializeDocPageModule,
+  toTitleCase,
+} from "./build.js";
 
 /**
  * Regression test for Nitro prerender JSON corruption.
@@ -547,14 +552,8 @@ describe("buildNavigationManifest", () => {
   });
 });
 
-// The transformUrl function used in app.tsx for route matching.
-// Inline here to ensure the logic is tested independently of the component.
-const transformUrl = (url: string): string => {
-  if (url.endsWith("/index.html")) return url.slice(0, -"index.html".length) || "/";
-  return url.replace(/\.html$/, "");
-};
-
 // The navPath computation used in Sidebar.tsx onClick handlers.
+// Inline here to keep the assertion independent of the Solid component.
 // Doc anchors keep .html so navigate() pushes the real file URL; Cloud CDN / GCS
 // serves slug.html directly without needing directory-index fallback.
 const toNavPath = (anchor: string, isDocSection: boolean): string => {
@@ -567,28 +566,6 @@ const searchNavPath = (anchor: string): string => {
   const isRef = anchor.startsWith("#");
   return isRef ? `/reference${anchor}` : anchor; // keep .html for doc pages
 };
-
-describe("transformUrl (route matching)", () => {
-  it("strips .html from doc page paths", () => {
-    expect(transformUrl("/developer/authentication.html")).toBe("/developer/authentication");
-    expect(transformUrl("/getting-started.html")).toBe("/getting-started");
-  });
-
-  it("leaves clean paths unchanged", () => {
-    expect(transformUrl("/developer/authentication")).toBe("/developer/authentication");
-    expect(transformUrl("/")).toBe("/");
-    expect(transformUrl("/reference")).toBe("/reference");
-  });
-
-  it("maps /index.html to / so the root route matches correctly", () => {
-    expect(transformUrl("/index.html")).toBe("/");
-    expect(transformUrl("/base/index.html")).toBe("/base/");
-  });
-
-  it("does not modify reference hash paths", () => {
-    expect(transformUrl("/reference#queries")).toBe("/reference#queries");
-  });
-});
 
 describe("sidebar navPath (navigate() argument)", () => {
   it("passes .html doc anchors through unchanged", () => {
@@ -617,41 +594,21 @@ describe("searchDialog navPath (navigateTo argument)", () => {
   });
 });
 
-// The Pagefind URL normalizer used in search-client.ts to convert indexed
-// HTML URLs into router-friendly paths.
-const normalizePagefindUrl = (url: string, base: string): string => {
-  let path = url;
-  if (base && path.startsWith(base)) path = path.slice(base.length);
-  if (path.endsWith("/index.html")) path = path.slice(0, -"index.html".length);
-  else if (path.endsWith(".html")) path = path.slice(0, -".html".length);
-  if (path.length > 1 && path.endsWith("/")) path = path.slice(0, -1);
-  if (!path.startsWith("/")) path = "/" + path;
-  return path;
-};
+// Route-matching and Pagefind URL normalization live in src/site/src/lib/urls.ts
+// and are tested there, against the code the site actually imports.
 
-describe("pagefind url normalizer", () => {
-  it("strips .html suffix", () => {
-    expect(normalizePagefindUrl("/getting-started.html", "")).toBe("/getting-started");
-    expect(normalizePagefindUrl("/developer/authentication.html", "")).toBe(
-      "/developer/authentication",
-    );
+describe("isStrayDataPage", () => {
+  it("matches the SPA shell Nitro prerenders for data routes", () => {
+    expect(isStrayDataPage("docs.json.html")).toBe(true);
+    expect(isStrayDataPage("docs.json.html.gz")).toBe(true);
+    expect(isStrayDataPage("docs.json.html.br")).toBe(true);
+    expect(isStrayDataPage("developer/testing.md.html")).toBe(true);
   });
 
-  it("collapses /index.html to clean directory path", () => {
-    expect(normalizePagefindUrl("/getting-started/index.html", "")).toBe("/getting-started");
-    expect(normalizePagefindUrl("/index.html", "")).toBe("/");
-  });
-
-  it("strips base prefix before normalization", () => {
-    expect(normalizePagefindUrl("/foo/getting-started.html", "/foo")).toBe("/getting-started");
-    expect(normalizePagefindUrl("/foo/getting-started/index.html", "/foo")).toBe(
-      "/getting-started",
-    );
-  });
-
-  it("dedupes dual-output slug.html and slug/index.html to the same path", () => {
-    const a = normalizePagefindUrl("/getting-started.html", "");
-    const b = normalizePagefindUrl("/getting-started/index.html", "");
-    expect(a).toBe(b);
+  it("leaves real pages and the data files themselves alone", () => {
+    expect(isStrayDataPage("docs.json")).toBe(false);
+    expect(isStrayDataPage("developer/testing.md")).toBe(false);
+    expect(isStrayDataPage("developer/testing.html")).toBe(false);
+    expect(isStrayDataPage("index.html")).toBe(false);
   });
 });

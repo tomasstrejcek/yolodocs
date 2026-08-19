@@ -1,6 +1,14 @@
 import type { YolodocsConfig } from "./config.js";
 import type { NavigationManifest, ParsedSchema } from "../schema/types.js";
 /**
+ * True for prerendered pages of non-HTML routes, e.g. `docs.json.html`.
+ *
+ * Nitro's crawlLinks follows the in-page links to `/docs.json` and `/<slug>.md`
+ * and writes an SPA shell at `<link>.html`, which renders "Page Not Found" and
+ * would otherwise be a search hit.
+ */
+export declare function isStrayDataPage(relPath: string): boolean;
+/**
  * Serialize one doc page's markdown into a JS module for the site bundle.
  *
  * Vite/vinxi and Nitro substitute build tokens like `process.env.NODE_ENV` and

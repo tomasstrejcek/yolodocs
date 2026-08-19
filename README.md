@@ -120,6 +120,31 @@ docs/
 
 Root-level files are listed first, followed by folder groups sorted alphabetically. Each folder becomes a collapsible section in the sidebar, with its name derived from the folder name. Pages within each group are sorted by `order`, then by `title`.
 
+### Heading Anchors
+
+Every markdown heading gets a GitHub-compatible id (`## Adding a page` → `#adding-a-page`, repeats
+disambiguated with `-1`, `-2`, …), so in-page links you already write in your markdown resolve, and
+search results can deep-link to the section that matched.
+
+## Search
+
+Search is `⌘K` and combines two sources:
+
+- **Schema items** — matched client-side against the navigation manifest, linking to
+  `/reference#query-name`.
+- **Doc pages** — full text via [Pagefind](https://pagefind.app/), built after prerender.
+
+The index covers page content only: the header, sidebar, search dialog and page footers are marked
+`data-pagefind-ignore`, so a word from the site chrome no longer matches every page. Long pages
+report the heading that matched (Pagefind sub-results), and results keep their `.html` URL so a hard
+refresh on a result still serves the page.
+
+Pagefind indexes every `.html` file under the output directory. The build therefore uses a scratch
+directory *outside* the output (set `YOLODOCS_BUILD_DIR` to place it somewhere specific,
+`YOLODOCS_DEBUG=1` to keep it) — when the scratch directory lived inside the output, every page was
+indexed a second time under a path that 404s. Search results are also filtered against the pages the
+build actually emitted, so unexpected HTML under the output root can never become a clickable result.
+
 ## CI/CD
 
 ```yaml
@@ -164,6 +189,7 @@ End-to-end test with a real schema:
 ```bash
 rm -rf test-output && node dist/bin/yolodocs.js --schema schema.graphql --output test-output --title "Test API" --docs-dir ./docs
 npx serve test-output -p 3456
+npx playwright test    # drives navigation and search against a real build
 ```
 
 `dist/` is committed to git so the tool works via `npx github:tomasstrejcek/yolodocs`. After changing source files, run `npm run build` and commit `dist/` alongside your changes.

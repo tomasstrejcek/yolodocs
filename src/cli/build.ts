@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import fse from "fs-extra";
 import path from "node:path";
+import os from "node:os";
 import { execSync, spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import type { YolodocsConfig } from "./config.js";
@@ -28,6 +29,35 @@ function getVersion(): string {
 function getSiteTemplatePath(): string {
   // Navigate from dist/src/cli/ up to project root, then into src/site/
   return path.resolve(__dirname, "../../../src/site");
+}
+
+/**
+ * Scratch dir for the SolidStart build, deliberately outside the output dir.
+ *
+ * Pagefind indexes every .html file under the output root, so a scratch dir
+ * nested there (the old `<output>/.build-tmp`) got indexed too: every page
+ * appeared a second time as `/.build-tmp/.output/public/<slug>.html`, plus
+ * stray pages from `node_modules`, and clicking one 404s.
+ */
+function createBuildDir(): string {
+  const override = process.env.YOLODOCS_BUILD_DIR;
+  if (override) {
+    const dir = path.resolve(process.cwd(), override);
+    fse.ensureDirSync(dir);
+    return dir;
+  }
+  return fs.mkdtempSync(path.join(os.tmpdir(), "yolodocs-build-"));
+}
+
+/**
+ * True for prerendered pages of non-HTML routes, e.g. `docs.json.html`.
+ *
+ * Nitro's crawlLinks follows the in-page links to `/docs.json` and `/<slug>.md`
+ * and writes an SPA shell at `<link>.html`, which renders "Page Not Found" and
+ * would otherwise be a search hit.
+ */
+export function isStrayDataPage(relPath: string): boolean {
+  return /\.(json|md)\.html(\.(br|gz))?$/.test(relPath);
 }
 
 // Prefixes whose full tokens (`process.env.NODE_ENV`, `import.meta.env.DEV`, ...)
@@ -99,7 +129,7 @@ export async function build(config: YolodocsConfig): Promise<void> {
 
   const siteTemplateDir = getSiteTemplatePath();
   const outputDir = path.resolve(process.cwd(), config.output);
-  const buildDir = path.join(outputDir, ".build-tmp");
+  const buildDir = createBuildDir();
 
   // Copy site template to build dir
   fse.ensureDirSync(buildDir);
@@ -214,6 +244,11 @@ export async function build(config: YolodocsConfig): Promise<void> {
         "This often happens in Docker/CI environments due to Node version incompatibilities. " +
         "Run with YOLODOCS_DEBUG=1 to keep the build directory for inspection.",
     );
+  }
+
+  const pruned = pruneStrayDataPages(outputDir);
+  if (pruned > 0) {
+    console.log(`        Removed ${pruned} stray prerendered data-route page(s)`);
   }
 
   // Write raw markdown files so /<slug>.md serves the source
@@ -571,6 +606,23 @@ function findHtmlFiles(dir: string): string[] {
     }
   }
   return results;
+}
+
+function pruneStrayDataPages(outputDir: string): number {
+  let removed = 0;
+  const walk = (dir: string): void => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        walk(full);
+      } else if (isStrayDataPage(entry.name)) {
+        fs.rmSync(full);
+        removed++;
+      }
+    }
+  };
+  walk(outputDir);
+  return removed;
 }
 
 function serveOutput(config: YolodocsConfig): Promise<void> {

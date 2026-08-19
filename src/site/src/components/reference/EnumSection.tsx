@@ -18,11 +18,13 @@ export function EnumSection() {
 
         <For each={enums}>
           {(enumDef: any) => (
-            <div
-              id={`enum-${enumDef.name}`}
-              class="mb-8 pb-8 border-b border-border-secondary last:border-b-0 scroll-mt-16"
-            >
-              <h3 class="text-lg font-semibold text-text-primary font-mono">{enumDef.name}</h3>
+            <div class="mb-8 pb-8 border-b border-border-secondary last:border-b-0">
+              <h3
+                id={`enum-${enumDef.name}`}
+                class="text-lg font-semibold text-text-primary font-mono scroll-mt-16"
+              >
+                {enumDef.name}
+              </h3>
 
               <DescriptionBlock text={enumDef.description} />
 

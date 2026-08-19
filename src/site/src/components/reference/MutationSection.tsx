@@ -30,11 +30,11 @@ export function MutationSection() {
             const next = i() < mutations.length - 1 ? mutations[i() + 1] : null;
             return (
               <div class="flex flex-col xl:flex-row border-b border-border-secondary last:border-b-0">
-                <div
-                  id={`mutation-${mutation.name}`}
-                  class="flex-1 min-w-0 px-6 py-6 xl:px-8 xl:max-w-[55%] scroll-mt-16"
-                >
-                  <h3 class="text-lg font-semibold text-text-primary font-mono flex items-center gap-2 flex-wrap">
+                <div class="flex-1 min-w-0 px-6 py-6 xl:px-8 xl:max-w-[55%]">
+                  <h3
+                    id={`mutation-${mutation.name}`}
+                    class="text-lg font-semibold text-text-primary font-mono flex items-center gap-2 flex-wrap scroll-mt-16"
+                  >
                     {mutation.name}
                     <span class="px-2 py-0.5 text-xs font-medium rounded bg-accent-red/15 text-accent-red font-sans">
                       Mutation

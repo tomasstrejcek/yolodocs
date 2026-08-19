@@ -205,6 +205,7 @@ export function SearchDialog(props: { open: boolean; onClose: () => void }) {
                     const flatIdx = i;
                     return (
                       <button
+                        data-testid="schema-result"
                         class="w-full flex items-center gap-2.5 px-4 py-2 text-left hover:bg-bg-hover transition-colors"
                         classList={{ "bg-bg-hover": selectedIndex() === flatIdx() }}
                         onClick={() => navigateTo(result)}
@@ -236,6 +237,7 @@ export function SearchDialog(props: { open: boolean; onClose: () => void }) {
                     const flatIdx = () => schemaHits().length + i();
                     return (
                       <button
+                        data-testid="docs-result"
                         class="w-full flex flex-col gap-0.5 px-4 py-2 text-left hover:bg-bg-hover transition-colors"
                         classList={{ "bg-bg-hover": selectedIndex() === flatIdx() }}
                         onClick={() => navigateTo(result)}

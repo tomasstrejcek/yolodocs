@@ -18,11 +18,13 @@ export function ScalarSection() {
         <div class="grid gap-3 sm:grid-cols-2">
           <For each={scalars}>
             {(scalar: any) => (
-              <div
-                id={`scalar-${scalar.name}`}
-                class="p-4 border border-border-primary rounded-lg bg-bg-secondary/30 scroll-mt-16"
-              >
-                <h3 class="text-base font-semibold text-text-primary font-mono">{scalar.name}</h3>
+              <div class="p-4 border border-border-primary rounded-lg bg-bg-secondary/30">
+                <h3
+                  id={`scalar-${scalar.name}`}
+                  class="text-base font-semibold text-text-primary font-mono scroll-mt-16"
+                >
+                  {scalar.name}
+                </h3>
                 <DescriptionBlock text={scalar.description} />
               </div>
             )}

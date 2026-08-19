@@ -5,6 +5,7 @@ node_modules
 .vinxi
 docs-site
 test-output
+test-output-search
 graphql-docs
 *.build-tmp
 src/site/node_modules

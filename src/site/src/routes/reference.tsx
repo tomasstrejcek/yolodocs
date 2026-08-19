@@ -29,7 +29,7 @@ export default function Reference() {
 
   return (
     <Shell>
-      <div>
+      <div data-pagefind-meta="title:API Reference">
         <QuerySection />
         <MutationSection />
         <TypeSection />
@@ -38,7 +38,7 @@ export default function Reference() {
         <UnionSection />
         <InputSection />
         <ScalarSection />
-        <div class="px-6 py-8 text-sm text-text-muted text-center space-y-1">
+        <div data-pagefind-ignore class="px-6 py-8 text-sm text-text-muted text-center space-y-1">
           <p>
             Generated with{" "}
             <a

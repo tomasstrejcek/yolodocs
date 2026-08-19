@@ -48,12 +48,26 @@ export default function DocsPage() {
     }
   });
 
+  // Search results and cross-page links carry a heading anchor. The target only
+  // exists once the markdown resource has rendered, so scroll after content().
+  createEffect(() => {
+    const hash = location.hash;
+    if (!hash || !content()) return;
+    requestAnimationFrame(() => {
+      // A slug may start with a digit, which is a valid id but not a valid
+      // selector — getElementById takes it verbatim.
+      document.getElementById(decodeURIComponent(hash.slice(1)))?.scrollIntoView({
+        behavior: "instant",
+      });
+    });
+  });
+
   return (
     <Shell>
       <Show
         when={page()}
         fallback={
-          <div class="max-w-3xl mx-auto px-6 py-8">
+          <div data-pagefind-ignore class="max-w-3xl mx-auto px-6 py-8">
             <h1 class="text-2xl font-bold text-text-primary mb-4">Page Not Found</h1>
             <p class="text-text-secondary">
               The documentation page you're looking for doesn't exist.
