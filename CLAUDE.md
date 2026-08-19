@@ -44,5 +44,8 @@ docs/                    Sample markdown docs (shipped as test fixtures)
 - `marked` v14 renderer.code uses `({ text, lang })` object param, not positional args.
 - Use `pnpm run build` / `pnpm run dev` in `src/site/` to invoke vinxi, not direct binary paths.
 - The internal CLI build still uses `npm install` inside the temp build dir (pnpm is not required on end-user machines).
+- Never put build scratch files under the output dir. Pagefind indexes every `.html` under `--site`, so the old `<output>/.build-tmp` shipped a duplicate of every page (plus `node_modules` stray pages) as `/.build-tmp/.output/public/<slug>.html` results that 404. `createBuildDir()` keeps the scratch dir in `os.tmpdir()`.
+- Anything the search index must not contain needs `data-pagefind-ignore` (chrome, footers, the not-found fallback); page content lives under the one `data-pagefind-body` on `<main>` in Shell.tsx. If no element on a page carries `data-pagefind-body`, Pagefind drops the page entirely.
+- Anchor ids belong on the heading element, not a wrapper div -- Pagefind builds sub-results (the deep links search returns) from `h1`-`h6` that have an id.
 - Doc page content is split into individual `.js` files (not inlined in docs-manifest.json) to avoid Nitro prerender corruption with large JSON modules.
 - Those modules are written via `serializeDocPageModule` (src/cli/build.ts), never a bare `JSON.stringify`. Vite/vinxi and Nitro substitute `process.env.NODE_ENV` / `import.meta.env.*` textually, string literals included -- the serializer escapes those prefixes so a page that merely documents such a token does not get `"prerender"` injected mid-literal, which breaks the build with `Expected ";" but found "prerender"`.

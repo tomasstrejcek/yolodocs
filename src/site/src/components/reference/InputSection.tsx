@@ -18,11 +18,13 @@ export function InputSection() {
 
         <For each={inputs}>
           {(input: any) => (
-            <div
-              id={`input-${input.name}`}
-              class="mb-8 pb-8 border-b border-border-secondary last:border-b-0 scroll-mt-16"
-            >
-              <h3 class="text-lg font-semibold text-text-primary font-mono">{input.name}</h3>
+            <div class="mb-8 pb-8 border-b border-border-secondary last:border-b-0">
+              <h3
+                id={`input-${input.name}`}
+                class="text-lg font-semibold text-text-primary font-mono scroll-mt-16"
+              >
+                {input.name}
+              </h3>
 
               <DescriptionBlock text={input.description} />
 

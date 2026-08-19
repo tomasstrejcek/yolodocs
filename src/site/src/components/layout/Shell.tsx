@@ -29,8 +29,12 @@ export function Shell(props: { children: JSX.Element }) {
 
   return (
     <div class="min-h-screen bg-bg-primary">
-      {/* Top bar */}
-      <header class="sticky top-0 z-40 flex items-center h-14 border-b border-border-primary bg-bg-secondary/80 backdrop-blur-sm px-4">
+      {/* Top bar. data-pagefind-ignore keeps the chrome out of the search index —
+          without it every page matched on "Search", the site title and the nav. */}
+      <header
+        data-pagefind-ignore
+        class="sticky top-0 z-40 flex items-center h-14 border-b border-border-primary bg-bg-secondary/80 backdrop-blur-sm px-4"
+      >
         <button
           class="lg:hidden mr-3 text-text-secondary hover:text-text-primary"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen())}
@@ -106,21 +110,31 @@ export function Shell(props: { children: JSX.Element }) {
 
       <div class="flex">
         {/* Desktop sidebar */}
-        <aside class="hidden lg:block w-64 shrink-0 border-r border-border-primary sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto">
+        <aside
+          data-pagefind-ignore
+          class="hidden lg:block w-64 shrink-0 border-r border-border-primary sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto"
+        >
           <Sidebar />
         </aside>
 
         {/* Mobile sidebar */}
-        <MobileNav open={mobileMenuOpen()} onClose={() => setMobileMenuOpen(false)}>
-          <Sidebar onNavigate={() => setMobileMenuOpen(false)} />
-        </MobileNav>
+        <div data-pagefind-ignore>
+          <MobileNav open={mobileMenuOpen()} onClose={() => setMobileMenuOpen(false)}>
+            <Sidebar onNavigate={() => setMobileMenuOpen(false)} />
+          </MobileNav>
+        </div>
 
-        {/* Main content */}
-        <main class="flex-1 min-w-0">{props.children}</main>
+        {/* Main content. data-pagefind-body scopes the search index to page
+            content; Pagefind then drops every page that has no such region. */}
+        <main data-pagefind-body class="flex-1 min-w-0">
+          {props.children}
+        </main>
       </div>
 
       {/* Search dialog */}
-      <SearchDialog open={searchOpen()} onClose={() => setSearchOpen(false)} />
+      <div data-pagefind-ignore>
+        <SearchDialog open={searchOpen()} onClose={() => setSearchOpen(false)} />
+      </div>
     </div>
   );
 }

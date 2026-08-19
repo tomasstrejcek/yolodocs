@@ -18,11 +18,13 @@ export function InterfaceSection() {
 
         <For each={interfaces}>
           {(iface: any) => (
-            <div
-              id={`interface-${iface.name}`}
-              class="mb-8 pb-8 border-b border-border-secondary last:border-b-0 scroll-mt-16"
-            >
-              <h3 class="text-lg font-semibold text-text-primary font-mono">{iface.name}</h3>
+            <div class="mb-8 pb-8 border-b border-border-secondary last:border-b-0">
+              <h3
+                id={`interface-${iface.name}`}
+                class="text-lg font-semibold text-text-primary font-mono scroll-mt-16"
+              >
+                {iface.name}
+              </h3>
 
               <DescriptionBlock text={iface.description} />
 
