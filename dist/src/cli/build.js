@@ -15,6 +15,18 @@ const __dirname = path.dirname(__filename);
 export function invokingPackageManager(userAgent) {
     return userAgent?.startsWith("pnpm/") ? "pnpm" : "npm";
 }
+// pnpm 12 refuses an install whose dependencies have unapproved build scripts, and the site needs
+// these two to build.
+const SITE_PNPM_WORKSPACE = `allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+`;
+function installSiteDependencies(packageManager, buildDir) {
+    if (packageManager === "pnpm") {
+        fs.writeFileSync(path.join(buildDir, "pnpm-workspace.yaml"), SITE_PNPM_WORKSPACE);
+    }
+    execSync(`${packageManager} install`, { cwd: buildDir, stdio: "pipe" });
+}
 function getVersion() {
     const pkgPath = path.resolve(__dirname, "../../../package.json");
     try {
@@ -172,7 +184,7 @@ export async function build(config) {
     const packageManager = invokingPackageManager(process.env.npm_config_user_agent);
     // Install dependencies and build
     console.log("        Installing dependencies...");
-    execSync(`${packageManager} install`, { cwd: buildDir, stdio: "pipe" });
+    installSiteDependencies(packageManager, buildDir);
     console.log("        Running SolidStart build...");
     let buildOutput;
     try {
@@ -506,7 +518,7 @@ export function buildNavigationManifest(schema, docsManifest, _base) {
 async function runDevServer(buildDir) {
     const packageManager = invokingPackageManager(process.env.npm_config_user_agent);
     console.log("        Installing dependencies...");
-    execSync(`${packageManager} install`, { cwd: buildDir, stdio: "pipe" });
+    installSiteDependencies(packageManager, buildDir);
     console.log("\n  Starting dev server...\n");
     const child = spawn(packageManager, ["run", "dev"], {
         cwd: buildDir,
