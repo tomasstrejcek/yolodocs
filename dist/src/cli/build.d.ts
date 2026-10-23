@@ -1,5 +1,6 @@
 import type { YolodocsConfig } from "./config.js";
 import type { NavigationManifest, ParsedSchema } from "../schema/types.js";
+export declare function invokingPackageManager(userAgent: string | undefined): "pnpm" | "npm";
 /**
  * True for prerendered pages of non-HTML routes, e.g. `docs.json.html`.
  *
