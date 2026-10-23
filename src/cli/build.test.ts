@@ -6,6 +6,7 @@ import os from "node:os";
 import type { DocsManifest } from "../schema/types.js";
 import {
   buildNavigationManifest,
+  invokingPackageManager,
   isStrayDataPage,
   serializeDocPageModule,
   toTitleCase,
@@ -610,5 +611,18 @@ describe("isStrayDataPage", () => {
     expect(isStrayDataPage("developer/testing.md")).toBe(false);
     expect(isStrayDataPage("developer/testing.html")).toBe(false);
     expect(isStrayDataPage("index.html")).toBe(false);
+  });
+});
+
+describe("invokingPackageManager", () => {
+  it("uses pnpm when pnpm launched yolodocs", () => {
+    expect(invokingPackageManager("pnpm/12.10.1 npm/? node/v24.22.1 darwin arm64")).toBe("pnpm");
+  });
+
+  it("falls back to npm for npx and an unset user agent", () => {
+    expect(invokingPackageManager("npm/10.9.0 node/v24.22.1 darwin arm64 workspaces/false")).toBe(
+      "npm",
+    );
+    expect(invokingPackageManager(undefined)).toBe("npm");
   });
 });

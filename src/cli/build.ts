@@ -17,6 +17,12 @@ import type { NavigationManifest, NavigationSection, ParsedSchema } from "../sch
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Under `pnpm dlx` the machine may have no npm at all, so the build dir is installed and run with
+// whichever package manager launched yolodocs.
+export function invokingPackageManager(userAgent: string | undefined): "pnpm" | "npm" {
+  return userAgent?.startsWith("pnpm/") ? "pnpm" : "npm";
+}
+
 function getVersion(): string {
   const pkgPath = path.resolve(__dirname, "../../../package.json");
   try {
@@ -198,14 +204,19 @@ export async function build(config: YolodocsConfig): Promise<void> {
     return runDevServer(buildDir);
   }
 
+  const packageManager = invokingPackageManager(process.env.npm_config_user_agent);
+
   // Install dependencies and build
   console.log("        Installing dependencies...");
-  execSync("npm install", { cwd: buildDir, stdio: "pipe" });
+  execSync(`${packageManager} install`, { cwd: buildDir, stdio: "pipe" });
 
   console.log("        Running SolidStart build...");
   let buildOutput: string;
   try {
-    buildOutput = execSync("npm run build 2>&1", { cwd: buildDir, encoding: "utf-8" });
+    buildOutput = execSync(`${packageManager} run build 2>&1`, {
+      cwd: buildDir,
+      encoding: "utf-8",
+    });
   } catch (err: any) {
     console.error("\n        SolidStart build failed:");
     console.error(err.stdout || err.stderr || err.message);
@@ -294,7 +305,8 @@ export async function build(config: YolodocsConfig): Promise<void> {
   // Step 6: Post-build - Pagefind indexing
   console.log("  [5/5] Indexing for search...");
   try {
-    execSync(`npm exec -- pagefind --site "${outputDir}" --output-subdir _pagefind`, {
+    const exec = packageManager === "pnpm" ? "pnpm exec" : "npm exec --";
+    execSync(`${exec} pagefind --site "${outputDir}" --output-subdir _pagefind`, {
       cwd: buildDir,
       stdio: "pipe",
     });
@@ -580,11 +592,12 @@ export function buildNavigationManifest(
 }
 
 async function runDevServer(buildDir: string): Promise<void> {
+  const packageManager = invokingPackageManager(process.env.npm_config_user_agent);
   console.log("        Installing dependencies...");
-  execSync("npm install", { cwd: buildDir, stdio: "pipe" });
+  execSync(`${packageManager} install`, { cwd: buildDir, stdio: "pipe" });
 
   console.log("\n  Starting dev server...\n");
-  const child = spawn("npm", ["run", "dev"], {
+  const child = spawn(packageManager, ["run", "dev"], {
     cwd: buildDir,
     stdio: "inherit",
     shell: true,
