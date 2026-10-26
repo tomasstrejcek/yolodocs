@@ -44,6 +44,7 @@ docs/                    Sample markdown docs (shipped as test fixtures)
 - `marked` v14 renderer.code uses `({ text, lang })` object param, not positional args.
 - Use `pnpm run build` / `pnpm run dev` in `src/site/` to invoke vinxi, not direct binary paths.
 - The internal CLI build installs and builds the temp build dir with the package manager that launched yolodocs (`npm_config_user_agent`): pnpm under `pnpm dlx`, npm otherwise. Neither is required on its own.
+- The temp build dir is outside every workspace, so `writeSiteWorkspaceConfig` writes its own `pnpm-workspace.yaml` build allow-list; pnpm 11+ fails an install with unapproved build scripts. Use `allowBuilds`, not `onlyBuiltDependencies`, which pnpm 12 ignores. The list must match the root `pnpm-workspace.yaml` (a test enforces it).
 - Never put build scratch files under the output dir. Pagefind indexes every `.html` under `--site`, so the old `<output>/.build-tmp` shipped a duplicate of every page (plus `node_modules` stray pages) as `/.build-tmp/.output/public/<slug>.html` results that 404. `createBuildDir()` keeps the scratch dir in `os.tmpdir()`.
 - Anything the search index must not contain needs `data-pagefind-ignore` (chrome, footers, the not-found fallback); page content lives under the one `data-pagefind-body` on `<main>` in Shell.tsx. If no element on a page carries `data-pagefind-body`, Pagefind drops the page entirely.
 - Anchor ids belong on the heading element, not a wrapper div -- Pagefind builds sub-results (the deep links search returns) from `h1`-`h6` that have an id.
