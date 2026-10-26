@@ -1,6 +1,17 @@
 import type { YolodocsConfig } from "./config.js";
 import type { NavigationManifest, ParsedSchema } from "../schema/types.js";
 export declare function invokingPackageManager(userAgent: string | undefined): "pnpm" | "npm";
+/** Site dependencies whose install scripts must run for the SolidStart build. */
+export declare const SITE_BUILD_DEPENDENCIES: string[];
+/**
+ * Gives the build dir its own pnpm build allow-list.
+ *
+ * The build dir sits outside any workspace, so the repo's `pnpm-workspace.yaml`
+ * does not reach it, and pnpm 11+ fails an install whose build scripts it had
+ * to skip (`ERR_PNPM_IGNORED_BUILDS`). The key is `allowBuilds`: pnpm 12
+ * ignores the older `onlyBuiltDependencies`. npm never reads this file.
+ */
+export declare function writeSiteWorkspaceConfig(buildDir: string): void;
 /**
  * True for prerendered pages of non-HTML routes, e.g. `docs.json.html`.
  *

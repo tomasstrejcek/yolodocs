@@ -45,6 +45,20 @@ function createBuildDir() {
     }
     return fs.mkdtempSync(path.join(os.tmpdir(), "yolodocs-build-"));
 }
+/** Site dependencies whose install scripts must run for the SolidStart build. */
+export const SITE_BUILD_DEPENDENCIES = ["@parcel/watcher", "esbuild"];
+/**
+ * Gives the build dir its own pnpm build allow-list.
+ *
+ * The build dir sits outside any workspace, so the repo's `pnpm-workspace.yaml`
+ * does not reach it, and pnpm 11+ fails an install whose build scripts it had
+ * to skip (`ERR_PNPM_IGNORED_BUILDS`). The key is `allowBuilds`: pnpm 12
+ * ignores the older `onlyBuiltDependencies`. npm never reads this file.
+ */
+export function writeSiteWorkspaceConfig(buildDir) {
+    const entries = SITE_BUILD_DEPENDENCIES.map((name) => `  '${name}': true`).join("\n");
+    fs.writeFileSync(path.join(buildDir, "pnpm-workspace.yaml"), `allowBuilds:\n${entries}\n`);
+}
 /**
  * True for prerendered pages of non-HTML routes, e.g. `docs.json.html`.
  *
@@ -119,6 +133,7 @@ export async function build(config) {
             return !rel.includes("node_modules") && !rel.includes(".vinxi");
         },
     });
+    writeSiteWorkspaceConfig(buildDir);
     // Inject data files
     const dataDir = path.join(buildDir, "src", "data");
     fse.ensureDirSync(dataDir);

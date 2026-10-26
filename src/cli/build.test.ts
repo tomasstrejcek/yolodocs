@@ -9,7 +9,9 @@ import {
   invokingPackageManager,
   isStrayDataPage,
   serializeDocPageModule,
+  SITE_BUILD_DEPENDENCIES,
   toTitleCase,
+  writeSiteWorkspaceConfig,
 } from "./build.js";
 
 /**
@@ -624,5 +626,36 @@ describe("invokingPackageManager", () => {
       "npm",
     );
     expect(invokingPackageManager(undefined)).toBe("npm");
+  });
+});
+
+describe("writeSiteWorkspaceConfig", () => {
+  let dir: string;
+
+  beforeEach(() => {
+    dir = fs.mkdtempSync(path.join(os.tmpdir(), "yolodocs-ws-test-"));
+  });
+
+  afterEach(() => {
+    fse.removeSync(dir);
+  });
+
+  it("allows every site build dependency under the key pnpm 12 reads", () => {
+    writeSiteWorkspaceConfig(dir);
+    const yaml = fs.readFileSync(path.join(dir, "pnpm-workspace.yaml"), "utf-8");
+    expect(yaml.startsWith("allowBuilds:\n")).toBe(true);
+    for (const name of SITE_BUILD_DEPENDENCIES) {
+      expect(yaml).toContain(`  '${name}': true\n`);
+    }
+  });
+
+  it("covers what the repo workspace allows, so the build dir cannot drift from it", () => {
+    const rootYaml = fs.readFileSync(
+      path.resolve(import.meta.dirname, "../../pnpm-workspace.yaml"),
+      "utf-8",
+    );
+    const allowed = [...rootYaml.matchAll(/^  '?([^':]+)'?: true$/gm)].map((m) => m[1]);
+    expect(allowed.length).toBeGreaterThan(0);
+    expect([...SITE_BUILD_DEPENDENCIES].sort()).toEqual(allowed.sort());
   });
 });
